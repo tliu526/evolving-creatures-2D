@@ -14,11 +14,13 @@ function onLoad() {
 
     for (i = 0; i < 5; i++) {
 	var options = {
-	    x        : Math.random()*_window.width,
-	    y        : Math.random()*_window.height / 2,
-	    r        : Math.random()*50 + 5,
-	    fill     : rainbow[Math.floor(Math.random()*rainbow.length)],
-	    isStatic : false
+	    x           : Math.random()*_window.width,
+	    y           : Math.random()*_window.height / 2,
+	    r           : Math.random()*50 + 5,
+	    density     : Math.random(),
+	    restitution : Math.random(),
+	    fill        : rainbow[Math.floor(Math.random()*rainbow.length)],
+	    isStatic    : false
 	}
 	
 	shapes.push(new Circle(options));
@@ -57,10 +59,11 @@ function onGraphics() {
 function onClick() {
     for (i = 0; i < shapes.length; i++) {
 	if (!shapes[i].isStatic) {
-	    var options;
-	    options.fill = rainbow[Math.floor(Math.random()*rainbow.length)];
-	    option.x = Math.random()*_window.width;
-	    option.y = Math.random()*_window.height / (2*SCALE);
+	    var options = {
+		fill : rainbow[Math.floor(Math.random()*rainbow.length)],
+		x    : Math.random()*_window.width,
+		y    : Math.random()*_window.height / (2*SCALE)
+	    }
 
 	    shapes[i].update(options);
 	}

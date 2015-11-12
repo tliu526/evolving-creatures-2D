@@ -1,10 +1,12 @@
 function Shape(options) {
-    this.x =          options.x        || 0;
-    this.y =          options.y        || 0;
-    this.angle =      options.angle    || 0;
-    this.fill =       options.fill     || 0xFFFFFF;
-    this.isStatic =   options.isStatic;
-    this.pixi =       new PIXI.Graphics();
+    this.x =           options.x          || 0;
+    this.y =           options.y          || 0;
+    this.angle =       options.angle      || 0;
+    this.fill =        options.fill       || 0x000000;
+    this.density =     options.density    || 0.5;
+    this.restitution = options.restituion || 0.2;
+    this.isStatic =    options.isStatic   || false;
+    this.pixi =        new PIXI.Graphics();
     
     this.update = function(options) {
 	if (!this.isStatic) {
@@ -36,9 +38,9 @@ function Circle(options) {
 
     this.addToWorld = function() {
 	var fixDef = new b2FixtureDef;
-	fixDef.density = 1.0;
+	fixDef.density = this.density;
 	fixDef.friction = 0.5;
-	fixDef.restitution = 0.2;
+	fixDef.restitution = this.restitution;
 	fixDef.shape = new b2CircleShape(this.r / SCALE);
 	this.body.CreateFixture(fixDef);
     }
@@ -73,9 +75,9 @@ function Rect(options) {
 
     this.addToWorld = function() {
 	var fixDef = new b2FixtureDef;
-	fixDef.density = 1.0;
+	fixDef.density = this.density;
 	fixDef.friction = 0.5;
-	fixDef.restitution = 0.2;
+	fixDef.restitution = this.restitution;
 	fixDef.shape= new b2PolygonShape();
 	fixDef.shape.SetAsBox(this.width / (2*SCALE), this.height / (2*SCALE));
 	this.body.CreateFixture(fixDef);
