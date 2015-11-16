@@ -119,7 +119,40 @@ function Spring(options){
 }
 Spring.prototype = Component;
 
+/*
+params REQUIRED:
+- bodyA
+- bodyB
+- axis
+- lowerLimit
+- upperLimit
+- motorSpeed
+- maxMotorForce
+?- restLength
+?- damping [0,1]
+?- frequency
+*/
 function Muscle(options){
+    Component.call(this, options);
 
+    var prism_joint = new b2PrismaticJointDef();
+    prism_joint.bodyA = options.bodyA;
+    prism_joint.bodyB = options.bodyB;
+    prism_joint.localAnchorA = new b2Vec2(0,0);
+    prism_joint.localAnchorB = new b2Vec2(0,0);
+    prism_joint.axis = options.axis;
+
+    // FIGURE OUT WHAT THESE MEAN
+    prism_joint.enableLimit = true;
+    prism_joint.lowerTranslation = options.lowerLimit;
+    prism_joint.upperTranslation = options.upperLimit;
+    prism_joint.motorSpeed = options.motorSpeed;
+    prism_joint.maxMotorForce = options.maxMotorForce;
+    prism_joint.enableMotor = true;
+    prism_joint.collideConnected = true;
+
+    this.addToWorld = function() {
+	world.CreateJoint(prism_joint);
+    }
 }
 Muscle.prototype = Component;

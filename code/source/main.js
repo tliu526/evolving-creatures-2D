@@ -22,24 +22,55 @@ function onLoad() {
         components[i].addToWorld();
     }
 
-    for(var i = 0; i < 10; i++){
+    var connected = new Array(masses.length * masses.length);
+    for(var i = 0; i < connected.length; i++) {
+	connected[i] = false;
+    }
 
-        var bA = masses[Math.floor(Math.random()*masses.length)]
-        var bB = masses[Math.floor(Math.random()*masses.length)]
-        while (bA == bB){
-            bB = masses[Math.floor(Math.random()*masses.length)]
+    for(var i = 0; i < 20; i++) {
+	
+	iA = Math.floor(Math.random()*masses.length);
+	iB = Math.floor(Math.random()*masses.length);
+        while (iA == iB 
+	       || connected[iA + masses.length * iB] 
+	       || connected[iB + masses.length * iA]) {
+            iB = Math.floor(Math.random()*masses.length);
         }
 
-        var spring_options = {
-            bodyA : bA,             
-            bodyB : bB,
-            restLength : Math.random()*50 + 15,
-            damping : Math.random() / 2.0,
-            frequency : Math.random()*50
-        }
+	connected[iA + masses.length * iB] = true;
+	connected[iB + masses.length * iA] = true;
 
-        var spring = new Spring(spring_options);
-        spring.addToWorld();
+        var bA = masses[iB]
+        var bB = masses[iA]
+
+	
+	if (Math.random() < 0.5) {
+	    var spring_options = {
+		bodyA : bA,             
+		bodyB : bB,
+		restLength : Math.random()*50 + 15,
+		damping : Math.random() / 2.0,
+		frequency : Math.random()*50
+	    }
+	    
+	    var spring = new Spring(spring_options);
+	    spring.addToWorld();
+	} else {
+	    theta = Math.random()*Math.PI*2;
+
+	    var muscle_options = {
+		bodyA : bA,             
+		bodyB : bB,
+		lowerLimit : 0,
+		upperLimit : Math.random()*1.5 + 1.0,
+		motorSpeed : Math.random()*4.0 + 1.0,
+		maxMotorForce: Math.random()*300.0 + 200.0,
+		axis : new b2Vec2(Math.cos(theta), Math.sin(theta))
+	    }
+	    
+	    var muscle = new Muscle(muscle_options);
+	    muscle.addToWorld();
+	}
     }
 
 

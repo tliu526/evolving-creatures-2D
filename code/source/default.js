@@ -10,7 +10,8 @@ var b2Vec2 = Box2D.Common.Math.b2Vec2,
     b2CircleShape = Box2D.Collision.Shapes.b2CircleShape,
     b2DebugDraw = Box2D.Dynamics.b2DebugDraw,
     b2MouseJointDef =  Box2D.Dynamics.Joints.b2MouseJointDef,
-    b2DistanceJointDef =  Box2D.Dynamics.Joints.b2DistanceJointDef;
+    b2DistanceJointDef =  Box2D.Dynamics.Joints.b2DistanceJointDef,
+    b2PrismaticJointDef =  Box2D.Dynamics.Joints.b2PrismaticJointDef;
 
 var SCALE = 30;
 //var _window;
@@ -35,12 +36,12 @@ function addRightWall(options) {
     options.width = options.width || 4;
 
     var v = {
-    fill     :    options.fill  || 0x663300,
-    width    :    options.width,
-    height   :    canvas.height,
-    x        :    canvas.width - options.width,
-    y        :    0,
-    isStatic :    true
+	fill     :    options.fill  || 0x663300,
+	width    :    options.width,
+	height   :    canvas.height,
+	x        :    canvas.width - options.width,
+	y        :    0,
+	isStatic :    true
     }
     components.push(new Wall(v));
     components[components.length-1].addToWorld();
@@ -51,14 +52,14 @@ function addLeftWall(options) {
     options.width = options.width || 4;
 
     var v = {
-    fill     :    options.fill  || 0x663300,
-    width    :    options.width,
-    height   :    canvas.height,
-    x        :    0,
-    y        :    0,
-    isStatic :    true
+	fill     :    options.fill  || 0x663300,
+	width    :    options.width,
+	height   :    canvas.height,
+	x        :    0,
+	y        :    0,
+	isStatic :    true
     }
-
+    
     components.push(new Wall(v));
     components[components.length-1].addToWorld();
     //stage.addChild(shapes[shapes.length-1].pixi);
@@ -68,12 +69,12 @@ function addGround(options) {
     options.height = options.height || 4;
 
     var v = {
-    fill     :    options.fill  || 0x663300,
-    width    :    canvas.width,
-    height   :    options.height,
-    x        :    0,
-    y        :    canvas.height - options.height,
-    isStatic :    true
+	fill     :    options.fill  || 0x663300,
+	width    :    canvas.width,
+	height   :    options.height,
+	x        :    0,
+	y        :    canvas.height - options.height,
+	isStatic :    true
     }
 
     components.push(new Wall(v));
