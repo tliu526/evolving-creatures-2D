@@ -4,12 +4,12 @@
 
 <i>Newest entries are at the top</i>
 
-\section 11152015 11/15/2015 Implementing Muscles
+\section S11152015 11/15/2015 Implementing Muscles
 
-\section 11142015 11/14/2015 Implementing Springs
+\section S11142015 11/14/2015 Implementing Springs
 TODO(Tony)
 
-\section 11132015 11/13/2015 Learning About SodaPlay
+\section S11132015 11/13/2015 Learning About SodaPlay
 The main goal of today was to find out about how the SodaConstructor operated in order for us to emulate it.
 This was considerably harder to do than expected since it appears that everything about SodaPlay has been wiped off the internet. After a lot of digging, here are the basics of what we need to implement:
 
@@ -25,7 +25,7 @@ This was considerably harder to do than expected since it appears that everythin
 \subsection wave Energy Wave Function
 The energy wave function governs when all the muscles expand/contract. The muscles thus effectively move with simple harmonic motion. We can adjust the <b>frequency</b> as well as the <b>amplitude</b> of the wave function as well.
 
-\section 11122015 11/12/2015 Project Start Day
+\section S11122015 11/12/2015 Project Start Day
 TODO(Jamie)
 
 */
