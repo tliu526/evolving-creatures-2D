@@ -9,7 +9,7 @@ function onLoad() {
     for(var i = 0; i < 10; i++){
         var mass_options = {
             x           : Math.random()*(canvas.width-50) + 50,
-            y           : ((Math.random()*canvas.height) / 2) + canvas.height/2,
+            y           : ((Math.random()*canvas.height) / 2),
             density     : 1.0,
             restitution : 0.2,
             friction    : 0.5,
@@ -34,7 +34,7 @@ function onLoad() {
             bodyA : bA,             
             bodyB : bB,
             restLength : Math.random()*50 + 15,
-            damping : 0.8,
+            damping : Math.random() / 2.0,
             frequency : Math.random()*50
         }
 
