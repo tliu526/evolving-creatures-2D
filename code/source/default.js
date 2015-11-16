@@ -9,69 +9,75 @@ var b2Vec2 = Box2D.Common.Math.b2Vec2,
     b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape,
     b2CircleShape = Box2D.Collision.Shapes.b2CircleShape,
     b2DebugDraw = Box2D.Dynamics.b2DebugDraw,
-    b2MouseJointDef =  Box2D.Dynamics.Joints.b2MouseJointDef;
+    b2MouseJointDef =  Box2D.Dynamics.Joints.b2MouseJointDef,
+    b2DistanceJointDef =  Box2D.Dynamics.Joints.b2DistanceJointDef;
 
 var SCALE = 30;
-
-var _window;
-var stage, renderer;
+//var _window;
+var canvas;
 var world;
-var shapes = [];
+var components = [];
+var masses = [];
 
-var rainbow = [0xFF0000, 0xFF8C00, 0xFFD700, 0x32CD32, 0x0000FF, 0x8A2BE2];
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+window.requestAnimFrame = (function(){
+    return  window.requestAnimationFrame || 
+    window.webkitRequestAnimationFrame || 
+    window.mozRequestAnimationFrame    || 
+    window.oRequestAnimationFrame      || 
+    window.msRequestAnimationFrame     || 
+    function(/* function */ callback, /* DOMElement */ element){
+      window.setTimeout(callback, 1000 / 60);
+  };
+})();
 
 function addRightWall(options) {
     options.width = options.width || 4;
 
     var v = {
-	fill     :    options.fill  || 0x663300,
-	width    :    options.width,
-	height   :    _window.height,
-	x        :    _window.width - options.width,
-	y        :    0,
-	isStatic :    true
+    fill     :    options.fill  || 0x663300,
+    width    :    options.width,
+    height   :    canvas.height,
+    x        :    canvas.width - options.width,
+    y        :    0,
+    isStatic :    true
     }
-    shapes.push(new Rect(v));
-    shapes[shapes.length-1].addToWorld();
-    stage.addChild(shapes[shapes.length-1].pixi);
+    components.push(new Wall(v));
+    components[components.length-1].addToWorld();
+    //stage.addChild(shapes[shapes.length-1].pixi);
 }
 
 function addLeftWall(options) {
     options.width = options.width || 4;
 
     var v = {
-	fill     :    options.fill  || 0x663300,
-	width    :    options.width,
-	height   :    _window.height,
-	x        :    0,
-	y        :    0,
-	isStatic :    true
+    fill     :    options.fill  || 0x663300,
+    width    :    options.width,
+    height   :    canvas.height,
+    x        :    0,
+    y        :    0,
+    isStatic :    true
     }
 
-    shapes.push(new Rect(v));
-    shapes[shapes.length-1].addToWorld();
-    stage.addChild(shapes[shapes.length-1].pixi);
+    components.push(new Wall(v));
+    components[components.length-1].addToWorld();
+    //stage.addChild(shapes[shapes.length-1].pixi);
 }
 
 function addGround(options) {
     options.height = options.height || 4;
 
     var v = {
-	fill     :    options.fill  || 0x663300,
-	width    :    _window.width,
-	height   :    options.height,
-	x        :    0,
-	y        :    _window.height - options.height,
-	isStatic :    true
+    fill     :    options.fill  || 0x663300,
+    width    :    canvas.width,
+    height   :    options.height,
+    x        :    0,
+    y        :    canvas.height - options.height,
+    isStatic :    true
     }
 
-    shapes.push(new Rect(v));
-    shapes[shapes.length-1].addToWorld();
-    stage.addChild(shapes[shapes.length-1].pixi);
+    components.push(new Wall(v));
+    components[components.length-1].addToWorld();
+    //stage.addChild(shapes[shapes.length-1].pixi);
 }
 
-function Window(width, height, color) {
-    this.width = width;
-    this.height = height;
-    this.color = color;
-}
