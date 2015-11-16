@@ -4,6 +4,28 @@
 
 <i>Newest entries are at the top</i>
 
+\section 11152015 11/15/2015 Implementing Muscles
+
+\section 11142015 11/14/2015 Implementing Springs
+TODO(Tony)
+
+\section 11132015 11/13/2015 Learning About SodaPlay
+The main goal of today was to find out about how the SodaConstructor operated in order for us to emulate it.
+This was considerably harder to do than expected since it appears that everything about SodaPlay has been wiped off the internet. After a lot of digging, here are the basics of what we need to implement:
+
+\subsection comp Components
+(parameters in bold)
+<ul>
+<li> Mass: the vertices that connect the springs; are the only things that have weight in the simulation. In Sodaplay all masses have the same <b>weight</b> but this is an additional parameter we can tweak.
+<li> Springs: the lines that are drawn between the masses. The relevant parameters for each spring are its 
+<b>rest length</b> and its <b>amplitude</b>.
+<li> Muscles: springs that expand and contract with respect to the sinusoidal energy wave that governs movement in the world. In addition to the spring parameters, a muscle also has a <b>phase</b>, which determines how it expands and contracts relative to other muscles.
+</ul>
+
+\subsection wave Energy Wave Function
+The energy wave function governs when all the muscles expand/contract. The muscles thus effectively move with simple harmonic motion. We can adjust the <b>frequency</b> as well as the <b>amplitude</b> of the wave function as well.
+
 \section 11122015 11/12/2015 Project Start Day
+TODO(Jamie)
 
 */
