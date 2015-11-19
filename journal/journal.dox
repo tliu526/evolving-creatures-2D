@@ -14,7 +14,7 @@ For both of these tests, one concern is getting the creatures to a satisfying st
 
 \section S11182015 11/18/2015 Crossover and Mutation
 
-TODO define mutation function for each component subclass, need to find "reasonable" mutations for all the parameters
+Point mutation randomly affects the parameters of a joint present on a creature. The parameter is rescaled randomly using Gaussian noise (TODO) in order to favor small rather than large changes in the parameters.
 TODO define legal crossover between two creatures
 
 \section S11172015 11/17/2015 Developing the Creature Infrastructure
