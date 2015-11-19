@@ -4,9 +4,9 @@ function onLoad() {
     world = new b2World(new b2Vec2(0, 10), false);
     canvas = document.getElementById("c");
     var ctx = canvas.getContext("2d");
-
+    canvas.addEventListener("click", onClick);
     //instantiate the creature
-    var creature = generateRandomCreature();
+    creature = generateRandomCreature();
     creature.addToWorld();
 
     //add boundaries
@@ -35,6 +35,10 @@ function onGraphics() {
     world.ClearForces();
 
     requestAnimFrame(onGraphics);
+}
+
+function onClick() {
+    creature.pointMutation();
 }
 
 onLoad();

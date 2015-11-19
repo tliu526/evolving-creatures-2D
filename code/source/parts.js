@@ -124,8 +124,28 @@ function Spring(options){
 	dist_joint.collideConnected = true;
 
 	this.addToWorld = function() {
-		world.CreateJoint(dist_joint);
+		this.joint = world.CreateJoint(dist_joint);
 	}
+
+    //TODO tweak the mutation values so that they're reasonable, add Gaussian noise
+    this.mutate = function() {
+        var rand = Math.floor(Math.random() * 3);
+        switch(rand){
+            case 0:
+            this.joint.SetDampingRatio(this.joint.GetDampingRatio()*2*Math.random());
+            break;
+            case 1:
+            this.joint.SetFrequency(this.joint.GetFrequency()*2*Math.random());
+            break;
+            case 2:
+            this.joint.SetLength(this.joint.GetLength()*2*Math.random());
+            break;
+            default:
+            break;
+        }
+
+        console.log("Spring mutated");
+    }
 
 }
 Spring.prototype = Component;
@@ -163,7 +183,29 @@ function Muscle(options){
     prism_joint.collideConnected = true;
 
     this.addToWorld = function() {
-	world.CreateJoint(prism_joint);
+       this.joint = world.CreateJoint(prism_joint);
+    }
+
+    //TODO tweak the mutation values so that they're reasonable, add Gaussian noise
+    this.mutate = function() {
+        var rand = Math.floor(Math.random() * 4);
+        switch(rand){
+            case 0:
+            this.joint.SetMaxMotorForce(this.joint.GetMotorForce()*4*Math.random());
+            break;
+            case 1:
+            this.joint.SetLimits(this.joint.GetLowerLimit()*2*Math.random(),this.joint.GetUpperLimit());
+            break;
+            case 2:
+            this.joint.SetLimits(this.joint.GetLowerLimit(), this.joint.GetUpperLimit()*2*Math.random());
+            break;
+            case 3:
+            this.joint.SetMotorSpeed(this.joint.GetMotorSpeed()*2*Math.random());
+            break;
+            default:
+            break;
+        }
+        console.log("Muscle mutated");
     }
 }
 Muscle.prototype = Component;

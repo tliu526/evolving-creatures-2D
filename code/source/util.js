@@ -20,6 +20,7 @@ var GROUP_MASS = -1;
 var canvas;
 var world;
 var components = [];
+var creature;
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function(){
@@ -183,20 +184,19 @@ function generateRandomCreature(options) {
 
     var largest = largestConnectedGraph(masses, connected);
     if (largest.length < masses.length) {
-	resultMasses = [];
-	resultConnections = [];
+       resultMasses = [];
+       resultConnections = [];
 	
-	for (var i = 0; i < largest.length; i++) {
-	    resultMasses.push(masses[largest[i]]);
-	    for (var j = 0; j < largest[i]; j++) {
-		if (connected[largest[i] + masses.length*j] != false) {
-		    resultConnections.push(connected[largest[i] + masses.length*j]);
-		    console.log(largest[i] + "," + j);
-		}
-	    } 
-	}
-	return new Creature(resultMasses, resultConnections);
-
+       for (var i = 0; i < largest.length; i++) {
+           resultMasses.push(masses[largest[i]]);
+           for (var j = 0; j < largest[i]; j++) {
+              if (connected[largest[i] + masses.length*j] != false) {
+                  resultConnections.push(connected[largest[i] + masses.length*j]);
+                  console.log(largest[i] + "," + j);
+              }
+            } 
+        }
+        return new Creature(resultMasses, resultConnections);
     } else {
 	connections = [];
 

@@ -23,7 +23,7 @@ function Creature(masses, connections) {
 	}
 
 	this.pointMutation = function() {
-		//TODO (Tony)
+		connections[Math.floor(Math.random()*connections.length)].mutate();
 	}
 }
 
