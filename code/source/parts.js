@@ -14,7 +14,7 @@ function Component(options) {
     this.fill =        options.fill       || 0x000000;
     this.density =     options.density    || 0.5;
     this.restitution = options.restitution || 0.2;
-    this.friction =    options.friction   || 0.5;
+    this.friction =    options.friction   || 0.8;
     this.isStatic =    options.isStatic   || false;
  //   this.pixi =        new PIXI.Graphics();
     
@@ -139,9 +139,6 @@ params REQUIRED:
 - upperLimit
 - motorSpeed
 - maxMotorForce
-?- restLength
-?- damping [0,1]
-?- frequency
 */
 function Muscle(options){
     Component.call(this, options);

@@ -4,6 +4,14 @@
 
 <i>Newest entries are at the top</i>
 
+<b>If the videos or pictures in this document are not showing up correctly, delete the build directory and re-run icompile --doc or doxygen. The files are becoming corrupt if you run the program twice without deleting build in between runs.</b>
+
+\section S11192015 11/19/205 Fitness Test(s)
+
+Before we can evolve our creatures, we need some way of testing how *fit* they are to survive. We would eventually like to add in an evolving terrain, so a good fitness test to start would probably be speed/success in moving from some point A to point B. Another test that would be appropriate for these creatures, since they are made of springs, is jumping. 
+
+For both of these tests, one concern is getting the creatures to a satisfying starting spot. Luckily, we can use box2D to find a bounding box for the creature and then just translate all the joints so that the bounding box is where we would like it to be. 
+
 \section S11182015 11/18/2015 Crossover and Mutation
 
 TODO define mutation function for each component subclass, need to find "reasonable" mutations for all the parameters
@@ -20,7 +28,14 @@ We've also added collision filtering so that the masses do not collide with each
 \video{2015-11-16_random_creature_1.mp4, Random Creature}
 \video{2015-11-16_random_creature_2.mp4, Random Creature}
 
-TODO
+Implementing muscle for our creatures was a matter of including <b>prismatic joints</b> from box2D. Prismatic joints expand and contract according to some motor speed and maximum/minimum length. The original Sodaplay muscles included a phase for the motor joints, and they all ran at the same speed. However, this is not an option in box2D so we will allow for variable speed joints and not account for phase. If this becomes a problem, we will have to figure something out. 
+
+Parameters for prismatic joints include:
+- <CODE>bodyA</CODE> and <CODE>bodyB</CODE>, the masses that this joint connects,
+- <CODE>axis</CODE>, the axis along which the masses are connected,
+- <CODE>lowerLimit</CODE> and <CODE>upperLimit</CODE>, the minimum and maximum length of the joint as it contracts and expands,
+- <CODE>motorSpeed</CODE>, the rate at which the joint contracts and expands,
+- and <CODE>maxMotorForce</CODE>, the maximum force the joint exerts on the masses it connects.
 
 \section S11142015 11/14/2015 Implementing Springs
 After exploring the Box2D library, the distance joint seems to allow for the type of behavior we want out of our springs. It has an options to set <b>rest length</b>, <b>damping</b>, as well as <b>frequency</b>. We have all of our parts implemented using the <i>Component</i> base class so that when we abstract to our graph representations for the creatures themselves, we'll easily be able to store and manipulate the components in bulk. Here's a picture of some randomly generated "springy" creatures:
