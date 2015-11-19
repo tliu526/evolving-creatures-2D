@@ -4,9 +4,16 @@
 
 <i>Newest entries are at the top</i>
 
+\section S11172015 11/18/2015 Crossover and Mutation
+
+TODO define mutation function for each component subclass, need to find "reasonable" mutations for all the parameters
+TODO define legal crossover between two creatures
+
 \section S11172015 11/17/2015 Developing the Creature Infrastructure
 
-In order to mutate our creatures, we first need some way to represent its "genotype." With so many free parameters, we decided that the best way to represent them would be via a graph just like Karl Sims's synthetic creatures.
+In order to mutate our creatures, we first need some way to represent its "genotype." With so many free parameters, we decided that the best way to represent them would be via a graph just like Karl Sims's synthetic creatures. This will give us the framework to crossover two creatures as well as a general way to implement point mutation.
+
+We've also added collision filtering so that the masses do not collide with each other, in order to mimic the behavior of the masses in SodaPlay
 
 \section S11152015 11/15/2015 Implementing Muscles
 
