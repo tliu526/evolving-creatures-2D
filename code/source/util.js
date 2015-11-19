@@ -14,6 +14,8 @@ var b2Vec2 = Box2D.Common.Math.b2Vec2,
     b2PrismaticJointDef =  Box2D.Dynamics.Joints.b2PrismaticJointDef;
 
 var SCALE = 30;
+//negative index means members of this group do not collide
+var GROUP_MASS = -1;
 //var _window;
 var canvas;
 var world;

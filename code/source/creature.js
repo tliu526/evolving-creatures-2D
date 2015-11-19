@@ -22,4 +22,8 @@ function Creature(masses, connections){
 			components[i].addToWorld();
 		}
 	}
+
+	this.pointMutation = function() {
+		//TODO (Tony)
+	}
 }

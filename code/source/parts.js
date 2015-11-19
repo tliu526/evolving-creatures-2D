@@ -52,10 +52,11 @@ function Mass(options) {
 	fixDef.density = this.density;
 	fixDef.friction = this.friction;
 	fixDef.restitution = this.restitution;
+    fixDef.filter.groupIndex = GROUP_MASS;
 	fixDef.shape = new b2CircleShape(this.r / SCALE);
 	this.body.CreateFixture(fixDef);
     }
-    
+
     //TODO better toString function?
     Mass.prototype.toString = function(){
         return JSON.stringify(Mass);
