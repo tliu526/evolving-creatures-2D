@@ -19,19 +19,20 @@ function Component(options) {
  //   this.pixi =        new PIXI.Graphics();
     
     this.update = function(options) {
-	if (!this.isStatic) {
-	    this.x =       options.x || this.x;
-	    this.y =       options.y || this.y;
-	    this.angle =   options.angle || this.angle;
-	    this.fill =    options.fill || this.fill;
-	    this.body.SetPosition(new b2Vec2(this.x / SCALE, this.y / SCALE));
-	}
+     if (!this.isStatic) {
+         this.x =       options.x || this.x;
+         this.y =       options.y || this.y;
+         this.angle =   options.angle || this.angle;
+         this.fill =    options.fill || this.fill;
+         this.body.SetPosition(new b2Vec2(this.x / SCALE, this.y / SCALE));
+     }
     }
 }
 
 function Mass(options) {
     Component.call(this, options);
 
+ 
     this.r = options.r || 5;
 
     var bodyDef = new b2BodyDef;
@@ -45,7 +46,6 @@ function Mass(options) {
     bodyDef.position.y = this.y / SCALE;
     
     this.body = world.CreateBody(bodyDef);
-    masses.push(this.body);
     
     this.addToWorld = function() {
 	var fixDef = new b2FixtureDef;
@@ -55,8 +55,14 @@ function Mass(options) {
 	fixDef.shape = new b2CircleShape(this.r / SCALE);
 	this.body.CreateFixture(fixDef);
     }
+    
+    //TODO better toString function?
+    Mass.prototype.toString = function(){
+        return JSON.stringify(Mass);
+}
 }
 Mass.prototype = Component;
+
 
 function Wall(options){
 	Component.call(this, options);
@@ -100,14 +106,17 @@ params REQUIRED:
 function Spring(options){
 	Component.call(this, options);
 
+    this.massA = options.massA;
+    this.massB = options.massB;
+
 	var dist_joint = new b2DistanceJointDef();
-	dist_joint.bodyA = options.bodyA;
-	dist_joint.bodyB = options.bodyB;
+	dist_joint.bodyA = this.massA.body;
+	dist_joint.bodyB = this.massB.body;
 	dist_joint.localAnchorA = new b2Vec2(0,0);
 	dist_joint.localAnchorB = new b2Vec2(0,0);
 
 	//console.log("rest length " + options.restLength);
-	
+
 	dist_joint.rest_length = options.restLength;
 	dist_joint.dampingRatio = options.damping;
 	dist_joint.frequencyHz = options.frequency;
@@ -116,6 +125,7 @@ function Spring(options){
 	this.addToWorld = function() {
 		world.CreateJoint(dist_joint);
 	}
+
 }
 Spring.prototype = Component;
 
@@ -135,9 +145,12 @@ params REQUIRED:
 function Muscle(options){
     Component.call(this, options);
 
+    this.massA = options.massA;
+    this.massB = options.massB;
+
     var prism_joint = new b2PrismaticJointDef();
-    prism_joint.bodyA = options.bodyA;
-    prism_joint.bodyB = options.bodyB;
+    prism_joint.bodyA = this.massA.body;
+    prism_joint.bodyB = this.massB.body;
     prism_joint.localAnchorA = new b2Vec2(0,0);
     prism_joint.localAnchorB = new b2Vec2(0,0);
     prism_joint.axis = options.axis;

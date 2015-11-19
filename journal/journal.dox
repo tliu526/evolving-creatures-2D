@@ -1,15 +1,23 @@
-// -*- html -*-
+// -*- html -*- //
 /** \file journal.dox
 \page Journal Development Journal
 
 <i>Newest entries are at the top</i>
 
+\section S11172015 11/17/2015 Developing the Creature Infrastructure
+
+In order to mutate our creatures, we first need some way to represent its "genotype." With so many free parameters, we decided that the best way to represent them would be via a graph just like Karl Sims's synthetic creatures.
+
 \section S11152015 11/15/2015 Implementing Muscles
 
 \video{2015-11-16_random_creature_2.mp4, Random Creature}
 
+TODO
+
 \section S11142015 11/14/2015 Implementing Springs
-TODO(Tony)
+After exploring the Box2D library, the distance joint seems to allow for the type of behavior we want out of our springs. It has an options to set <b>rest length</b>, <b>damping</b>, as well as <b>frequency</b>. We have all of our parts implemented using the <i>Component</i> base class so that when we abstract to our graph representations for the creatures themselves, we'll easily be able to store and manipulate the components in bulk. Here's a picture of some randomly generated "springy" creatures:
+
+TODO picture
 
 \section S11132015 11/13/2015 Learning About SodaPlay
 The main goal of today was to find out about how the SodaConstructor operated in order for us to emulate it.

@@ -19,6 +19,7 @@ var canvas;
 var world;
 var components = [];
 var masses = [];
+var connections = [];
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function(){

@@ -15,11 +15,12 @@ function onLoad() {
             friction    : 0.5,
             isStatic    : false
         }
-        console.log("x: " + mass_options.x);
-        console.log("y: " + mass_options.y);
-
-        components.push(new Mass(mass_options));
-        components[i].addToWorld();
+        //console.log("x: " + mass_options.x);
+        //console.log("y: " + mass_options.y);
+        var mass = new Mass(mass_options);
+        components.push(mass);
+        masses.push(mass);
+        //components[i].addToWorld();
     }
 
     var connected = new Array(masses.length * masses.length);
@@ -29,50 +30,55 @@ function onLoad() {
 
     for(var i = 0; i < 20; i++) {
 	
-	iA = Math.floor(Math.random()*masses.length);
-	iB = Math.floor(Math.random()*masses.length);
-        while (iA == iB 
-	       || connected[iA + masses.length * iB] 
-	       || connected[iB + masses.length * iA]) {
-            iB = Math.floor(Math.random()*masses.length);
-        }
+       iA = Math.floor(Math.random()*masses.length);
+       iB = Math.floor(Math.random()*masses.length);
+       while (iA == iB 
+        || connected[iA + masses.length * iB] 
+        || connected[iB + masses.length * iA]) {
+        iB = Math.floor(Math.random()*masses.length);
+    }
 
 	connected[iA + masses.length * iB] = true;
 	connected[iB + masses.length * iA] = true;
 
-        var bA = masses[iB]
-        var bB = masses[iA]
+        var mA = masses[iB]
+        var mB = masses[iA]
 
 	
 	if (Math.random() < 0.5) {
 	    var spring_options = {
-		bodyA : bA,             
-		bodyB : bB,
+		massA : mA,             
+		massB : mB,
 		restLength : Math.random()*50 + 15,
 		damping : Math.random() / 2.0,
 		frequency : Math.random()*50
 	    }
 	    
 	    var spring = new Spring(spring_options);
-	    spring.addToWorld();
+        connections.push(spring);
+	    //spring.addToWorld();
 	} else {
 	    theta = Math.random()*Math.PI*2;
 
 	    var muscle_options = {
-		bodyA : bA,             
-		bodyB : bB,
-		lowerLimit : 0,
-		upperLimit : Math.random()*1.5 + 1.0,
-		motorSpeed : Math.random()*4.0 + 1.0,
-		maxMotorForce: Math.random()*300.0 + 200.0,
-		axis : new b2Vec2(Math.cos(theta), Math.sin(theta))
-	    }
-	    
+          massA : mA,             
+          massB : mB,
+          lowerLimit : 0,
+          upperLimit : Math.random()*1.5 + 1.0,
+          motorSpeed : Math.random()*4.0 + 1.0,
+          maxMotorForce: Math.random()*300.0 + 200.0,
+          axis : new b2Vec2(Math.cos(theta), Math.sin(theta))
+      }
+
 	    var muscle = new Muscle(muscle_options);
-	    muscle.addToWorld();
+        connections.push(muscle);
+	    //muscle.addToWorld();
 	}
     }
 
+    //instantiate the creature
+    var creature = new Creature(masses, connections);
+    creature.addToWorld();
 
     //add boundaries
     var boundary_options = {
