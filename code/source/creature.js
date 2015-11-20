@@ -1,6 +1,9 @@
 //pre: masses is a list of mass objects (vertices), connections are springs/muscles
 function Creature(masses, connections) {
 	this.map = {};
+	this.connections = connections;
+	this.masses = masses;
+
 	for (i = 0; i < masses.length; i++){
 		//add to our map of vertices, initialize empty adjacency list
 		this.map[masses[i]] = [];
@@ -12,7 +15,6 @@ function Creature(masses, connections) {
 		this.map[edge.massA].push(edge);
 		this.map[edge.massB].push(edge);
 	}
-	console.log(connections);
 
 	this.components = masses.concat(connections);
 
@@ -23,7 +25,7 @@ function Creature(masses, connections) {
 	}
 
 	this.pointMutation = function() {
-		connections[Math.floor(Math.random()*connections.length)].mutate();
+		this.connections[Math.floor(Math.random()*this.connections.length)].mutate();
 	}
 }
 
@@ -57,7 +59,7 @@ function largestConnectedGraph(nodes, edges) {
 
     var result = [];
     for (var i = 0; i < groups.length; i++) {
-	console.log(groups[i]);
+//	console.log(groups[i]);
 	if (groups[i].length > result.length) {
 	    result = groups[i];
 	}
@@ -103,4 +105,64 @@ function connectedToSource(source, nodes, edges, visited) {
     }
 
     return connected;
+}
+
+/*
+Performs a single point crossover between creatures A and B and returns a new creature
+*/
+//TODO fix
+function crossover(creatureA, creatureB) {
+	var massesA = creatureA.masses;
+	var massesB = creatureB.masses;
+
+	var cross_ptA = Math.floor(Math.random()*(massesA.length-1))+1 //range of [1, masses.length-1]
+	var cross_ptB = Math.floor(Math.random()*(massesB.length-1)) //range of [0, masses.length-2]
+
+	var new_masses = [];
+
+	for(i = 0; i <= cross_ptA; i++){
+		new_masses.push(massesA[i]);
+	}
+
+	for(i = cross_ptB; i < massesB.length; i++){
+		new_masses.push(massesB[i]);
+	}
+	console.log(new_masses);
+
+	var all_connections = creatureA.connections.concat(creatureB.connections);
+	var new_connections = [];
+
+
+	//create connecting edge 
+	//TODO abstract
+	var mA = massesA[cross_ptA];
+	var mB = massesB[cross_ptB];
+
+	var spring_options = {
+		massA : mA,             
+		massB : mB,
+		restLength : distance(mA.x, mA.y, mB.x, mB.y),
+		damping : getRandom(0.0, 0.5),
+		frequency : getRandom(0.0, 1.0)
+	    };
+	    
+	var spring = new Spring(spring_options);
+	new_connections.push(spring); 
+
+	//mark all the masses that we've used
+	var marked = [];
+	for (i = 0; i < all_connections.length; i++){
+		var e = all_connections[i];
+		if((new_masses.indexOf(e.massA) != -1) && (new_masses.indexOf(e.massB) != -1)){
+			new_connections.push(e);
+			if(marked.indexOf(e.massA) == -1)
+				marked.push(e.massA);
+			if(marked.indexOf(e.massB) == -1)
+				marked.push(e.massB);
+		} 
+	}
+
+	console.log(new_connections);
+
+	return new Creature(marked, new_connections);
 }

@@ -94,10 +94,10 @@ params OPTIONAL:
   a proportion of total possible
 */
 function generateRandomCreature(options) {
-    var massLowerLimit = 4;
-    var massUpperLimit = 10;
+    var massLowerLimit = 8;
+    var massUpperLimit = 12;
     var edgeLowerProportion = 0.4;
-    var edgeUpperProportion = 0.7;
+    var edgeUpperProportion = 0.9;
     var probMuscle = 0.6;
 
     if (options) {
@@ -116,7 +116,7 @@ function generateRandomCreature(options) {
             y           : getRandomInt(50, 200),
             density     : 1.0,
             restitution : 0.2,
-            friction    : getRandom(0.5, 1),
+            friction    : getRandom(0.8, 1),
             isStatic    : false
         }
         var mass = new Mass(mass_options);

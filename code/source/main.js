@@ -7,7 +7,13 @@ function onLoad() {
     canvas.addEventListener("click", onClick);
     //instantiate the creature
     creature = generateRandomCreature();
-    creature.addToWorld();
+    //creature.addToWorld();
+
+    var creature2 = generateRandomCreature();
+    //creature2.addToWorld();
+
+    var new_creature = crossover(creature, creature2);
+    new_creature.addToWorld();
 
     //add boundaries
     var boundary_options = {

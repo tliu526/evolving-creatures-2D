@@ -54,6 +54,8 @@ function Mass(options) {
 	fixDef.restitution = this.restitution;
     fixDef.filter.groupIndex = GROUP_MASS;
 	fixDef.shape = new b2CircleShape(this.r / SCALE);
+    //fixDef.shape = new b2PolygonShape();
+    //fixDef.shape.SetAsBox(this.r/SCALE, this.r/SCALE);
 	this.body.CreateFixture(fixDef);
     }
 
