@@ -16,23 +16,18 @@ var b2Vec2 = Box2D.Common.Math.b2Vec2,
 var SCALE = 30;
 //negative index means members of this group do not collide
 var GROUP_MASS = -1;
-//var _window;
-var canvas;
-var world;
-var components = [];
-var creature;
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function(){
-    return  window.requestAnimationFrame || 
-    window.webkitRequestAnimationFrame || 
-    window.mozRequestAnimationFrame    || 
-    window.oRequestAnimationFrame      || 
-    window.msRequestAnimationFrame     || 
-    function(/* function */ callback, /* DOMElement */ element){
-      window.setTimeout(callback, 1000 / 60);
-  };
-})();
+	return  window.requestAnimationFrame || 
+	window.webkitRequestAnimationFrame || 
+	window.mozRequestAnimationFrame    || 
+	window.oRequestAnimationFrame      || 
+	window.msRequestAnimationFrame     || 
+	function(/* function */ callback, /* DOMElement */ element){
+	    window.setTimeout(callback, 1000 / 60);
+	};
+    })();
 
 function addRightWall(options) {
     options.width = options.width || 4;
@@ -40,13 +35,13 @@ function addRightWall(options) {
     var v = {
 	fill     :    options.fill  || 0x663300,
 	width    :    options.width,
-	height   :    canvas.height,
-	x        :    canvas.width - options.width,
+	height   :    options.world.canvas.height,
+	x        :    options.world.canvas.width - options.width,
 	y        :    0,
 	isStatic :    true
     }
-    components.push(new Wall(v));
-    components[components.length-1].addToWorld();
+    options.world.components.push(new Wall(v));
+    options.world.components[options.world.components.length-1].addToWorld(options.world);
     //stage.addChild(shapes[shapes.length-1].pixi);
 }
 
@@ -56,49 +51,55 @@ function addLeftWall(options) {
     var v = {
 	fill     :    options.fill  || 0x663300,
 	width    :    options.width,
-	height   :    canvas.height,
+	height   :    options.world.canvas.height,
 	x        :    0,
 	y        :    0,
 	isStatic :    true
     }
     
-    components.push(new Wall(v));
-    components[components.length-1].addToWorld();
+    options.world.components.push(new Wall(v));
+    options.world.components[options.world.components.length-1].addToWorld(options.world);
     //stage.addChild(shapes[shapes.length-1].pixi);
 }
 
 function addGround(options) {
     options.height = options.height || 4;
+    groundHeight   = options.height;
 
     var v = {
 	fill     :    options.fill  || 0x663300,
-	width    :    canvas.width,
+	width    :    options.world.canvas.width,
 	height   :    options.height,
 	x        :    0,
-	y        :    canvas.height - options.height,
+	y        :    options.world.canvas.height - options.height,
 	isStatic :    true
     }
 
-    components.push(new Wall(v));
-    components[components.length-1].addToWorld();
+    options.world.components.push(new Wall(v));
+    options.world.components[options.world.components.length-1].addToWorld(options.world);
     //stage.addChild(shapes[shapes.length-1].pixi);
 }
 
 /*
 params OPTIONAL:
-- lower limit of number of masses
-- upper limit of number of masses
-- lower limit of number joints as 
+- massLowerLimit: lower limit of number of masses
+- massUpperLimit: upper limit of number of masses
+- edgeLowerProportion: lower limit of number joints as 
   a proportion of total possible
-- upper limit of number joints as 
+- edgeUpperProportion: upper limit of number joints as 
   a proportion of total possible
+- probMuscle: probability that a joint is a muscle not spring
+- xBound: bound in width of creature, in meters
+- yBound: bound in height of creatures, in meters
 */
 function generateRandomCreature(options) {
-    var massLowerLimit = 8;
-    var massUpperLimit = 12;
+    var massLowerLimit = 4;
+    var massUpperLimit = 10;
     var edgeLowerProportion = 0.4;
     var edgeUpperProportion = 0.9;
     var probMuscle = 0.6;
+    var xBound = 2;
+    var yBound = 2;
 
     if (options) {
 	if (options.lowerLimit) masslowerLimit = options.lowerLimit; 
@@ -106,21 +107,21 @@ function generateRandomCreature(options) {
 	if (options.lowerProportion) edgeLowerProportion = clamp(options.lowerProportion, 0, 1); 
 	if (options.upperProportion) edgeUpperProportion = clamp(options.upperProportion, 0, 1); 
 	if (options.probMuscle) probMuscle = clamp(options.probMuscle, 0, 1);
+	if (options.xBound) xBound = options.xBound;
+	if (options.yBound) yBound = options.yBound;
     }
-
     var masses = [];
  
     for(var i = 0; i < getRandomInt(massLowerLimit, massUpperLimit); i++){
         var mass_options = {
-            x           : getRandomInt(50, 200),
-            y           : getRandomInt(50, 200),
+            x           : getRandomInt(20, 20 + xBound * SCALE),
+            y           : getRandomInt(20, 20 + yBound * SCALE),
             density     : 1.0,
             restitution : 0.2,
             friction    : getRandom(0.8, 1),
             isStatic    : false
         }
         var mass = new Mass(mass_options);
-        components.push(mass);
         masses.push(mass);
     }
 
@@ -172,7 +173,7 @@ function generateRandomCreature(options) {
 		lowerLimit : (1 - stretch) * distance(mA.x, mA.y, mB.x, mB.y) / SCALE,
 		upperLimit : (1 + stretch) * distance(mA.x, mA.y, mB.x, mB.y) / SCALE,
 		motorSpeed : getRandom(0.5, 2.0),
-		maxMotorForce: getRandom(50.0, 200.0),
+		maxMotorForce: getRandom(50.0, 300.0),
 		axis : new b2Vec2(Math.cos(theta), Math.sin(theta))
 	    }
 	    
@@ -187,6 +188,7 @@ function generateRandomCreature(options) {
        resultMasses = [];
        resultConnections = [];
 	
+       console.log(largest);
        for (var i = 0; i < largest.length; i++) {
            resultMasses.push(masses[largest[i]]);
            for (var j = 0; j < largest[i]; j++) {

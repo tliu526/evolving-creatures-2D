@@ -18,21 +18,56 @@ function Creature(masses, connections) {
 
 	this.components = masses.concat(connections);
 
-	this.addToWorld = function() {
-		for(i = 0; i < this.components.length; i++){
-			this.components[i].addToWorld();
+	this.addToWorld = function(world) {
+	    for(i = 0; i < this.components.length; i++){
+		this.components[i].addToWorld(world);
+	    }
+	}
+
+	this.translate = function(dx, dy) {
+	    for (var i = 0; i < masses.length; i++) {
+		var options = {
+		    x : masses[i].x + dx,
+		    y : masses[i].y + dy
 		}
+		
+		masses[i].update(options);
+	    }
 	}
 
 	this.pointMutation = function() {
 		this.connections[Math.floor(Math.random()*this.connections.length)].mutate();
 	}
+
+	this.getBoundingBox = function() {
+	    var bounds = {
+		xLow   : 0,
+		xHigh  : 0,
+		yLow   : 0,
+		yHigh  : 0
+	    }
+	    
+	    for (var i = 0; i < this.masses.length; i++) {
+		var mass  = this.masses[i];
+		var r     = mass.r;
+		var x     = mass.x;
+		var y     = mass.y;
+		
+		if (x + r > bounds.xHigh) bounds.xHigh = x + r;
+		if (x - r > bounds.xLow)  bounds.xLow  = x - r;
+		if (y + r > bounds.yHigh) bounds.yHigh = y + r;
+		if (y - r > bounds.yLow)  bounds.yLow  = y - r;
+	    }	    
+	    return bounds;
+	}
 }
 
-// don't want creatures with extraneous parts
-// given array of nodes, nodes, and adjacency table edges
-// returns array of indices of nodes
-// that make the largest connected component
+// - don't want creatures with extraneous parts
+// - given array of nodes, nodes, and adjacency table, edges
+// - contents of adjacency table are either false or the joint 
+//   that connects them, size n^2 where there are n nodes
+// - returns array of indices of nodes
+//   that make the largest connected component
 function largestConnectedGraph(nodes, edges) {
     var groups = [];
     var visited = [];
@@ -59,7 +94,6 @@ function largestConnectedGraph(nodes, edges) {
 
     var result = [];
     for (var i = 0; i < groups.length; i++) {
-//	console.log(groups[i]);
 	if (groups[i].length > result.length) {
 	    result = groups[i];
 	}
@@ -68,13 +102,13 @@ function largestConnectedGraph(nodes, edges) {
     return result;
 }
 
-// breadth first search
-// returns array of indices of vertices connected to source 
-// source is an index of array of nodes
-// nodes is array of masses
-// edges is an adjacency table
-// visited is an array the length of nodes indicating whether 
-// the corresponding node has been visited 
+// - breadth first search
+// - returns array of indices of vertices connected to source 
+// - source is an index of array of nodes
+// - nodes is array of masses
+// - edges is an adjacency table
+// - visited is an array the length of nodes indicating whether 
+//   the corresponding node has been visited 
 function connectedToSource(source, nodes, edges, visited) {
     var connected = [];
     var queue = [];
@@ -162,7 +196,35 @@ function crossover(creatureA, creatureB) {
 		} 
 	}
 
-	console.log(new_connections);
-
 	return new Creature(marked, new_connections);
+}
+
+//- start and finish are values in meters from 0 where 
+//  0 is the left of the screen
+//- assume groundHeight is set to pixel hieght of ground 
+//  off bottom of canvas
+function speedFitness(creature) {
+    var start = 50;
+
+    var options = {
+	hasWalls     : true,
+	hasGround    : true,
+	wallWidth    : 10,
+	groundHeight : 10,
+	elementID    : "c"
+    }
+    var world = new World(options);
+    var bounds = creature.getBoundingBox();
+    
+    console.log(bounds.xLow);
+    
+    // translate so bounding box touches start on the right
+    // use pixel values for dx and dy
+    dx = start - bounds.xHigh;
+    dy = world.canvas.height - bounds.yLow;
+    if (groundHeight) dy -= groundHeight;
+    
+    creature.translate(dx, dy);
+    creature.addToWorld(world);
+    
 }

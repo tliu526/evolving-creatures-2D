@@ -24,7 +24,9 @@ function Component(options) {
          this.y =       options.y || this.y;
          this.angle =   options.angle || this.angle;
          this.fill =    options.fill || this.fill;
-         this.body.SetPosition(new b2Vec2(this.x / SCALE, this.y / SCALE));
+	 if (this.body) {
+	     this.body.SetPosition(new b2Vec2(this.x / SCALE, this.y / SCALE));
+	 }
      }
     }
 }
@@ -32,7 +34,6 @@ function Component(options) {
 function Mass(options) {
     Component.call(this, options);
 
- 
     this.r = options.r || 5;
 
     var bodyDef = new b2BodyDef;
@@ -45,30 +46,31 @@ function Mass(options) {
     bodyDef.position.x = this.x / SCALE;
     bodyDef.position.y = this.y / SCALE;
     
-    this.body = world.CreateBody(bodyDef);
     
-    this.addToWorld = function() {
+    this.addToWorld = function(world) {
+	this.body = world.b2world.CreateBody(bodyDef);
+
 	var fixDef = new b2FixtureDef;
 	fixDef.density = this.density;
 	fixDef.friction = this.friction;
 	fixDef.restitution = this.restitution;
-    fixDef.filter.groupIndex = GROUP_MASS;
+	fixDef.filter.groupIndex = GROUP_MASS;
 	fixDef.shape = new b2CircleShape(this.r / SCALE);
-    //fixDef.shape = new b2PolygonShape();
-    //fixDef.shape.SetAsBox(this.r/SCALE, this.r/SCALE);
+	//fixDef.shape = new b2PolygonShape();
+	//fixDef.shape.SetAsBox(this.r/SCALE, this.r/SCALE);
 	this.body.CreateFixture(fixDef);
     }
 
     //TODO better toString function?
     Mass.prototype.toString = function(){
         return JSON.stringify(Mass);
-}
+    }
 }
 Mass.prototype = Component;
 
 
 function Wall(options){
-	Component.call(this, options);
+    Component.call(this, options);
 
     this.width =  options.width   || 10;
     this.height = options.height  || 10;
@@ -83,9 +85,10 @@ function Wall(options){
     bodyDef.position.x = (this.x + this.width / 2) / SCALE;
     bodyDef.position.y = (this.y + this.height / 2) / SCALE;
     
-    this.body = world.CreateBody(bodyDef);
 
-    this.addToWorld = function() {
+    this.addToWorld = function(world) {
+	this.body = world.b2world.CreateBody(bodyDef);
+
 	var fixDef = new b2FixtureDef;
 	fixDef.density = this.density         || 1.0;
 	fixDef.friction = this.friction       || 0.5;
@@ -107,48 +110,45 @@ params REQUIRED:
 - frequency
 */
 function Spring(options){
-	Component.call(this, options);
-
+    Component.call(this, options);
+    
     this.massA = options.massA;
     this.massB = options.massB;
-
+    
+    this.addToWorld = function(world) {
 	var dist_joint = new b2DistanceJointDef();
 	dist_joint.bodyA = this.massA.body;
 	dist_joint.bodyB = this.massB.body;
 	dist_joint.localAnchorA = new b2Vec2(0,0);
 	dist_joint.localAnchorB = new b2Vec2(0,0);
-
-	//console.log("rest length " + options.restLength);
-
+	
 	dist_joint.rest_length = options.restLength;
 	dist_joint.dampingRatio = options.damping;
 	dist_joint.frequencyHz = options.frequency;
 	dist_joint.collideConnected = true;
 
-	this.addToWorld = function() {
-		this.joint = world.CreateJoint(dist_joint);
-	}
+	this.joint = world.b2world.CreateJoint(dist_joint);
+    }
 
     //TODO tweak the mutation values so that they're reasonable, add Gaussian noise
     this.mutate = function() {
         var rand = Math.floor(Math.random() * 3);
         switch(rand){
-            case 0:
+	case 0:
             this.joint.SetDampingRatio(this.joint.GetDampingRatio()*2*Math.random());
             break;
-            case 1:
+	case 1:
             this.joint.SetFrequency(this.joint.GetFrequency()*2*Math.random());
             break;
-            case 2:
+	case 2:
             this.joint.SetLength(this.joint.GetLength()*2*Math.random());
             break;
-            default:
+	default:
             break;
         }
-
+	
         console.log("Spring mutated");
     }
-
 }
 Spring.prototype = Component;
 
@@ -168,46 +168,46 @@ function Muscle(options){
     this.massA = options.massA;
     this.massB = options.massB;
 
-    var prism_joint = new b2PrismaticJointDef();
-    prism_joint.bodyA = this.massA.body;
-    prism_joint.bodyB = this.massB.body;
-    prism_joint.localAnchorA = new b2Vec2(0,0);
-    prism_joint.localAnchorB = new b2Vec2(0,0);
-    prism_joint.axis = options.axis;
-
-    // FIGURE OUT WHAT THESE MEAN
-    prism_joint.enableLimit = true;
-    prism_joint.lowerTranslation = options.lowerLimit;
-    prism_joint.upperTranslation = options.upperLimit;
-    prism_joint.motorSpeed = options.motorSpeed;
-    prism_joint.maxMotorForce = options.maxMotorForce;
-    prism_joint.enableMotor = true;
-    prism_joint.collideConnected = true;
-
-    this.addToWorld = function() {
-       this.joint = world.CreateJoint(prism_joint);
+    this.addToWorld = function(world) {
+	var prism_joint = new b2PrismaticJointDef();
+	prism_joint.bodyA = this.massA.body;
+	prism_joint.bodyB = this.massB.body;
+	prism_joint.localAnchorA = new b2Vec2(0,0);
+	prism_joint.localAnchorB = new b2Vec2(0,0);
+	prism_joint.axis = options.axis;
+	
+	// FIGURE OUT WHAT THESE MEAN
+	prism_joint.enableLimit = true;
+	prism_joint.lowerTranslation = options.lowerLimit;
+	prism_joint.upperTranslation = options.upperLimit;
+	prism_joint.motorSpeed = options.motorSpeed;
+	prism_joint.maxMotorForce = options.maxMotorForce;
+	prism_joint.enableMotor = true;
+	prism_joint.collideConnected = true;
+	
+	this.joint = world.b2world.CreateJoint(prism_joint);
     }
 
     //TODO tweak the mutation values so that they're reasonable, add Gaussian noise
     this.mutate = function() {
         var rand = Math.floor(Math.random() * 4);
         switch(rand){
-            case 0:
+	case 0:
             this.joint.SetMaxMotorForce(this.joint.GetMotorForce()*4*Math.random());
             break;
-            case 1:
+	case 1:
             this.joint.SetLimits(this.joint.GetLowerLimit()*2*Math.random(),this.joint.GetUpperLimit());
             break;
-            case 2:
+	case 2:
             this.joint.SetLimits(this.joint.GetLowerLimit(), this.joint.GetUpperLimit()*2*Math.random());
             break;
-            case 3:
+	case 3:
             this.joint.SetMotorSpeed(this.joint.GetMotorSpeed()*2*Math.random());
             break;
-            default:
+	default:
             break;
         }
-        console.log("Muscle mutated");
+        Console.log("Muscle mutated");
     }
 }
 Muscle.prototype = Component;

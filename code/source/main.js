@@ -1,44 +1,45 @@
+var visWorld;
+
 function onLoad() {
-   // _window = new Window(400, 300, 0x1099bb);
+    var options = {
+	hasWalls     : true,
+	hasGround    : true,
+	wallWidth    : 10,
+	groundHeight : 10,
+	elementID    : "c"
+    }
+    visWorld = new World(options);
 
-    world = new b2World(new b2Vec2(0, 10), false);
-    canvas = document.getElementById("c");
-    var ctx = canvas.getContext("2d");
-    canvas.addEventListener("click", onClick);
-    //instantiate the creature
-    creature = generateRandomCreature();
-    //creature.addToWorld();
+    
+    var creatureOptions = {
+	massLowerLimit : 10,
+	massUpperLimit : 12,
+	edgeLowerProportion : 0.5,
+	edgeUpperProportion : 0.8,
+	probMuscle : 0.8,
+	xBound : 3,
+	yBound : 3
+    }
 
-    var creature2 = generateRandomCreature();
+    var creature = generateRandomCreature(creatureOptions);
+    creature.addToWorld(visWorld)
+
+    //speedFitness(creature);
+
+    //var creature2 = generateRandomCreature();
     //creature2.addToWorld();
 
-    var new_creature = crossover(creature, creature2);
-    new_creature.addToWorld();
+    //var new_creature = crossover(creature, creature2);
+    //new_creature.addToWorld();
+	
+	//    requestAnimFrame(onGraphics(world));
 
-    //add boundaries
-    var boundary_options = {
-        width : 10,
-        height: 10,
-    }
-    addRightWall(boundary_options);
-    addLeftWall(boundary_options);
-    addGround(boundary_options);
-
-
-    //set up debug draw
-    var debugDraw = new b2DebugDraw();
-    debugDraw.SetSprite(document.getElementById("c").getContext("2d"));
-    debugDraw.SetDrawScale(SCALE);
-    debugDraw.SetFillAlpha(0.3);
-    debugDraw.SetLineThickness(1.0);
-    debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
-    world.SetDebugDraw(debugDraw);
 };
     
 function onGraphics() {
-    world.Step(1 / 60, 10, 10);
-    world.DrawDebugData();
-    world.ClearForces();
+    visWorld.b2world.Step(1 / 60, 10, 10);
+    visWorld.b2world.DrawDebugData();
+    visWorld.b2world.ClearForces();
 
     requestAnimFrame(onGraphics);
 }
