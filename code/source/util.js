@@ -142,33 +142,43 @@ function generateRandomCreature(options) {
 	var iA = getRandomInt(0, masses.length);
 	var iB = (iA + getRandomInt(1, masses.length)) % masses.length;
     //TODO sometimes this infinite loops?
+    //i is temporary so I can debug other things
+    var i = 0;
+    while (i < (connected.length*connected.length) && ((connected[iA + masses.length * iB] != false) 
+           || (connected[iB + masses.length * iA]!= false))) {
+        iB = (iA + getRandomInt(1, masses.length)) % masses.length;
+        i++; 
+    }
+    /*
 	while ((connected[iA + masses.length * iB] != false) 
 	       || (connected[iB + masses.length * iA]!= false)) {
 	    iB = (iA + getRandomInt(1, masses.length)) % masses.length;
 	}
-		
+	*/
+    
         var mA = masses[iB];
-	var mB = masses[iA];
+        var mB = masses[iA];
 		
-	if (getRandom(0, 1) >= probMuscle) {
-	    var spring_options = {
-		massA : mA,             
-		massB : mB,
-		restLength : distance(mA.x, mA.y, mB.x, mB.y),
-		damping : getRandom(0.0, 0.5),
-		frequency : getRandom(0.0, 1.0)
-	    }
+        if (getRandom(0, 1) >= probMuscle) {
+           var spring_options = {
+              massA : mA,             
+              massB : mB,
+              restLength : distance(mA.x, mA.y, mB.x, mB.y),
+              damping : getRandom(0.0, 0.5),
+              frequency : getRandom(0.0, 1.0)
+          }
 	    
-	    var spring = new Spring(spring_options);
-	    connected[iA + masses.length * iB] = spring;
-	    connected[iB + masses.length * iA] = spring;
+          var spring = new Spring(spring_options);
+          connected[iA + masses.length * iB] = spring;
+          connected[iB + masses.length * iA] = spring;
 
-	} else {
+      } 
+      else {
 
-	    var theta = getRandom(0.0, Math.PI*2);
-	    var stretch = getRandom(0.0, 0.5);
-	    
-	    var muscle_options = {
+       var theta = getRandom(0.0, Math.PI*2);
+       var stretch = getRandom(0.0, 0.5);
+
+       var muscle_options = {
 		massA : mA,             
 		massB : mB,
 		lowerLimit : (1 - stretch) * distance(mA.x, mA.y, mB.x, mB.y) / SCALE,

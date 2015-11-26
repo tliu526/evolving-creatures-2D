@@ -14,21 +14,21 @@ function onLoad() {
     var creatureOptions = {
 	massLowerLimit : 10,
 	massUpperLimit : 12,
-	edgeLowerProportion : 0.5,
-	edgeUpperProportion : 0.8,
+	edgeLowerProportion : 0.7,
+	edgeUpperProportion : 0.9,
 	probMuscle : 0.8,
 	xBound : 3,
 	yBound : 3
     }
 
     var creature = generateRandomCreature(creatureOptions);
-    creature.addToWorld(visWorld);
+    //creature.addToWorld(visWorld);
 
     var creature2 = generateRandomCreature(creatureOptions);
-    creature2.addToWorld(visWorld);
+    //creature2.addToWorld(visWorld);
 
-    //var new_creature = crossover(creature, creature2);
-    //new_creature.addToWorld();
+    var new_creature = crossover(creature, creature2);
+    new_creature.addToWorld(visWorld);
 
     //speedFitness(creature);
 

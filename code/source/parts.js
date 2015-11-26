@@ -16,7 +16,6 @@ function Component(options) {
     this.restitution = options.restitution || 0.2;
     this.friction =    options.friction   || 0.8;
     this.isStatic =    options.isStatic   || false;
- //   this.pixi =        new PIXI.Graphics();
     
     this.update = function(options) {
      if (!this.isStatic) {
@@ -63,10 +62,11 @@ function Mass(options) {
 
     //TODO better toString function?
     Mass.prototype.toString = function(){
-        return JSON.stringify(this);
+        //console.log("Mass: " + JSON.stringify(this));
+        return "Mass: " + JSON.stringify(this);
     }
 }
-Mass.prototype = Component;
+//Mass.prototype = Component;
 
 
 function Wall(options){
@@ -99,7 +99,7 @@ function Wall(options){
     }
 
 }
-Wall.prototype = Component;
+//Wall.prototype = Component;
 
 /*
 params REQUIRED:
@@ -149,8 +149,14 @@ function Spring(options){
 	
         console.log("Spring mutated");
     }
+
+    //TODO better toString function?
+    Spring.prototype.toString = function(){
+        //console.log("Spring: " + JSON.stringify(this));
+        return "Spring: " + JSON.stringify(this);
+    }
 }
-Spring.prototype = Component;
+//Spring.prototype = Component;
 
 /*
 params REQUIRED:
@@ -209,5 +215,11 @@ function Muscle(options){
         }
         Console.log("Muscle mutated");
     }
+
+    //TODO better toString function?
+    Muscle.prototype.toString = function(){
+        //console.log("Muscle: " + JSON.stringify(this));
+        return "Muscle: " + JSON.stringify(this);
+    }
 }
-Muscle.prototype = Component;
+//Muscle.prototype = Component;

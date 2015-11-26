@@ -162,13 +162,33 @@ function crossover(creatureA, creatureB) {
 	for(i = cross_ptB; i < massesB.length; i++){
 		new_masses.push(massesB[i]);
 	}
-	console.log(new_masses);
 
-	var all_connections = creatureA.connections.slice();
-	all_connections.concat(creatureB.connections.slice());
+	var all_connections = creatureA.connections.slice().concat(creatureB.connections.slice());
+	console.log(creatureA.connections.length);
+	console.log(creatureB.connections.length);
+	console.log(all_connections.length);
 	var new_connections = [];
 
+	//create connecting edges
+	for(i = 0; i < all_connections.length; i++){
+		var e = all_connections[i];
+/*
+		console.log("mA: " + massesA[cross_ptA]);
+		console.log("mB: " + massesB[cross_ptB]);
+		console.log("e: " + e);		
+*/
+		if(e.massA.toString() == massesB[cross_ptB].toString()){
+			e.massA = massesA[cross_ptA];
+			console.log("crossed");
+		}
+		else if(e.massB.toString() == massesB[cross_ptB].toString()){
+			e.massB = massesA[cross_ptA];
+			console.log("crossed");
+		}
+	}
 
+
+/*
 	//create connecting edge 
 	//TODO abstract
 	var mA = massesA[cross_ptA];
@@ -184,8 +204,10 @@ function crossover(creatureA, creatureB) {
 	    
 	var spring = new Spring(spring_options);
 	new_connections.push(spring); 
-
+*/
 	//mark all the masses that we've used
+
+	
 	var marked = [];
 	for (i = 0; i < all_connections.length; i++){
 		var e = all_connections[i];
@@ -197,6 +219,8 @@ function crossover(creatureA, creatureB) {
 				marked.push(e.massB);
 		} 
 	}
+
+	console.log("marked: " + marked);
 
 	return new Creature(marked, new_connections);
 }
