@@ -22,15 +22,17 @@ function onLoad() {
     }
 
     var creature = generateRandomCreature(creatureOptions);
-    creature.addToWorld(visWorld)
+    creature.addToWorld(visWorld);
 
-    //speedFitness(creature);
-
-    //var creature2 = generateRandomCreature();
-    //creature2.addToWorld();
+    var creature2 = generateRandomCreature(creatureOptions);
+    creature2.addToWorld(visWorld);
 
     //var new_creature = crossover(creature, creature2);
     //new_creature.addToWorld();
+
+    //speedFitness(creature);
+
+    
 	
 	//    requestAnimFrame(onGraphics(world));
 

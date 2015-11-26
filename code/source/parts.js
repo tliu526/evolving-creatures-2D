@@ -63,7 +63,7 @@ function Mass(options) {
 
     //TODO better toString function?
     Mass.prototype.toString = function(){
-        return JSON.stringify(Mass);
+        return JSON.stringify(this);
     }
 }
 Mass.prototype = Component;

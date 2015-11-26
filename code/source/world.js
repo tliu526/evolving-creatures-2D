@@ -21,7 +21,7 @@ function World(options) {
     var boundary_options = {
         width      : this.wallWidth,
         height     : this.groundHeight,
-	world      : this
+        world      : this
     }
 
     if (this.hasWalls) {

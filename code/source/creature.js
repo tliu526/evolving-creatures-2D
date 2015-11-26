@@ -146,8 +146,9 @@ Performs a single point crossover between creatures A and B and returns a new cr
 */
 //TODO fix
 function crossover(creatureA, creatureB) {
-	var massesA = creatureA.masses;
-	var massesB = creatureB.masses;
+	//slice is used to copy
+	var massesA = creatureA.masses.slice();
+	var massesB = creatureB.masses.slice();
 
 	var cross_ptA = Math.floor(Math.random()*(massesA.length-1))+1 //range of [1, masses.length-1]
 	var cross_ptB = Math.floor(Math.random()*(massesB.length-1)) //range of [0, masses.length-2]
@@ -163,7 +164,8 @@ function crossover(creatureA, creatureB) {
 	}
 	console.log(new_masses);
 
-	var all_connections = creatureA.connections.concat(creatureB.connections);
+	var all_connections = creatureA.connections.slice();
+	all_connections.concat(creatureB.connections.slice());
 	var new_connections = [];
 
 
@@ -207,11 +209,11 @@ function speedFitness(creature) {
     var start = 50;
 
     var options = {
-	hasWalls     : true,
-	hasGround    : true,
-	wallWidth    : 10,
-	groundHeight : 10,
-	elementID    : "c"
+    	hasWalls     : true,
+    	hasGround    : true,
+    	wallWidth    : 10,
+    	groundHeight : 10,
+    	elementID    : "c"
     }
     var world = new World(options);
     var bounds = creature.getBoundingBox();
