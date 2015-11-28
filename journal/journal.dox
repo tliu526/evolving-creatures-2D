@@ -6,6 +6,13 @@
 
 <b>If the videos or pictures in this document are not showing up correctly, delete the build directory and re-run icompile --doc or doxygen. The files are becoming corrupt if you run the program twice without deleting build in between runs.</b>
 
+
+\section S11282015 Genetic Algorithm
+TODO fix crossover, horribly broken
+TODO place creatures in lower left corner to start
+TODO component JSON stringifies have cyclic references somehow
+The inability of javascript to copy an object is killing a lot of things right now...
+
 \section S11192015 11/19/205 Fitness Test(s)
 
 Before we can evolve our creatures, we need some way of testing how *fit* they are to survive. We would eventually like to add in an evolving terrain, so a good fitness test to start would probably be speed/success in moving from some point A to point B. Another test that would be appropriate for these creatures, since they are made of springs, is jumping. 

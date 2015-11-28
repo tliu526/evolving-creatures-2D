@@ -22,6 +22,7 @@ function Creature(masses, connections) {
 	    for(i = 0; i < this.components.length; i++){
 		this.components[i].addToWorld(world);
 	    }
+	    var bounds =this.getBoundingBox();
 	}
 
 	this.translate = function(dx, dy) {
@@ -144,8 +145,9 @@ function connectedToSource(source, nodes, edges, visited) {
 /*
 Performs a single point crossover between creatures A and B and returns a new creature
 */
-//TODO fix
+//TODO still needs to be fixed, sometimes generates badness
 function crossover(creatureA, creatureB) {
+	console.log("top of crossover");
 	//slice is used to copy
 	var massesA = creatureA.masses.slice();
 	var massesB = creatureB.masses.slice();
@@ -164,19 +166,16 @@ function crossover(creatureA, creatureB) {
 	}
 
 	var all_connections = creatureA.connections.slice().concat(creatureB.connections.slice());
-	console.log(creatureA.connections.length);
-	console.log(creatureB.connections.length);
-	console.log(all_connections.length);
-	var new_connections = [];
+
 
 	//create connecting edges
 	for(i = 0; i < all_connections.length; i++){
 		var e = all_connections[i];
-/*
-		console.log("mA: " + massesA[cross_ptA]);
-		console.log("mB: " + massesB[cross_ptB]);
+
 		console.log("e: " + e);		
-*/
+		console.log("mA: " + massesA[cross_ptA]);
+		console.log("mB: " + massesA[cross_ptB]);
+	
 		if(e.massA.toString() == massesB[cross_ptB].toString()){
 			e.massA = massesA[cross_ptA];
 			console.log("crossed");
@@ -187,27 +186,8 @@ function crossover(creatureA, creatureB) {
 		}
 	}
 
-
-/*
-	//create connecting edge 
-	//TODO abstract
-	var mA = massesA[cross_ptA];
-	var mB = massesB[cross_ptB];
-
-	var spring_options = {
-		massA : mA,             
-		massB : mB,
-		restLength : distance(mA.x, mA.y, mB.x, mB.y),
-		damping : getRandom(0.0, 0.5),
-		frequency : getRandom(0.0, 1.0)
-	    };
-	    
-	var spring = new Spring(spring_options);
-	new_connections.push(spring); 
-*/
-	//mark all the masses that we've used
-
-	
+	var new_connections = [];
+	//mark all the masses we've used
 	var marked = [];
 	for (i = 0; i < all_connections.length; i++){
 		var e = all_connections[i];
@@ -222,35 +202,11 @@ function crossover(creatureA, creatureB) {
 
 	console.log("marked: " + marked);
 
+	for(var i = 0; i < new_connections.length; i++){
+		console.log("mA: " + new_connections[i].massA);
+		console.log("mB: " + new_connections[i].massB);
+	}
+	console.log("new_connections" + new_connections);
+
 	return new Creature(marked, new_connections);
-}
-
-//- start and finish are values in meters from 0 where 
-//  0 is the left of the screen
-//- assume groundHeight is set to pixel hieght of ground 
-//  off bottom of canvas
-function speedFitness(creature) {
-    var start = 50;
-
-    var options = {
-    	hasWalls     : true,
-    	hasGround    : true,
-    	wallWidth    : 10,
-    	groundHeight : 10,
-    	elementID    : "c"
-    }
-    var world = new World(options);
-    var bounds = creature.getBoundingBox();
-    
-    console.log(bounds.xLow);
-    
-    // translate so bounding box touches start on the right
-    // use pixel values for dx and dy
-    dx = start - bounds.xHigh;
-    dy = world.canvas.height - bounds.yLow;
-    if (groundHeight) dy -= groundHeight;
-    
-    creature.translate(dx, dy);
-    creature.addToWorld(world);
-    
 }

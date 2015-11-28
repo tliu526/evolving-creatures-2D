@@ -45,6 +45,8 @@ function Mass(options) {
     bodyDef.position.x = this.x / SCALE;
     bodyDef.position.y = this.y / SCALE;
     
+    this.id = "Mass " + mass_id;
+    mass_id++;
     
     this.addToWorld = function(world) {
 	this.body = world.b2world.CreateBody(bodyDef);
@@ -60,10 +62,11 @@ function Mass(options) {
 	this.body.CreateFixture(fixDef);
     }
 
-    //TODO better toString function?
+    //TODO figure out why stringify is generating cyclic objects
     Mass.prototype.toString = function(){
-        //console.log("Mass: " + JSON.stringify(this));
-        return "Mass: " + JSON.stringify(this);
+        return this.id;
+        //console.log(this);
+        //return "Mass: " + JSON.stringify(this);
     }
 }
 //Mass.prototype = Component;
@@ -114,7 +117,9 @@ function Spring(options){
     
     this.massA = options.massA;
     this.massB = options.massB;
-    
+    this.id = "Spring " + spring_id;
+    spring_id++;
+
     this.addToWorld = function(world) {
 	var dist_joint = new b2DistanceJointDef();
 	dist_joint.bodyA = this.massA.body;
@@ -146,14 +151,12 @@ function Spring(options){
 	default:
             break;
         }
-	
-        console.log("Spring mutated");
     }
 
     //TODO better toString function?
     Spring.prototype.toString = function(){
-        //console.log("Spring: " + JSON.stringify(this));
-        return "Spring: " + JSON.stringify(this);
+        return this.id;
+        //return "Spring: " + JSON.stringify(this);
     }
 }
 //Spring.prototype = Component;
@@ -173,6 +176,8 @@ function Muscle(options){
 
     this.massA = options.massA;
     this.massB = options.massB;
+    this.id = "Muscle " + muscle_id;
+    muscle_id++;
 
     this.addToWorld = function(world) {
 	var prism_joint = new b2PrismaticJointDef();
@@ -213,13 +218,12 @@ function Muscle(options){
 	default:
             break;
         }
-        Console.log("Muscle mutated");
     }
 
     //TODO better toString function?
     Muscle.prototype.toString = function(){
-        //console.log("Muscle: " + JSON.stringify(this));
-        return "Muscle: " + JSON.stringify(this);
+        return this.id;
+        //return "Muscle: " + JSON.stringify(this);
     }
 }
 //Muscle.prototype = Component;

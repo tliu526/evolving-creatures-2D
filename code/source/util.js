@@ -17,6 +17,14 @@ var SCALE = 30;
 //negative index means members of this group do not collide
 var GROUP_MASS = -1;
 
+var SIMULATION_TIME = 5; //simulation time, in seconds
+var POP_SIZE = 1000;
+
+//stopgap until we figure out how components are somehow becoming circular references
+var mass_id = 0;
+var muscle_id = 0;
+var spring_id = 0;
+
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function(){
 	return  window.requestAnimationFrame || 
@@ -80,8 +88,25 @@ function addGround(options) {
     //stage.addChild(shapes[shapes.length-1].pixi);
 }
 
+function addTestGround(options) {
+    options.height = options.height || 4;
+    groundHeight   = options.height;
+
+    var v = {
+      fill     :    options.fill  || 0x663300,
+      width    :    100000000000000, //TODO make reasonable
+      height   :    options.height,
+      x        :    0,
+      y        :    options.world.canvas.height - options.height,
+      isStatic :    true
+    }
+
+    options.world.components.push(new Wall(v));
+    options.world.components[options.world.components.length-1].addToWorld(options.world);
+  }
+
 /*
-params OPTIONAL:
+ OPTIONAL:
 - massLowerLimit: lower limit of number of masses
 - massUpperLimit: upper limit of number of masses
 - edgeLowerProportion: lower limit of number joints as 
@@ -144,7 +169,7 @@ function generateRandomCreature(options) {
     //TODO sometimes this infinite loops?
     //i is temporary so I can debug other things
     var i = 0;
-    while (i < (connected.length*connected.length) && ((connected[iA + masses.length * iB] != false) 
+    while (i < (connected.length*2) && ((connected[iA + masses.length * iB] != false) 
            || (connected[iB + masses.length * iA]!= false))) {
         iB = (iA + getRandomInt(1, masses.length)) % masses.length;
         i++; 
