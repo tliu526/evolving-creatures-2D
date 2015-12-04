@@ -34,7 +34,7 @@ function Component(options) {
 
 function Mass(options) {
     Component.call(this, options);
-
+    this.options = options;
     this.r = options.r || 5;
 
     var bodyDef = new b2BodyDef;
@@ -206,7 +206,7 @@ function Muscle(options){
 	prism_joint.maxMotorForce = options.maxMotorForce;
 	prism_joint.enableMotor = true;
 	prism_joint.collideConnected = true;
-	console.log(prism_joint);
+	
 	this.joint = world.b2world.CreateJoint(prism_joint);
     }
 

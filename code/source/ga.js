@@ -42,23 +42,19 @@ function GA(ga_options, creature_options){
 		}
 	
 		//stopgap until crossover is fixed
+		/*
 		while(this.curPop.length < this.popSize){
 		    this.curPop.push(generateRandomCreature(this.creatureOptions));
 		}
+		*/
 	
-	/*	
 		//crossover, TODO weight by relative fitness
 		while(this.curPop.length < this.popSize){
 		//parents
 		var p1 = getRandomInt(0, survivors.length);
 			var p2 = getRandomInt(0, survivors.length);
-			
-			console.log(survivors[p1].masses);
-			console.log(survivors[p1].connections);
-
 			this.curPop.push(crossover(survivors[p1], survivors[p2]))
 			}
-	*/	
 		
 		this.curGen += 1;
 		return true;

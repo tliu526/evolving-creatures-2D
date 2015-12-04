@@ -105,6 +105,7 @@ function simulate() {
         var bounds = creature.getBoundingBox();
 
         //console.log(distFitness(creature));
+        //setTimeout(simulate, SIMULATION_TIME*500);
         setTimeout(simulate, SIMULATION_TIME*1000);
     }
 }

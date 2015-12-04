@@ -159,7 +159,7 @@ Performs a single point crossover between creatures A and B and returns a new cr
 */
 //TODO still needs to be fixed, sometimes generates badness
 function crossover(creatureA, creatureB) {
-	console.log("top of crossover");
+	//console.log("top of crossover");
 	//slice is used to copy
 	var massesA = creatureA.masses.slice();
 	var massesB = creatureB.masses.slice();
@@ -173,11 +173,11 @@ function crossover(creatureA, creatureB) {
 	var new_masses = [];
 
 	for(i = 0; i <= cross_ptA; i++){
-	    new_masses.push(massesA[i]);
+	    new_masses.push(new Mass(massesA[i].options));
 	}
 
 	for(i = cross_ptB; i < massesB.length; i++){
-	    new_masses.push(massesB[i]);
+	    new_masses.push(new Mass(massesB[i].options));
 	}
 
 	//var all_connections = creatureA.connections.slice().concat(creatureB.connections.slice());
@@ -192,41 +192,43 @@ function crossover(creatureA, creatureB) {
 	//copy connecting edges
 	for (i = 0; i < new_masses.length; i++){
 	    if (i <= cross_ptA) {
-		for (var j = i + 1; j < new_masses.length; j++) {
-		    //Assume properly setup adjacency matrix
-		    if ((j < massesA.length) && (connectionsA[i + massesA.length * j] != false)) {
+	    	for (var j = i + 1; j < new_masses.length; j++) {
+		        //Assume properly setup adjacency matrix
+		        if ((j < massesA.length) && (connectionsA[i + massesA.length * j] != false)) {
 
-			var joint = connectionsA[i + massesA.length * j];
-			console.log(joint);
-			var id = joint.id;
-			
-			var new_joint;
+		        	var joint = connectionsA[i + massesA.length * j];
+			        //console.log(joint);
+			        var id = joint.id;
 
-			var options = {
-			    massA : new_masses[i],
-			    massB : new_masses[j]
-			}
+			        var new_joint;
+
+			        var options = {
+			        	massA : new_masses[i],
+			        	massB : new_masses[j]
+			        }
 			    
-			if (id.charAt(0) == "S") {
-			    options.restLength = joint.rest_length;
-			    options.damping = joint.dampingRation;
-			    options.frequency = joint.frequencyHz;
-			    
-			    new_joint = new Spring(options);
-			} else {
-			    options.lowerLimit = joint.lowerTranslation;
-			    options.upperLimit = joint.upperTranslation;
-			    options.motorSpeed = joint.motorSpeed;
-			    options.maxMotorForce = joint.maxMotorForce;
+			        if (id.charAt(0) == "S") {
+			        	options.restLength = joint.rest_length;
+			        	options.damping = joint.dampingRatio;
+			        	options.frequency = joint.frequencyHz;
 
-			    new_joint = new Muscle(options);
+			        	new_joint = new Spring(options);
+			        } else {
+			        	options.lowerLimit = joint.lowerTranslation;
+			        	options.upperLimit = joint.upperTranslation;
+			        	options.motorSpeed = joint.motorSpeed;
+			        	options.maxMotorForce = joint.maxMotorForce;
+
+			        	new_joint = new Muscle(options);
+			        }
+
+			        new_connections[i + new_masses.length * j] = new_joint;
+			        new_connections[j + new_masses.length * i] = new_joint;
+			    }
 			}
-
-			new_connections[i + new_masses.length * j] = new_joint;
-			new_connections[j + new_masses.length * i] = new_joint;
-		    }
-		}
-	    } else {
+		} 
+/*
+	    else {
 		// i > cross_ptA
 		// index in massB = i - cross_ptA + cross+ptB - 1
 		var iB = i - cross_ptA + cross_ptB - 1;
@@ -234,7 +236,11 @@ function crossover(creatureA, creatureB) {
 		    //Assume properly setup adjacency matrix
 		    if ((iB > (cross_ptB - cross_ptA + iA)) && (connectionsB[iB + massesB.length * (cross_ptB - cross_ptA + iA)] != false)) {
 
+		    //console.log("ConnectionsB size: " + connectionsB.length);
+		    //console.log("index: " + (iB + massesB.length * (cross_ptB - cross_ptA + iA)));
 			var joint = connectionsB[iB + massesB.length * (cross_ptB - cross_ptA + iA)];
+
+
 			console.log(joint);
 			var id = joint.id;
 			
@@ -242,7 +248,7 @@ function crossover(creatureA, creatureB) {
 
 			var options = {
 			    massA : new_masses[iA],
-			    massB : new_masses[i]
+			    massB : new_masses[iB]
 			}
 			    
 			if (id.charAt(0) == "S") {
@@ -299,6 +305,7 @@ function crossover(creatureA, creatureB) {
 		    }
 		}
 	    }
+	    */
 	    /*
 		var e = new_connections[i];
 
@@ -316,29 +323,6 @@ function crossover(creatureA, creatureB) {
 		}
 	    */
 	}
-	/*
-	var new_connections = [];
-	//mark all the masses we've used
-	var marked = [];
-	for (i = 0; i < all_connections.length; i++){
-		var e = all_connections[i];
-		if((new_masses.indexOf(e.massA) != -1) && (new_masses.indexOf(e.massB) != -1)){
-			new_connections.push(e);
-			if(marked.indexOf(e.massA) == -1)
-				marked.push(e.massA);
-			if(marked.indexOf(e.massB) == -1)
-				marked.push(e.massB);
-		} 
-	}
 
-	console.log("marked: " + marked);
-	*/
-	/*
-	for(var i = 0; i < new_connections.length; i++){
-		console.log("mA: " + new_connections[i].massA);
-		console.log("mB: " + new_connections[i].massB);
-	}
-	console.log("new_connections" + new_connections);
-	*/
 	return new Creature(new_masses, new_connections);
 }
