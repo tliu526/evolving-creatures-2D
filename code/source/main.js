@@ -73,6 +73,18 @@ function simulate() {
         creature = ga.curPop[0];
 
         creature.addToWorld(visWorld);
+	
+	var start = 50;
+	var bounds = creature.getBoundingBox();
+	
+	// translate so bounding box touches start on the right
+	
+	dx = start; //TODO normalize this
+	dy = visWorld.canvas.height - bounds.yLow;
+	if (groundHeight) dy -= groundHeight;
+	
+	creature.translate(dx, dy);
+	
         console.log(distFitness(creature));
         setTimeout(simulate, SIMULATION_TIME*1000);
     }

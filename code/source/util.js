@@ -166,21 +166,21 @@ function generateRandomCreature(options) {
 	// adding to iA mod masses.length guaruntees not picking same mass
 	var iA = getRandomInt(0, masses.length);
 	var iB = (iA + getRandomInt(1, masses.length)) % masses.length;
-    //TODO sometimes this infinite loops?
-    //i is temporary so I can debug other things
-    var i = 0;
-    while (i < (connected.length*2) && ((connected[iA + masses.length * iB] != false) 
-           || (connected[iB + masses.length * iA]!= false))) {
-        iB = (iA + getRandomInt(1, masses.length)) % masses.length;
-        i++; 
-    }
-    /*
-	while ((connected[iA + masses.length * iB] != false) 
-	       || (connected[iB + masses.length * iA]!= false)) {
+	//TODO sometimes this infinite loops?
+	//i is temporary so I can debug other things
+	var i = 0;
+	while (i < (connected.length*2) && ((connected[iA + masses.length * iB] != false) 
+					    || (connected[iB + masses.length * iA]!= false))) {
 	    iB = (iA + getRandomInt(1, masses.length)) % masses.length;
+	    i++; 
 	}
+	/*
+	  while ((connected[iA + masses.length * iB] != false) 
+	  || (connected[iB + masses.length * iA]!= false)) {
+	  iB = (iA + getRandomInt(1, masses.length)) % masses.length;
+	  }
 	*/
-    
+	
         var mA = masses[iB];
         var mB = masses[iA];
 		

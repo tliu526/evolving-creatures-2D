@@ -113,9 +113,9 @@ function speedFitness(creature) {
 }
 
 function distFitness(creature){
-	var start = 50;
-
-	var options = {
+    var start = 50;
+    
+    var options = {
     	hasWalls     : false,
     	hasGround    : false,
     	isDistTest   : true,
@@ -124,19 +124,20 @@ function distFitness(creature){
     	elementID    : "c"
     }
     var test_world = new World(options);
-    var bounds = creature.getBoundingBox();
     
+
+    creature.addToWorld(test_world);
+    var bounds = creature.getBoundingBox();
+
     // translate so bounding box touches start on the right
-    /*
+    
     dx = start; //TODO normalize this
     dy = test_world.canvas.height - bounds.yLow;
     if (groundHeight) dy -= groundHeight;
     
     creature.translate(dx, dy);
-    */
-    creature.addToWorld(test_world);
-	
-	//simulate the creature
+    
+    //simulate the creature
     for (i = 0; i < (SIMULATION_TIME * 60); i++){
     	test_world.b2world.Step(1/60, 10, 10);
     	test_world.b2world.ClearForces();

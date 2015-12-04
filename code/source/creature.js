@@ -51,8 +51,8 @@ function Creature(masses, connections) {
 	    for (var i = 0; i < this.masses.length; i++) {
 		var mass  = this.masses[i];
 		var r     = mass.r;
-		var x     = mass.x;
-		var y     = mass.y;
+		var x     = mass.body.GetPosition().x;
+		var y     = mass.body.GetPosition().y;
 		
 		if (x + r > bounds.xHigh) bounds.xHigh = x + r;
 		if (x - r > bounds.xLow)  bounds.xLow  = x - r;
