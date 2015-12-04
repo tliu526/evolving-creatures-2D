@@ -35,20 +35,38 @@ function onLoad() {
     //var new_creature = crossover(creature, creature2);
     //new_creature.addToWorld(visWorld);
 
-    
-
-    
-	
-	//    requestAnimFrame(onGraphics(world));
+	//requestAnimFrame(onGraphics(world));
 
 };
 function onGraphics() {
+
+    visWorld.ctx.save();
+    visWorld.ctx.clearRect(0,0,visWorld.canvas.width,visWorld.canvas.height);
+    /*
+    var bounds = creature.getBoundingBox();
+    var dx;
+    var dy;
+    if(bounds.xLow < visWorld.canvas.width * 0.25){
+        dx = (visWorld.canvas.width * 0.25) - bounds.xLow;
+    }
+    else if(bounds.xHigh > visWorld.canvas.width * 0.75) {
+        dx = (visWorld.canvas.width * 0.75) - bounds.xHigh;
+    }
+
+    //var dx = (-1 * (creature_pos.x)) * SCALE + visWorld.canvas.width / 2;
+    //var dy = (-1 * (creature_pos.y)) * SCALE + visWorld.canvas.height / 2;
+    if(dx){
+        visWorld.ctx.translate(dx, 0);
+    }
+    */
     //for debugging, speeding up simulations
     //for(var i = 0; i < 2; i++){
         visWorld.b2world.Step(1/60, 10, 10);
         visWorld.b2world.ClearForces();
     //}
     visWorld.b2world.DrawDebugData();
+
+    visWorld.ctx.restore();
     requestAnimFrame(onGraphics);
 }
 
@@ -76,20 +94,18 @@ function simulate() {
 	
         var start = 50;
         var bounds = creature.getBoundingBox();
-        console.log(bounds);
         // translate so bounding box touches start on the right
 	    var dx = start; //TODO normalize this
-       var dy = visWorld.canvas.height - bounds.yLow;
-       if (visWorld.groundHeight) {
-        dy -= visWorld.groundHeight;
-       }
-       creature.translate(dx, dy);
-	
-       var bounds = creature.getBoundingBox();
-        console.log(bounds);
+        var dy = visWorld.canvas.height - bounds.yLow;
+        if (visWorld.groundHeight) {
+            dy -= visWorld.groundHeight;
+        }
+        creature.translate(dx, dy);
 
-       //console.log(distFitness(creature));
-       setTimeout(simulate, SIMULATION_TIME*1000);
+        var bounds = creature.getBoundingBox();
+
+        //console.log(distFitness(creature));
+        setTimeout(simulate, SIMULATION_TIME*1000);
     }
 }
 

@@ -2,7 +2,6 @@
 Contains all of the functions required for running a genetic algorithm on the creatures.
 */
 
-
 /*
 Can be treated as an iterator-like object. Currently uses the Sims method of selection (survival ratio).
 */

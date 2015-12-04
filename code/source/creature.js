@@ -22,7 +22,7 @@ function Creature(masses, connections) {
 	    for(i = 0; i < this.components.length; i++){
 		this.components[i].addToWorld(world);
 	    }
-	    var bounds =this.getBoundingBox();
+	    var bounds = this.getBoundingBox();
 	}
 
 	this.translate = function(dx, dy) {
