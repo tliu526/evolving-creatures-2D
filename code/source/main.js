@@ -74,19 +74,22 @@ function simulate() {
 
         creature.addToWorld(visWorld);
 	
-	var start = 50;
-	var bounds = creature.getBoundingBox();
+        var start = 50;
+        var bounds = creature.getBoundingBox();
+        console.log(bounds);
+        // translate so bounding box touches start on the right
+	    var dx = start; //TODO normalize this
+       var dy = visWorld.canvas.height - bounds.yLow;
+       if (visWorld.groundHeight) {
+        dy -= visWorld.groundHeight;
+       }
+       creature.translate(dx, dy);
 	
-	// translate so bounding box touches start on the right
-	
-	dx = start; //TODO normalize this
-	dy = visWorld.canvas.height - bounds.yLow;
-	if (groundHeight) dy -= groundHeight;
-	
-	creature.translate(dx, dy);
-	
-        console.log(distFitness(creature));
-        setTimeout(simulate, SIMULATION_TIME*1000);
+       var bounds = creature.getBoundingBox();
+        console.log(bounds);
+
+       //console.log(distFitness(creature));
+       setTimeout(simulate, SIMULATION_TIME*1000);
     }
 }
 

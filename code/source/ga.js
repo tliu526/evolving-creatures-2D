@@ -131,8 +131,8 @@ function distFitness(creature){
 
     // translate so bounding box touches start on the right
     
-    dx = start; //TODO normalize this
-    dy = test_world.canvas.height - bounds.yLow;
+    var dx = start; //TODO normalize this
+    var dy = test_world.canvas.height - bounds.yLow;
     if (groundHeight) dy -= groundHeight;
     
     creature.translate(dx, dy);

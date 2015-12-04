@@ -27,12 +27,9 @@ function Creature(masses, connections) {
 
 	this.translate = function(dx, dy) {
 	    for (var i = 0; i < masses.length; i++) {
-		var options = {
-		    x : masses[i].x + dx,
-		    y : masses[i].y + dy
-		}
-		
-		masses[i].update(options);
+	    	mass = masses[i]
+	    	pos = mass.body.GetPosition();
+	    	mass.body.SetPosition(new b2Vec2(pos.x + dx / SCALE, pos.y + dy / SCALE));
 	    }
 	}
 
@@ -51,8 +48,8 @@ function Creature(masses, connections) {
 	    for (var i = 0; i < this.masses.length; i++) {
 		var mass  = this.masses[i];
 		var r     = mass.r;
-		var x     = mass.body.GetPosition().x;
-		var y     = mass.body.GetPosition().y;
+		var x     = mass.body.GetPosition().x*SCALE;
+		var y     = mass.body.GetPosition().y*SCALE;
 		
 		if (x + r > bounds.xHigh) bounds.xHigh = x + r;
 		if (x - r > bounds.xLow)  bounds.xLow  = x - r;
