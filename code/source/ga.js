@@ -40,13 +40,13 @@ function GA(ga_options, creature_options){
 			this.curPop[i].pointMutation();
 		    }
 		}
-		/*
+	
 		//stopgap until crossover is fixed
 		while(this.curPop.length < this.popSize){
 		    this.curPop.push(generateRandomCreature(this.creatureOptions));
 		}
-		*/
-		
+	
+	/*	
 		//crossover, TODO weight by relative fitness
 		while(this.curPop.length < this.popSize){
 		//parents
@@ -58,7 +58,7 @@ function GA(ga_options, creature_options){
 
 			this.curPop.push(crossover(survivors[p1], survivors[p2]))
 			}
-		
+	*/	
 		
 		this.curGen += 1;
 		return true;

@@ -21,15 +21,12 @@ function Creature(masses, connections) {
 	this.components = [];
 
 	for (var i = 0; i < masses.length; i++) {
-	    //NEED TO FIX
-	    if (masses[i]) {
 		this.components.push(masses[i]);
 		for (var j = 0; j < i; j++) {
 		    if (connections[i + masses.length * j] != false) {
 			this.components.push(connections[i + masses.length * j]);
 		    }
 		}
-	    }
 	}
 
 	this.addToWorld = function(world) {

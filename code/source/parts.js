@@ -206,7 +206,7 @@ function Muscle(options){
 	prism_joint.maxMotorForce = options.maxMotorForce;
 	prism_joint.enableMotor = true;
 	prism_joint.collideConnected = true;
-	
+	console.log(prism_joint);
 	this.joint = world.b2world.CreateJoint(prism_joint);
     }
 

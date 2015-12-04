@@ -168,21 +168,23 @@ function generateRandomCreature(options) {
 	var iB = (iA + getRandomInt(1, masses.length)) % masses.length;
 	//TODO sometimes this infinite loops?
 	//i is temporary so I can debug other things
-	var i = 0;
-	while (i < (connected.length*2) && ((connected[iA + masses.length * iB] != false) 
+  
+	var count = 0;
+	while (count < (connected.length*2) && ((connected[iA + masses.length * iB] != false) 
 					    || (connected[iB + masses.length * iA]!= false))) {
 	    iB = (iA + getRandomInt(1, masses.length)) % masses.length;
-	    i++; 
+	    count++; 
 	}
-	/*
+	
+  /*
 	  while ((connected[iA + masses.length * iB] != false) 
 	  || (connected[iB + masses.length * iA]!= false)) {
 	  iB = (iA + getRandomInt(1, masses.length)) % masses.length;
 	  }
-	*/
+  */
 	
-        var mA = masses[iB];
-        var mB = masses[iA];
+        var mA = masses[iA];
+        var mB = masses[iB];
 		
         if (getRandom(0, 1) >= probMuscle) {
            var spring_options = {
@@ -204,50 +206,53 @@ function generateRandomCreature(options) {
        var stretch = getRandom(0.0, 0.5);
 
        var muscle_options = {
-		massA : mA,             
-		massB : mB,
-		lowerLimit : (1 - stretch) * distance(mA.x, mA.y, mB.x, mB.y) / SCALE,
-		upperLimit : (1 + stretch) * distance(mA.x, mA.y, mB.x, mB.y) / SCALE,
-		motorSpeed : getRandom(0.5, 2.0),
-		maxMotorForce: getRandom(50.0, 300.0),
-		axis : new b2Vec2(Math.cos(theta), Math.sin(theta))
+        massA : mA,             
+        massB : mB,
+        lowerLimit : (1 - stretch) * distance(mA.x, mA.y, mB.x, mB.y) / SCALE,
+        upperLimit : (1 + stretch) * distance(mA.x, mA.y, mB.x, mB.y) / SCALE,
+        motorSpeed : getRandom(0.5, 2.0),
+        maxMotorForce: getRandom(50.0, 300.0),
+        axis : new b2Vec2(Math.cos(theta), Math.sin(theta))
 	    }
 	    
 	    var muscle = new Muscle(muscle_options);
 	    connected[iA + masses.length * iB] = muscle;
 	    connected[iB + masses.length * iA] = muscle;
-	}
-    }
+   }
+  }
 
     var largest = largestConnectedGraph(masses, connected);
     if (largest.length < masses.length) {
        resultMasses = [];
 	
        for (var i = 0; i < largest.length; i++) {
-	   resultMasses.push(masses[largest[i]]);
+        resultMasses.push(masses[largest[i]]);
        }
 
        resultConnections = new Array(resultMasses.length * resultMasses.length);
 
        // Setup adjacency matrix
        for(var i = 0; i < resultConnections.length; i++) {
-	   resultConnections[i] = false;
+        resultConnections[i] = false;
        }
        
        for (var i = 0; i < largest.length; i++) {
-           for (var j = 0; j < largest[i]; j++) {
-              if (connected[largest[i] + masses.length * j] != false) {
-		  var joint = connected[largest[i] + masses.length * j];
-                  resultConnections[i + masses.length * j] = joint;
-                  resultConnections[j + masses.length * i] = joint;
+           for (var j = 0; j < largest.length; j++) {
+            if(largest[j] < largest[i]){
+              if (connected[largest[i] + masses.length * largest[j]] != false) {
+                var joint = connected[largest[i] + masses.length * largest[j]];
+                resultConnections[i + resultMasses.length * j] = joint;
+                resultConnections[j + resultMasses.length * i] = joint;
               }
             } 
+          }
         }
 
        return new Creature(resultMasses, resultConnections);
 
-    } else {
-	return new Creature(masses, connected);
+    } 
+    else {
+     return new Creature(masses, connected);
     }
 }
 
