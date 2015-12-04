@@ -191,138 +191,74 @@ function crossover(creatureA, creatureB) {
 
 	//copy connecting edges
 	for (i = 0; i < new_masses.length; i++){
+	    var i1;
+	    var i2;
+	    var joint;
+
 	    if (i <= cross_ptA) {
 	    	for (var j = i + 1; j < new_masses.length; j++) {
-		        //Assume properly setup adjacency matrix
-		        if ((j < massesA.length) && (connectionsA[i + massesA.length * j] != false)) {
-
-		        	var joint = connectionsA[i + massesA.length * j];
-			        //console.log(joint);
-			        var id = joint.id;
-
-			        var new_joint;
-
-			        var options = {
-			        	massA : new_masses[i],
-			        	massB : new_masses[j]
-			        }
-			    
-			        if (id.charAt(0) == "S") {
-			        	options.restLength = joint.rest_length;
-			        	options.damping = joint.dampingRatio;
-			        	options.frequency = joint.frequencyHz;
-
-			        	new_joint = new Spring(options);
-			        } else {
-			        	options.lowerLimit = joint.lowerTranslation;
-			        	options.upperLimit = joint.upperTranslation;
-			        	options.motorSpeed = joint.motorSpeed;
-			        	options.maxMotorForce = joint.maxMotorForce;
-
-			        	new_joint = new Muscle(options);
-			        }
-
-			        new_connections[i + new_masses.length * j] = new_joint;
-			        new_connections[j + new_masses.length * i] = new_joint;
-			    }
-			}
-		} 
-/*
-	    else {
-		// i > cross_ptA
-		// index in massB = i - cross_ptA + cross+ptB - 1
-		var iB = i - cross_ptA + cross_ptB - 1;
-		for (var iA = 0; iA <= cross_ptA; iA++) {  
-		    //Assume properly setup adjacency matrix
-		    if ((iB > (cross_ptB - cross_ptA + iA)) && (connectionsB[iB + massesB.length * (cross_ptB - cross_ptA + iA)] != false)) {
-
-		    //console.log("ConnectionsB size: " + connectionsB.length);
-		    //console.log("index: " + (iB + massesB.length * (cross_ptB - cross_ptA + iA)));
-			var joint = connectionsB[iB + massesB.length * (cross_ptB - cross_ptA + iA)];
-
-
-			console.log(joint);
-			var id = joint.id;
-			
-			var new_joint;
-
-			var options = {
-			    massA : new_masses[iA],
-			    massB : new_masses[iB]
-			}
-			    
-			if (id.charAt(0) == "S") {
-			    options.restLength = joint.rest_length;
-			    options.damping = joint.dampingRation;
-			    options.frequency = joint.frequencyHz;
-			    
-			    new_joint = new Spring(options);
-			} else {
-			    options.lowerLimit = joint.lowerTranslation;
-			    options.upperLimit = joint.upperTranslation;
-			    options.motorSpeed = joint.motorSpeed;
-			    options.maxMotorForce = joint.maxMotorForce;
-
-			    new_joint = new Muscle(options);
-			}
-
-			new_connections[iA + new_masses.length * i] = new_joint;
-			new_connections[i + new_masses.length * iA] = new_joint;
-		    }
-		}
-		for (var j = i + 1; j < new_masses.length; j++) {
 		    //Assume properly setup adjacency matrix
 		    if ((j < massesA.length) && (connectionsA[i + massesA.length * j] != false)) {
-
-			var joint = connectionsA[i + massesA.length * j];
-			console.log(joint);
-			var id = joint.id;
-			
-			var new_joint;
-
-			var options = {
-			    massA : new_masses[i],
-			    massB : new_masses[j]
-			}
-			    
-			if (id.charAt(0) == "S") {
-			    options.restLength = joint.rest_length;
-			    options.damping = joint.dampingRation;
-			    options.frequency = joint.frequencyHz;
-			    
-			    new_joint = new Spring(options);
-			} else {
-			    options.lowerLimit = joint.lowerTranslation;
-			    options.upperLimit = joint.upperTranslation;
-			    options.motorSpeed = joint.motorSpeed;
-			    options.maxMotorForce = joint.maxMotorForce;
-
-			    new_joint = new Muscle(options);
-			}
-
-			new_connections[i + new_masses.length * j] = new_joint;
-			new_connections[j + new_masses.length * i] = new_joint;
+			i1 = i;
+			i2 = j;
+			joint = connectionsA[i + massesA.length * j];
+			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
+		    }
+		} 
+	    } else {
+		// i > cross_ptA
+		// index in massB = i - cross_ptA + cross+ptB - 1
+		var iB = i - (cross_ptA + 1) + cross_ptB;
+		for (var iA = 0; iA <= cross_ptA; iA++) {  
+		    //Assume properly setup adjacency matrix
+		    if (((iB - i + iA) >= 0) && (connectionsB[iB + massesB.length * (iB - i + iA)] != false)) {
+			i1 = iA;
+			i2 = i;
+			joint = connectionsB[iB + massesB.length * (iB - i + iA)];
+			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
+		    }
+		}
+		
+		for (var j = i + 1; j < new_masses.length; j++) {
+		    //Assume properly setup adjacency matrix
+		    if (connectionsB[iB + massesB.length * (iB - i + j)] != false) {
+			i1 = i;
+			i2 = j;
+			joint = connectionsB[iB + massesB.length * (iB - i + j)];
+			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
 		    }
 		}
 	    }
-	    */
-	    /*
-		var e = new_connections[i];
-
-		console.log("e: " + e);		
-		console.log("mA: " + massesA[cross_ptA]);
-		console.log("mB: " + massesA[cross_ptB]);
-	
-		if(e.massA.toString() == massesB[cross_ptB].toString()){
-			e.massA = massesA[cross_ptA];
-			console.log("crossed");
-		}
-		else if(e.massB.toString() == massesB[cross_ptB].toString()){
-			e.massB = massesA[cross_ptA];
-			console.log("crossed");
-		}
-	    */
-	}
+	} //END FOR
 
 	return new Creature(new_masses, new_connections);
+}
+
+function copyJoint(x, y, joint, masses, connections) {
+    var new_joint;
+        
+    var options = {
+	massA : masses[x],
+	massB : masses[y]
+    }
+    
+    if (joint.id.charAt(0) == "S") {
+	options.restLength = joint.rest_length;
+	options.damping = joint.dampingRatio;
+	options.frequency = joint.frequencyHz;
+	
+	new_joint = new Spring(options);
+    } else {
+	options.lowerLimit = joint.lowerTranslation;
+	options.upperLimit = joint.upperTranslation;
+	options.motorSpeed = joint.motorSpeed;
+	options.maxMotorForce = joint.maxMotorForce;
+	
+	new_joint = new Muscle(options);
+    }
+    
+    connections[x + masses.length * y] = new_joint;
+    connections[y + masses.length * x] = new_joint;
+
+    return connections;
 }
