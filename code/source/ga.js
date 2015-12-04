@@ -127,11 +127,10 @@ function distFitness(creature){
     creature.addToWorld(test_world);
     var bounds = creature.getBoundingBox();
 
-    // translate so bounding box touches start on the right
-    
-    var dx = start; //TODO normalize this
+    // translate so bounding box against floor and has middle on start    
+    var dx = start - (bounds.xHigh - bounds.xLow) / 2.0; //TODO normalize this
     var dy = test_world.canvas.height - bounds.yLow;
-    if (groundHeight) dy -= groundHeight;
+    if (groundHeight) dy -= 2 * groundHeight;
     
     creature.translate(dx, dy);
     

@@ -54,10 +54,10 @@ function Creature(masses, connections) {
 	
 	this.getBoundingBox = function() {
 	    var bounds = {
-		xLow   : 0,
-		xHigh  : 0,
-		yLow   : 0,
-		yHigh  : 0
+		xLow   : -Infinity,
+		xHigh  : Infinity,
+		yLow   : -Infinity,
+		yHigh  : Infinity
 	    }
 	    
 	    for (var i = 0; i < this.masses.length; i++) {
@@ -66,9 +66,9 @@ function Creature(masses, connections) {
 		var x     = mass.body.GetPosition().x*SCALE;
 		var y     = mass.body.GetPosition().y*SCALE;
 		
-		if (x + r > bounds.xHigh) bounds.xHigh = x + r;
+		if (x + r < bounds.xHigh) bounds.xHigh = x + r;
 		if (x - r > bounds.xLow)  bounds.xLow  = x - r;
-		if (y + r > bounds.yHigh) bounds.yHigh = y + r;
+		if (y + r < bounds.yHigh) bounds.yHigh = y + r;
 		if (y - r > bounds.yLow)  bounds.yLow  = y - r;
 	    }	    
 	    return bounds;

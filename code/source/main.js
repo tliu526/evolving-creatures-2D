@@ -15,7 +15,7 @@ function onLoad() {
 
     var gaOptions = {
         maxGen : 50,
-        popSize : 100,
+        popSize : 50,
         mutRate : 0.5,
         crossRate : 0.3,
         survRatio : 0.25,
@@ -95,7 +95,7 @@ function simulate() {
         var start = 50;
         var bounds = creature.getBoundingBox();
         // translate so bounding box touches start on the right
-	    var dx = start; //TODO normalize this
+	var dx = start - (bounds.xHigh - bounds.xLow) / 2.0; //TODO normalize this
         var dy = visWorld.canvas.height - bounds.yLow;
         if (visWorld.groundHeight) {
             dy -= visWorld.groundHeight;
