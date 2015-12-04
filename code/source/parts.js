@@ -8,6 +8,8 @@ four components:
 -walls 
 */
 function Component(options) {
+    this.options = options;//.slice();
+  
     this.x =           options.x          || 0;
     this.y =           options.y          || 0;
     this.angle =       options.angle      || 0;
@@ -120,6 +122,10 @@ function Spring(options){
     this.id = "Spring " + spring_id;
     spring_id++;
 
+    this.rest_length = options.restLength;
+    this.dampingRatio = options.damping;
+    this.frequencyHz = options.frequency;
+    
     this.addToWorld = function(world) {
 	var dist_joint = new b2DistanceJointDef();
 	dist_joint.bodyA = this.massA.body;
@@ -178,6 +184,11 @@ function Muscle(options){
     this.massB = options.massB;
     this.id = "Muscle " + muscle_id;
     muscle_id++;
+
+    this.lowerTranslation = options.lowerLimit;
+    this.upperTranslation = options.upperLimit;
+    this.motorSpeed = options.motorSpeed;
+    this.maxMotorForce = options.maxMotorForce;
 
     this.addToWorld = function(world) {
 	var prism_joint = new b2PrismaticJointDef();

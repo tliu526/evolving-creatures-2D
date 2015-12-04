@@ -19,7 +19,7 @@ function GA(ga_options, creature_options){
 	this.curPop = [];
 	this.cutOff = Math.floor(this.popSize * this.survRatio);
 	for(var i = 0; i < this.popSize; i++){
-			this.curPop.push(generateRandomCreature(this.creatureOptions));
+	    this.curPop.push(generateRandomCreature(this.creatureOptions));
 	}
 
 	//can use a genetic algorithm like an iterator
@@ -33,33 +33,37 @@ function GA(ga_options, creature_options){
 
 		survivors = this.curPop.slice(0, this.cutOff);
 		this.curPop = survivors.slice() // init new population with survivors
-
-	    //mutation
-	    for (var i = 0; i < this.curPop.length; i++){
-	    	if(Math.random() < this.mutRate){
-				this.curPop[i].pointMutation();
-			}
+		
+		//mutation
+		for (var i = 0; i < this.curPop.length; i++){
+		    if(Math.random() < this.mutRate){
+			this.curPop[i].pointMutation();
+		    }
 		}
-
+		/*
 		//stopgap until crossover is fixed
 		while(this.curPop.length < this.popSize){
-			this.curPop.push(generateRandomCreature(this.creatureOptions));
-		}
-		
-		/*
-		//crossover, TODO weight by relative fitness
-		while(this.curPop.length < this.popSize){
-			//parents
-			var p1 = getRandomInt(0, survivors.length);
-			var p2 = getRandomInt(0, survivors.length);
-			this.curPop.push(crossover(survivors[p1], survivors[p2]))
+		    this.curPop.push(generateRandomCreature(this.creatureOptions));
 		}
 		*/
+		
+		//crossover, TODO weight by relative fitness
+		while(this.curPop.length < this.popSize){
+		//parents
+		var p1 = getRandomInt(0, survivors.length);
+			var p2 = getRandomInt(0, survivors.length);
+			
+			console.log(survivors[p1].masses);
+			console.log(survivors[p1].connections);
 
+			this.curPop.push(crossover(survivors[p1], survivors[p2]))
+			}
+		
+		
 		this.curGen += 1;
 		return true;
 	};
-
+	
 
 	//sorts by fitness, best to worst
 	this.runSimulation = function() {
@@ -124,7 +128,6 @@ function distFitness(creature){
     }
     var test_world = new World(options);
     
-
     creature.addToWorld(test_world);
     var bounds = creature.getBoundingBox();
 
