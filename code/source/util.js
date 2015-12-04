@@ -222,31 +222,32 @@ function generateRandomCreature(options) {
     var largest = largestConnectedGraph(masses, connected);
     if (largest.length < masses.length) {
        resultMasses = [];
-       resultConnections = [];
 	
-       console.log(largest);
        for (var i = 0; i < largest.length; i++) {
-           resultMasses.push(masses[largest[i]]);
+	   resultMasses.push(masses[largest[i]]);
+       }
+
+       resultConnections = new Array(resultMasses.length * resultMasses.length);
+
+       // Setup adjacency matrix
+       for(var i = 0; i < resultConnections.length; i++) {
+	   resultConnections[i] = false;
+       }
+       
+       for (var i = 0; i < largest.length; i++) {
            for (var j = 0; j < largest[i]; j++) {
-              if (connected[largest[i] + masses.length*j] != false) {
-                  resultConnections.push(connected[largest[i] + masses.length*j]);
-                  console.log(largest[i] + "," + j);
+              if (connected[largest[i] + masses.length * j] != false) {
+		  var joint = connected[largest[i] + masses.length * j];
+                  resultConnections[i + masses.length * j] = joint;
+                  resultConnections[j + masses.length * i] = joint;
               }
             } 
         }
-        return new Creature(resultMasses, resultConnections);
+
+       return new Creature(resultMasses, resultConnections);
+
     } else {
-	connections = [];
-
-	for (var i = 0; i < masses.length; i++) {
-	    for (var j = 0; j < i; j++) {
-		if (connected[i + masses.length*j]) {
-		    connections.push(connected[i + masses.length*j]);
-		}
-	    } 
-	}
-
-	return new Creature(masses, connections);
+	return new Creature(masses, connected);
     }
 }
 
