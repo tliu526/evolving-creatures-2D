@@ -46,7 +46,7 @@ function onGraphics() {
 	visWorld[i].b2world.DrawDebugData();
 	visWorld[i].ctx.restore();
 	visWorld[i].ctx.fillText(visWorld[i].label, 10, 10);
-
+	/*
 	var creature = ga.curPop[i];
 	var bounds = creature.getBoundingBox();
 	visWorld[i].ctx.strokeStyle = "red";
@@ -58,7 +58,7 @@ function onGraphics() {
 	visWorld[i].ctx.moveTo(3*visWorld[i].groundHeight, 0);
 	visWorld[i].ctx.lineTo(3*visWorld[i].groundHeight, visWorld[i].canvas.height);
 	visWorld[i].ctx.stroke();
-
+	*/
     }
     requestAnimFrame(onGraphics);
 }

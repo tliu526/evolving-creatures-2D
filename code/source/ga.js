@@ -34,22 +34,21 @@ function GA(ga_options, creature_options){
 		survivors = this.curPop.slice(0, this.cutOff);
 		this.curPop = survivors.slice(); // init new population with survivors
 		
-		/*
+		
 		//crossover, TODO weight by relative fitness
 		while(this.curPop.length < this.popSize){
 		    //parents
-
-		    var p1 = getRandomInt(0, survivors.length);
-		    var p2 = getRandomInt(0, survivors.length);
-		    var creat = crossover(survivors[p1], survivors[p2]);
-		    creat.generation = this.curGen;
-		    this.curPop.push(creat)
-		}
-		*/
-
-
-		while(this.curPop.length < this.popSize){
-			this.curPop.push(generateRandomCreature(this.creatureOptions))
+		    if (Math.random() < this.crossRate && survivors.length > 1) {
+			var p1 = getRandomInt(0, survivors.length);
+			var p2 = getRandomInt(0, survivors.length);
+			var creat = crossover(survivors[p1], survivors[p2]);
+			creat.generation = this.curGen;
+			this.curPop.push(creat);
+		    } else {
+			var creat = generateRandomCreature(this.creatureOptions);
+			creat.generation = this.curGen;
+			this.curPop.push(creat);
+		    }
 		}
 
 		//mutation
@@ -119,23 +118,23 @@ function distFitness(creature){
     	test_world.b2world.ClearForces();
 
 	// penalize by width of box
-	/*
-	if (i % 60 == 0) {
+	
+	if (i % 30 == 0) {
 	    var bounds = creature.getBoundingBox();
 	    var curLeft = bounds.xLow;
-	    //if (curLeft > lastLeft) {
-	    if (true) {
-		fitness += curLeft; // (0.001 * (bounds.xHigh - bounds.xLow) / SCALE + (SIMULATION_TIME * 60 / i));
+	    if (curLeft > lastLeft) {
+		fitness += curLeft / (0.001 * (bounds.xHigh - bounds.xLow) / SCALE + (SIMULATION_TIME * 60 / i));
 	    } else {
-		fitness += 0.1 * curLeft; // (0.001 * (bounds.xHigh - bounds.xLow) / SCALE + (SIMULATION_TIME * 60 / i));
+		fitness += 0.4 * curLeft / (0.001 * (bounds.xHigh - bounds.xLow) / SCALE + (SIMULATION_TIME * 60 / i));
 	    }
 	    lastLeft = curLeft;
-	    }*/
+	}
     }
-
+    /*
     var bounds = creature.getBoundingBox();
     fitness = bounds.xLow;
     fitness -= 5*creature.masses.length;
+    */
     creature.fitness = fitness;
 
     return fitness;
