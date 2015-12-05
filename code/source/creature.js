@@ -16,12 +16,12 @@ function Creature(masses, connections) {
     this.parentB    = -1;
     
     for (var i = 0; i < masses.length; i++) {
-	this.components.push(masses[i]);
-	for (var j = 0; j < i; j++) {
-	    if (connections[i + masses.length * j] != false) {
-		this.components.push(connections[i + masses.length * j]);
-	    }
-	}
+    	this.components.push(masses[i]);
+    	for (var j = 0; j < i; j++) {
+    		if (connections[i + masses.length * j] != false) {
+    			this.components.push(connections[i + masses.length * j]);
+    		}
+    	}
     }
     
     this.addToWorld = function(world) {
@@ -189,11 +189,11 @@ function crossover(creatureA, creatureB) {
 
 	var new_masses = [];
 
-	for(i = 0; i <= cross_ptA; i++){
+	for(var i = 0; i <= cross_ptA; i++){
 	    new_masses.push(new Mass(massesA[i].options));
 	}
 
-	for(i = cross_ptB; i < massesB.length; i++){
+	for(var i = cross_ptB; i < massesB.length; i++){
 	    new_masses.push(new Mass(massesB[i].options));
 	}
 
@@ -207,7 +207,7 @@ function crossover(creatureA, creatureB) {
 	}
 
 	//copy connecting edges
-	for (i = 0; i < new_masses.length; i++){
+	for (var i = 0; i < new_masses.length; i++){
 	    var i1;
 	    var i2;
 	    var joint;
@@ -258,8 +258,8 @@ function copyJoint(x, y, joint, masses, connections) {
     var new_joint;
         
     var options = {
-	massA : masses[x],
-	massB : masses[y]
+    	massA : masses[x],
+    	massB : masses[y]
     }
     
     if (joint.type.charAt(0) == "S") {

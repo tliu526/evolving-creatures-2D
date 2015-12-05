@@ -32,9 +32,9 @@ function GA(ga_options, creature_options){
 		
 		var survivors;
 		survivors = this.curPop.slice(0, this.cutOff);
-		this.curPop = survivors.slice() // init new population with survivors
+		this.curPop = survivors.slice(); // init new population with survivors
 		
-		
+		/*
 		//crossover, TODO weight by relative fitness
 		while(this.curPop.length < this.popSize){
 		    //parents
@@ -45,7 +45,13 @@ function GA(ga_options, creature_options){
 		    creat.generation = this.curGen;
 		    this.curPop.push(creat)
 		}
-		
+		*/
+
+
+		while(this.curPop.length < this.popSize){
+			this.curPop.push(generateRandomCreature(this.creatureOptions))
+		}
+
 		//mutation
 		for (var i = 0; i < this.curPop.length; i++){
 		    if(Math.random() < this.mutRate){
@@ -126,7 +132,7 @@ function distFitness(creature){
 
     var bounds = creature.getBoundingBox();
     fitness = bounds.xLow;
-    fitness -= 0.2*creature.masses.length;
+    fitness -= 5*creature.masses.length;
     creature.fitness = fitness;
 
     return fitness;
