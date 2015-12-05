@@ -64,10 +64,12 @@ function GA(ga_options, creature_options){
 	this.runSimulation = function() {
 		var fitFunc = this.fitness;
 		var oldPop = this.curPop;
+		
+		progress = 0;
 
 		for(i = 0; i < oldPop.length; i++){
 			fitFunc(oldPop[i]);
-			//console.log("Fitness: "  + (i/oldPop.length * 100) + "% complete");
+			if (i % (oldPop.length / 20) == 0) progress = 100 * i / oldPop.length; 
 		}
 
 		oldPop.sort(function (a,b) {
@@ -91,15 +93,16 @@ function distFitness(creature){
     var test_world = new World(options);
     
     creature.addToWorld(test_world);
+    creature.resetPosition();
     var bounds = creature.getBoundingBox();
 
     // translate so bounding box against floor and has middle on start    
-    var start = 0.3 * SCALE + groundHeight
+    var start = 3*test_world.groundHeight;
     var dx = start - bounds.xLow; //TODO normalize this
     var dy = test_world.canvas.height - bounds.yHigh;
-    if (groundHeight) dy -= 2 * groundHeight;
-    
+    if (groundHeight) dy -= test_world.groundHeight;
     creature.translate(dx, dy);
+
     creature.setAsStartingPosition();
     
     var fitness = 0;

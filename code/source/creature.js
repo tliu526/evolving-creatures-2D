@@ -3,8 +3,7 @@ function Creature(masses, connections) {
     this.fitness = -1;
     this.connections = connections;
     this.masses = masses;	
-    this.components = [];
-    
+
     this.startingPositions = [];
 
     this.type = "Creature";
@@ -15,26 +14,22 @@ function Creature(masses, connections) {
     this.parentA    = -1;
     this.parentB    = -1;
     
-    for (var i = 0; i < masses.length; i++) {
-	this.components.push(masses[i]);
-	for (var j = 0; j < i; j++) {
-	    if (connections[i + masses.length * j] != false) {
-		this.components.push(connections[i + masses.length * j]);
+    this.addToWorld = function(world) {	
+	for (var i = 0; i < masses.length; i++) {
+	    masses[i].addToWorld(world);
+	    for (var j = 0; j < i; j++) {
+		if (connections[i + masses.length * j] != false) {
+		    connections[i + masses.length * j].addToWorld(world);
+		}
 	    }
 	}
-    }
-    
-    this.addToWorld = function(world) {
-	
-	for (var i = 0; i < this.components.length; i++){
-	    this.components[i].addToWorld(world);
-	}
-	var bounds = this.getBoundingBox();
+
+	//var bounds = this.getBoundingBox();
     }
     
     this.translate = function(dx, dy) {
-	for (var i = 0; i < masses.length; i++) {
-	    mass = masses[i]
+	for (var i = 0; i < this.masses.length; i++) {
+	    mass = this.masses[i]
 	    pos = mass.body.GetPosition();
 	    mass.body.SetPosition(new b2Vec2(pos.x + dx / SCALE, pos.y + dy / SCALE));
 	}
@@ -81,7 +76,7 @@ function Creature(masses, connections) {
 	this.startingPositions = new Array(this.masses.length);
 	for (var i = 0; i < this.masses.length; i++) {
 	    var pos = this.masses[i].body.GetPosition();
-	    this.startingPositions[i] = pos;
+	    this.startingPositions[i] = new b2Vec2(pos.x, pos.y);
 	}
     }
 

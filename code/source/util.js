@@ -26,6 +26,8 @@ var muscle_id = 0;
 var spring_id = 0;
 var creature_id = 0;
 
+var progress = 0;
+
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function(){
 	return  window.requestAnimationFrame || 
