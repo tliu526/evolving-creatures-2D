@@ -32,6 +32,13 @@ function World(options) {
 
     this.b2world = new b2World(new b2Vec2(0, this.scale / 3), false);    
 
+    this.creature;
+
+    this.cameraLocation = {
+        x : 0,
+        y: 0
+    }
+
     var boundary_options = {
         width      : this.wallWidth,
         height     : this.groundHeight,
