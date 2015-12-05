@@ -14,7 +14,7 @@ function onLoad() {
 
     var gaOptions = {
         maxGen : 50,
-        popSize : 50,
+        popSize : 4,
         mutRate : 0.5,
         crossRate : 0.3,
         survRatio : 0.25,
@@ -38,6 +38,25 @@ function onLoad() {
 
 };
 function onGraphics() {
+
+    /*
+    var bounds = creature.getBoundingBox();
+    var dx;
+    var dy;
+    if(bounds.xLow < visWorld.canvas.width * 0.25){
+        dx = (visWorld.canvas.width * 0.25) - bounds.xLow;
+    }
+    else if(bounds.xHigh > visWorld.canvas.width * 0.75) {
+        dx = (visWorld.canvas.width * 0.75) - bounds.xHigh;
+    }
+
+    //var dx = (-1 * (creature_pos.x)) * SCALE + visWorld.canvas.width / 2;
+    //var dy = (-1 * (creature_pos.y)) * SCALE + visWorld.canvas.height / 2;
+    if(dx){
+        visWorld.ctx.translate(dx, 0);
+    }
+    */
+
     for (var i = 0; i < 4; i++) {
 	visWorld[i].ctx.save();
 	visWorld[i].ctx.clearRect(0,0,visWorld[i].canvas.width,visWorld[i].canvas.height);

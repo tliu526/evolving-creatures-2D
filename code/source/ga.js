@@ -42,17 +42,11 @@ function GA(ga_options, creature_options){
 			this.curPop[i].pointMutation();
 		    }
 		}
-	
-		//stopgap until crossover is fixed
-		/*
-		while(this.curPop.length < this.popSize){
-		    this.curPop.push(generateRandomCreature(this.creatureOptions));
-		}
-		*/
-	
+		
 		//crossover, TODO weight by relative fitness
 		while(this.curPop.length < this.popSize){
-		//parents
+		    //parents
+
 		    var p1 = getRandomInt(0, survivors.length);
 		    var p2 = getRandomInt(0, survivors.length);
 		    var creat = crossover(survivors[p1], survivors[p2]);
@@ -72,20 +66,18 @@ function GA(ga_options, creature_options){
 	this.runSimulation = function() {
 		var fitFunc = this.fitness;
 		var oldPop = this.curPop;
-		var mapped = oldPop.map(function(element, i){
-			return {index: i, value: fitFunc(element)};
+
+		for(i = 0; i < oldPop.length; i++){
+			fitFunc(oldPop[i]);
+			//console.log("Fitness: "  + (i/oldPop.length * 100) + "% complete");
+		}
+
+		oldPop.sort(function (a,b) {
+			return b.fitness - a.fitness;
 		});
 
-		mapped.sort(function(a,b){
-			return b.value - a.value;
-		});
-
-		var result = mapped.map(function(e){
-			return oldPop[e.index];
-		});
-
-		this.curPop = result;
-		return result;
+		this.curPop = oldPop;
+		return oldPop;
 	}
 }
 
