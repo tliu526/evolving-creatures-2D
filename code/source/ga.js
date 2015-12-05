@@ -111,6 +111,7 @@ function distFitness(creature){
     for (i = 0; i < (SIMULATION_TIME * 60); i++){
     	test_world.b2world.Step(1/60, 10, 10);
     	test_world.b2world.ClearForces();
+
 	// penalize by width of box
 	/*
 	if (i % 60 == 0) {
@@ -125,9 +126,10 @@ function distFitness(creature){
 	    lastLeft = curLeft;
 	    }*/
     }
-    
+
     var bounds = creature.getBoundingBox();
     fitness = bounds.xLow;
+    fitness -= 0.2*creature.masses.length;
     creature.fitness = fitness;
 
     return fitness;
