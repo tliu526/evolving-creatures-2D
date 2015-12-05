@@ -3,11 +3,11 @@ var ga;
 
 function onLoad() {
     var creatureOptions = {
-	massLowerLimit : 10,
+	massLowerLimit : 4,
 	massUpperLimit : 12,
 	edgeLowerProportion : 0.7,
 	edgeUpperProportion : 0.9,
-	probMuscle : 0.8,
+	probMuscle : 0.7,
 	xBound : 3,
 	yBound : 3
     }
@@ -16,6 +16,7 @@ function onLoad() {
         maxGen : 50,
         popSize : 50,
         mutRate : 0.5,
+        graftRate : 0.3,
         crossRate : 0.3,
         survRatio : 0.25,
         fitness : distFitness
@@ -58,26 +59,7 @@ function onGraphics() {
 	visWorld[i].b2world.Step(1/60, 10, 10);
 	visWorld[i].b2world.ClearForces();
 	visWorld[i].ctx.restore();
-<<<<<<< HEAD
 	visWorld[i].draw();
-=======
-	visWorld[i].ctx.fillText(visWorld[i].label, 10, 10);
-
-	//draw bounding box
-	/*
-	var creature = ga.curPop[i];
-	var bounds = creature.getBoundingBox();
-	visWorld[i].ctx.strokeStyle = "red";
-	visWorld[i].ctx.rect(bounds.xLow, bounds.yLow, bounds.xHigh - bounds.xLow, bounds.yHigh - bounds.yLow);
-	visWorld[i].ctx.stroke();
-
-	visWorld[i].ctx.strokeStyle = "blue";
-	visWorld[i].ctx.beginPath();
-	visWorld[i].ctx.moveTo(3*visWorld[i].groundHeight, 0);
-	visWorld[i].ctx.lineTo(3*visWorld[i].groundHeight, visWorld[i].canvas.height);
-	visWorld[i].ctx.stroke();
-	*/
->>>>>>> 20dd95a97313031e9b702c03c17f8ec34fc37fb5
     }
     requestAnimFrame(onGraphics);
 }

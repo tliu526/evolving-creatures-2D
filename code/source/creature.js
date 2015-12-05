@@ -171,7 +171,7 @@ function connectedToSource(source, nodes, edges, visited) {
 Performs a single point crossover between creatures A and B and returns a new creature
 */
 //TODO still needs to be fixed, sometimes generates badness
-function crossover(creatureA, creatureB) {
+function graft(creatureA, creatureB) {
 	//console.log("top of crossover");
 	//slice is used to copy
 	var massesA = creatureA.masses.slice();

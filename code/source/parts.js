@@ -74,7 +74,7 @@ function Mass(options) {
 	grd.addColorStop(0, "rgba(1, 1, 1, 0.3)");
 	grd.addColorStop(1,"rgba(153, 179, 255, 0.3)");
 
-	ctx.strokeStyle = "rgba(153, 179, 255, 0.3)";
+	ctx.strokeStyle = "rgba(153, 179, 255, 1.0)";
 	ctx.fillStyle   = grd;
 
 	ctx.beginPath();
@@ -131,7 +131,7 @@ function Wall(options){
 	var ctx = world.ctx;
 	var scale = world.scale;
 
-	ctx.strokeStyle = "rgba(0, 255, 0, 0.3)";
+	ctx.strokeStyle = "rgba(0, 255, 0, 1.0)";
 	ctx.fillStyle   = "rgba(153, 255, 179, 0.3)";
 
 	ctx.fillRect(this.x * scale, this.y * scale, this.width * scale, this.height * scale);
@@ -185,7 +185,7 @@ function Spring(options){
 	var A = this.massA.body.GetPosition();
 	var B = this.massB.body.GetPosition();
 
-	ctx.strokeStyle = "rgba(0, 0, 255, 0.3)";
+	ctx.strokeStyle = "rgba(0, 0, 255, 1.0)";
 	ctx.fillStyle   = "rgba(0, 0, 255, 0.3)";
 
 	ctx.beginPath();
@@ -272,7 +272,7 @@ function Muscle(options){
 	var A = this.massA.body.GetPosition();
 	var B = this.massB.body.GetPosition();
 
-	ctx.strokeStyle = "rgba(255, 0, 0, 0.3)";
+	ctx.strokeStyle = "rgba(255, 0, 0, 1.0)";
 	ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
 
 	ctx.beginPath();

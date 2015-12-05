@@ -9,6 +9,7 @@ function GA(ga_options, creature_options){
 	this.maxGen = ga_options.maxGen;
 	this.popSize = ga_options.popSize;
 	this.mutRate = ga_options.mutRate;
+	this.graftRate = ga_options.graftRate;
 	this.crossRate = ga_options.crossRate;
 	this.survRatio = ga_options.survRatio;
 	this.fitness = ga_options.fitness;
@@ -36,12 +37,13 @@ function GA(ga_options, creature_options){
 		
 		
 		//crossover, TODO weight by relative fitness
-		while(this.curPop.length < this.popSize){
-		    //parents
-		    if (Math.random() < this.crossRate && survivors.length > 1) {
+		while(this.curPop.length < this.popSize) {
+		    var rand = Math.random();
+		    
+		    if (rand < this.graftRate && survivors.length > 1) {
 			var p1 = getRandomInt(0, survivors.length);
 			var p2 = getRandomInt(0, survivors.length);
-			var creat = crossover(survivors[p1], survivors[p2]);
+			var creat = graft(survivors[p1], survivors[p2]);
 			creat.generation = this.curGen;
 			this.curPop.push(creat);
 		    } else {
@@ -132,11 +134,7 @@ function distFitness(creature){
 	    lastLeft = curLeft;
 	}
     }
-    /*
-    var bounds = creature.getBoundingBox();
-    fitness = bounds.xLow;
-    fitness -= 5*creature.masses.length;
-    */
+
     creature.fitness = fitness;
 
     return fitness;
