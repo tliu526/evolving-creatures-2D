@@ -1,78 +1,95 @@
 //pre: masses is a list of mass objects (vertices), connections are springs/muscles
 function Creature(masses, connections) {
-    //this.map = {};
-	this.connections = connections;
-	this.masses = masses;
+    this.fitness = -1;
+    this.connections = connections;
+    this.masses = masses;	
+    this.components = [];
+    
+    this.startingPositions = [];
 
-	/*
-	for (var i = 0; i < masses.length; i++){
-		//add to our map of vertices, initialize empty adjacency list
-		this.map[masses[i]] = [];
+    this.type = "Creature";
+    this.id = creature_id;
+    creature_id++;
+    
+    this.generation = -1;
+    this.parentA    = -1;
+    this.parentB    = -1;
+    
+    for (var i = 0; i < masses.length; i++) {
+	this.components.push(masses[i]);
+	for (var j = 0; j < i; j++) {
+	    if (connections[i + masses.length * j] != false) {
+		this.components.push(connections[i + masses.length * j]);
+	    }
 	}
-
-	for (var i = 0; i < connections.length; i++){
-		//springs and muscles are our "edges"
-		var edge = connections[i];
-		this.map[edge.massA].push(edge);
-		this.map[edge.massB].push(edge);
-	}
-	*/
+    }
+    
+    this.addToWorld = function(world) {
 	
-	this.components = [];
-
+	for (var i = 0; i < this.components.length; i++){
+	    this.components[i].addToWorld(world);
+	}
+	var bounds = this.getBoundingBox();
+    }
+    
+    this.translate = function(dx, dy) {
 	for (var i = 0; i < masses.length; i++) {
-		this.components.push(masses[i]);
-		for (var j = 0; j < i; j++) {
-		    if (connections[i + masses.length * j] != false) {
-			this.components.push(connections[i + masses.length * j]);
-		    }
-		}
+	    mass = masses[i]
+	    pos = mass.body.GetPosition();
+	    mass.body.SetPosition(new b2Vec2(pos.x + dx / SCALE, pos.y + dy / SCALE));
 	}
-
-	this.addToWorld = function(world) {
-	  
-	    for (var i = 0; i < this.components.length; i++){
-		this.components[i].addToWorld(world);
-	    }
-	    var bounds = this.getBoundingBox();
+    }
+    
+    this.pointMutation = function() {
+	var rand = Math.floor(Math.random()*this.connections.length);
+	if (this.connections[rand]) {
+	    this.connections[rand].mutate();
 	}
-
-	this.translate = function(dx, dy) {
-	    for (var i = 0; i < masses.length; i++) {
-	    	mass = masses[i]
-	    	pos = mass.body.GetPosition();
-	    	mass.body.SetPosition(new b2Vec2(pos.x + dx / SCALE, pos.y + dy / SCALE));
-	    }
+    }
+    
+    this.getBoundingBox = function() {
+	var bounds = {
+	    xLow   : Infinity,
+	    xHigh  : -Infinity,
+	    yLow   : Infinity,
+	    yHigh  : -Infinity
 	}
 	
-	this.pointMutation = function() {
-	    var rand = Math.floor(Math.random()*this.connections.length);
-	    if (this.connections[rand]) {
-		this.connections[rand].mutate();
-	    }
-	}
-	
-	this.getBoundingBox = function() {
-	    var bounds = {
-		xLow   : -Infinity,
-		xHigh  : Infinity,
-		yLow   : -Infinity,
-		yHigh  : Infinity
-	    }
+	for (var i = 0; i < this.masses.length; i++) {
+	    var mass  = this.masses[i];
+	    var r     = mass.r;
+	    var x     = mass.body.GetPosition().x*SCALE;
+	    var y     = mass.body.GetPosition().y*SCALE;
 	    
-	    for (var i = 0; i < this.masses.length; i++) {
-		var mass  = this.masses[i];
-		var r     = mass.r;
-		var x     = mass.body.GetPosition().x*SCALE;
-		var y     = mass.body.GetPosition().y*SCALE;
-		
-		if (x + r < bounds.xHigh) bounds.xHigh = x + r;
-		if (x - r > bounds.xLow)  bounds.xLow  = x - r;
-		if (y + r < bounds.yHigh) bounds.yHigh = y + r;
-		if (y - r > bounds.yLow)  bounds.yLow  = y - r;
-	    }	    
-	    return bounds;
+	    if (x + r > bounds.xHigh) bounds.xHigh = x + r;
+	    if (x - r < bounds.xLow)  bounds.xLow  = x - r;
+	    if (y + r > bounds.yHigh) bounds.yHigh = y + r;
+	    if (y - r < bounds.yLow)  bounds.yLow  = y - r;
+	}	    
+	return bounds;
+    }
+
+    this.getMeanX = function() {
+	var sum = 0;
+	for (var i = 0; i < this.masses.length; i++) {
+	    sum += this.masses[i].body.GetPosition().x*SCALE;
+	}	    
+	return sum / this.masses.length;
+    }
+
+    this.setAsStartingPosition = function() {
+	this.startingPositions = new Array(this.masses.length);
+	for (var i = 0; i < this.masses.length; i++) {
+	    var pos = this.masses[i].body.GetPosition();
+	    this.startingPositions[i] = pos;
 	}
+    }
+
+    this.resetPosition = function() {
+	for (var i = 0; i < this.startingPositions.length; i++) {
+	    this.masses[i].body.SetPosition(this.startingPositions[i]);
+	}
+    }
 }
 
 // - don't want creatures with extraneous parts
@@ -231,7 +248,10 @@ function crossover(creatureA, creatureB) {
 	    }
 	} //END FOR
 
-	return new Creature(new_masses, new_connections);
+	var creat = new Creature(new_masses, new_connections);
+	creat.parentA = creatureA.id;
+	creat.parentB = creatureB.id;
+	return creat;
 }
 
 function copyJoint(x, y, joint, masses, connections) {
@@ -242,7 +262,7 @@ function copyJoint(x, y, joint, masses, connections) {
 	massB : masses[y]
     }
     
-    if (joint.id.charAt(0) == "S") {
+    if (joint.type.charAt(0) == "S") {
 	options.restLength = joint.rest_length;
 	options.damping = joint.dampingRatio;
 	options.frequency = joint.frequencyHz;

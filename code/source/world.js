@@ -7,10 +7,12 @@ Allows us to make multiple words with different parameters
 -elementID: identifier for canvas
 */
 function World(options) {
-    this.b2world = new b2World(new b2Vec2(0, 10), false);
+    this.b2world = new b2World(new b2Vec2(0, 10), false);    
     this.canvas = document.getElementById(options.elementID);
     this.canvas.addEventListener('click', onClick, false);
     this.ctx = this.canvas.getContext("2d");
+    this.label = "";
+
     this.components = [];
 
     this.hasWalls = options.hasWalls;

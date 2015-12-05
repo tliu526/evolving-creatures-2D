@@ -1,5 +1,4 @@
 var visWorld;
-var creature;
 var ga;
 
 function onLoad() {
@@ -39,34 +38,15 @@ function onLoad() {
 
 };
 function onGraphics() {
-
-    visWorld.ctx.save();
-    visWorld.ctx.clearRect(0,0,visWorld.canvas.width,visWorld.canvas.height);
-    /*
-    var bounds = creature.getBoundingBox();
-    var dx;
-    var dy;
-    if(bounds.xLow < visWorld.canvas.width * 0.25){
-        dx = (visWorld.canvas.width * 0.25) - bounds.xLow;
+    for (var i = 0; i < 4; i++) {
+	visWorld[i].ctx.save();
+	visWorld[i].ctx.clearRect(0,0,visWorld[i].canvas.width,visWorld[i].canvas.height);
+	visWorld[i].b2world.Step(1/60, 10, 10);
+	visWorld[i].b2world.ClearForces();
+	visWorld[i].b2world.DrawDebugData();
+	visWorld[i].ctx.restore();
+	visWorld[i].ctx.fillText(visWorld[i].label, 10, 10);
     }
-    else if(bounds.xHigh > visWorld.canvas.width * 0.75) {
-        dx = (visWorld.canvas.width * 0.75) - bounds.xHigh;
-    }
-
-    //var dx = (-1 * (creature_pos.x)) * SCALE + visWorld.canvas.width / 2;
-    //var dy = (-1 * (creature_pos.y)) * SCALE + visWorld.canvas.height / 2;
-    if(dx){
-        visWorld.ctx.translate(dx, 0);
-    }
-    */
-    //for debugging, speeding up simulations
-    //for(var i = 0; i < 2; i++){
-        visWorld.b2world.Step(1/60, 10, 10);
-        visWorld.b2world.ClearForces();
-    //}
-    visWorld.b2world.DrawDebugData();
-
-    visWorld.ctx.restore();
     requestAnimFrame(onGraphics);
 }
 
@@ -79,30 +59,26 @@ function simulate() {
     hasWalls     : false,
     hasGround    : false,
     isDistTest   : true,
-    wallWidth    : 10,
-    groundHeight : 10,
-    elementID    : "c"
+    wallWidth    : SCALE / 3.0,
+    groundHeight : SCALE / 3.0
     };
 
     if(ga.next()){
         document.getElementById("generation").innerHTML = "Generation: " + ga.curGen; 
         curTime = 0;
-        visWorld = new World(options);
-        creature = ga.curPop[0];
 
-        creature.addToWorld(visWorld);
+	visWorld = new Array(4);
 	
-        var start = 50;
-        var bounds = creature.getBoundingBox();
-        // translate so bounding box touches start on the right
-	var dx = start - (bounds.xHigh - bounds.xLow) / 2.0; //TODO normalize this
-        var dy = visWorld.canvas.height - bounds.yLow;
-        if (visWorld.groundHeight) {
-            dy -= visWorld.groundHeight;
-        }
-        creature.translate(dx, dy);
+	for (var i = 0; i < 4; i++) {
+	    options.elementID = String("c" + i);
+	    visWorld[i] = new World(options);
 
-        var bounds = creature.getBoundingBox();
+	    var creature = ga.curPop[i];
+	    creature.addToWorld(visWorld[i]);
+	    creature.resetPosition();
+
+	    visWorld[i].label = String("Fitness: " + creature.fitness);
+	}
 
         //console.log(distFitness(creature));
         //setTimeout(simulate, SIMULATION_TIME*500);

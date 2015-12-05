@@ -47,7 +47,8 @@ function Mass(options) {
     bodyDef.position.x = this.x / SCALE;
     bodyDef.position.y = this.y / SCALE;
     
-    this.id = "Mass " + mass_id;
+    this.type = "Mass";
+    this.id = mass_id;
     mass_id++;
     
     this.addToWorld = function(world) {
@@ -119,7 +120,8 @@ function Spring(options){
     
     this.massA = options.massA;
     this.massB = options.massB;
-    this.id = "Spring " + spring_id;
+    this.type = "Spring";
+    this.id = spring_id;
     spring_id++;
 
     this.rest_length = options.restLength;
@@ -182,7 +184,8 @@ function Muscle(options){
 
     this.massA = options.massA;
     this.massB = options.massB;
-    this.id = "Muscle " + muscle_id;
+    this.type = "Muscle";
+    this.id = muscle_id;
     muscle_id++;
 
     this.lowerTranslation = options.lowerLimit;

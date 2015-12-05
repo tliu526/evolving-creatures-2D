@@ -19,7 +19,9 @@ function GA(ga_options, creature_options){
 	this.curPop = [];
 	this.cutOff = Math.floor(this.popSize * this.survRatio);
 	for(var i = 0; i < this.popSize; i++){
-	    this.curPop.push(generateRandomCreature(this.creatureOptions));
+	    var creat = generateRandomCreature(this.creatureOptions);
+	    creat.generation = this.curGen;
+	    this.curPop.push(creat);
 	}
 
 	//can use a genetic algorithm like an iterator
@@ -51,11 +53,16 @@ function GA(ga_options, creature_options){
 		//crossover, TODO weight by relative fitness
 		while(this.curPop.length < this.popSize){
 		//parents
-		var p1 = getRandomInt(0, survivors.length);
-			var p2 = getRandomInt(0, survivors.length);
-			this.curPop.push(crossover(survivors[p1], survivors[p2]))
-			}
+		    var p1 = getRandomInt(0, survivors.length);
+		    var p2 = getRandomInt(0, survivors.length);
+		    var creat = crossover(survivors[p1], survivors[p2]);
+		    creat.generation = this.curGen;
+		    this.curPop.push(creat)
+		}
 		
+
+		//printCurrentGen(this.curPop);
+
 		this.curGen += 1;
 		return true;
 	};
@@ -82,35 +89,6 @@ function GA(ga_options, creature_options){
 	}
 }
 
-//- start and finish are values in meters from 0 where 
-//  0 is the left of the screen
-//- assume groundHeight is set to pixel hieght of ground 
-//  off bottom of canvas
-function speedFitness(creature) {
-    var start = 50;
-
-    var options = {
-    	hasWalls     : true,
-    	hasGround    : true,
-    	wallWidth    : 10,
-    	groundHeight : 10,
-    	elementID    : "c"
-    }
-    var world = new World(options);
-    var bounds = creature.getBoundingBox();
-    
-    console.log(bounds.xLow);
-    
-    // translate so bounding box touches start on the right
-    // use pixel values for dx and dy
-    dx = start - bounds.xHigh;
-    dy = world.canvas.height - bounds.yLow;
-    if (groundHeight) dy -= groundHeight;
-    
-    creature.translate(dx, dy);
-    creature.addToWorld(world);
-}
-
 function distFitness(creature){
     var start = 50;
     
@@ -118,9 +96,9 @@ function distFitness(creature){
     	hasWalls     : false,
     	hasGround    : false,
     	isDistTest   : true,
-    	wallWidth    : 10,
-    	groundHeight : 10,
-    	elementID    : "c"
+    	wallWidth    : SCALE / 3.0,
+    	groundHeight : SCALE / 3.0,
+    	elementID    : "c1"
     }
     var test_world = new World(options);
     
@@ -129,26 +107,26 @@ function distFitness(creature){
 
     // translate so bounding box against floor and has middle on start    
     var dx = start - (bounds.xHigh - bounds.xLow) / 2.0; //TODO normalize this
-    var dy = test_world.canvas.height - bounds.yLow;
+    var dy = test_world.canvas.height - bounds.yHigh;
     if (groundHeight) dy -= 2 * groundHeight;
     
     creature.translate(dx, dy);
+
+    creature.setAsStartingPosition();
     
+    var fitness = 0;
+    var lastLeft = 0;
     //simulate the creature
     for (i = 0; i < (SIMULATION_TIME * 60); i++){
     	test_world.b2world.Step(1/60, 10, 10);
     	test_world.b2world.ClearForces();
+	// penalize by width of box
+	var bounds = creature.getBoundingBox();
+	var curLeft = (bounds.xHigh - bounds.xLow) / 2.0;
+	fitness += (curLeft - lastLeft) / (0.001 * (bounds.xHigh - bounds.xLow) / SCALE + (SIMULATION_TIME * 60 / i));
+	lastLeft = curLeft;
     }
-
-    var min_x_dist = Infinity;
-    for(i = 0; i < creature.masses.length; i++){
-    	var x_pos = creature.masses[i].body.GetPosition().x;
-
-    	if( x_pos < min_x_dist){
-    		min_x_dist = x_pos;
-    	}
-    }
-
-    //TODO a better measure than farthest x-distance traveled?
-    return min_x_dist;
+    
+    creature.fitness = fitness;
+    return fitness;
 }

@@ -13,7 +13,7 @@ var b2Vec2 = Box2D.Common.Math.b2Vec2,
     b2DistanceJointDef =  Box2D.Dynamics.Joints.b2DistanceJointDef,
     b2PrismaticJointDef =  Box2D.Dynamics.Joints.b2PrismaticJointDef;
 
-var SCALE = 30;
+var SCALE = 15;
 //negative index means members of this group do not collide
 var GROUP_MASS = -1;
 
@@ -24,6 +24,7 @@ var POP_SIZE = 1000;
 var mass_id = 0;
 var muscle_id = 0;
 var spring_id = 0;
+var creature_id = 0;
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function(){
