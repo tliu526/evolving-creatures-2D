@@ -112,13 +112,14 @@ function distFitness(creature){
     for (i = 0; i < (SIMULATION_TIME * 60); i++){
     	test_world.b2world.Step(1/60, 10, 10);
     	test_world.b2world.ClearForces();
+
 	// penalize by width of box
 	var bounds = creature.getBoundingBox();
 	var curLeft = (bounds.xHigh - bounds.xLow) / 2.0;
 	fitness += (curLeft - lastLeft) / (0.001 * (bounds.xHigh - bounds.xLow) / SCALE + (SIMULATION_TIME * 60 / i));
 	lastLeft = curLeft;
     }
-    
+    fitness -= 0.2*creature.masses.length;
     creature.fitness = fitness;
     return fitness;
 }
