@@ -35,7 +35,7 @@ function Component(options) {
 function Mass(options) {
     Component.call(this, options);
     this.options = options;
-    this.r = options.r || 5;
+    this.r = options.r || SCALE / 6;
 
     var bodyDef = new b2BodyDef;
     if (this.isStatic == true) {
@@ -78,8 +78,8 @@ function Mass(options) {
 function Wall(options){
     Component.call(this, options);
 
-    this.width =  options.width   || 10;
-    this.height = options.height  || 10;
+    this.width =  options.width   || SCALE / 3;
+    this.height = options.height  || SCALE / 3;
     
     var bodyDef = new b2BodyDef;
     if (this.isStatic == true) {

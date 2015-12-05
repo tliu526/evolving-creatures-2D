@@ -41,7 +41,7 @@ window.requestAnimFrame = (function(){
     })();
 
 function addRightWall(options) {
-    options.width = options.width || 4;
+    options.width = options.width || SCALE / 3;
 
     var v = {
 	fill     :    options.fill  || 0x663300,
@@ -57,7 +57,7 @@ function addRightWall(options) {
 }
 
 function addLeftWall(options) {
-    options.width = options.width || 4;
+    options.width = options.width || SCALE / 3;
 
     var v = {
 	fill     :    options.fill  || 0x663300,
@@ -74,7 +74,7 @@ function addLeftWall(options) {
 }
 
 function addGround(options) {
-    options.height = options.height || 4;
+    options.height = options.height || SCALE / 3;
     groundHeight   = options.height;
 
     var v = {
@@ -92,7 +92,7 @@ function addGround(options) {
 }
 
 function addTestGround(options) {
-    options.height = options.height || 4;
+    options.height = options.height || SCALE / 3;
     groundHeight   = options.height;
 
     var v = {
@@ -142,8 +142,8 @@ function generateRandomCreature(options) {
  
     for(var i = 0; i < getRandomInt(massLowerLimit, massUpperLimit); i++){
         var mass_options = {
-            x           : getRandomInt(20, 20 + xBound * SCALE),
-            y           : getRandomInt(20, 20 + yBound * SCALE),
+            x           : getRandomInt(SCALE, SCALE + xBound * SCALE),
+            y           : getRandomInt(SCALE, SCALE + yBound * SCALE),
             density     : 1.0,
             restitution : 0.2,
             friction    : getRandom(0.8, 1),
@@ -173,89 +173,82 @@ function generateRandomCreature(options) {
 	//i is temporary so I can debug other things
   
 	var count = 0;
-	while (count < (connected.length*2) && ((connected[iA + masses.length * iB] != false) 
-					    || (connected[iB + masses.length * iA]!= false))) {
+	while (count < (connected.length*2) 
+	       && ((connected[iA + masses.length * iB] != false) 
+		   || (connected[iB + masses.length * iA]!= false))) {
 	    iB = (iA + getRandomInt(1, masses.length)) % masses.length;
 	    count++; 
 	}
 	
-  /*
-	  while ((connected[iA + masses.length * iB] != false) 
-	  || (connected[iB + masses.length * iA]!= false)) {
-	  iB = (iA + getRandomInt(1, masses.length)) % masses.length;
-	  }
-  */
-	
         var mA = masses[iA];
         var mB = masses[iB];
-		
+	
         if (getRandom(0, 1) >= probMuscle) {
-           var spring_options = {
-              massA : mA,             
-              massB : mB,
-              restLength : distance(mA.x, mA.y, mB.x, mB.y),
-              damping : getRandom(0.0, 0.5),
-              frequency : getRandom(0.0, 1.0)
-          }
+	    var spring_options = {
+		massA : mA,             
+		massB : mB,
+		restLength : distance(mA.x, mA.y, mB.x, mB.y) / SCALE,
+		damping : getRandom(0.0, 0.5),
+		frequency : getRandom(0.0, 1.0)
+	    }
 	    
-          var spring = new Spring(spring_options);
-          connected[iA + masses.length * iB] = spring;
-          connected[iB + masses.length * iA] = spring;
-
-      } 
-      else {
-
-       var theta = getRandom(0.0, Math.PI*2);
-       var stretch = getRandom(0.0, 0.5);
-
-       var muscle_options = {
-        massA : mA,             
-        massB : mB,
-        lowerLimit : (1 - stretch) * distance(mA.x, mA.y, mB.x, mB.y) / SCALE,
-        upperLimit : (1 + stretch) * distance(mA.x, mA.y, mB.x, mB.y) / SCALE,
-        motorSpeed : getRandom(0.5, 2.0),
-        maxMotorForce: getRandom(50.0, 300.0),
-        axis : new b2Vec2(Math.cos(theta), Math.sin(theta))
+	    var spring = new Spring(spring_options);
+	    connected[iA + masses.length * iB] = spring;
+	    connected[iB + masses.length * iA] = spring;
+	    
+	} else {
+	    
+	    var theta = getRandom(0.0, Math.PI*2);
+	    var stretch = getRandom(0.0, 0.5);
+	    
+	    var muscle_options = {
+		massA : mA,             
+		massB : mB,
+		lowerLimit : (1 - stretch) * distance(mA.x, mA.y, mB.x, mB.y) / SCALE,
+		upperLimit : (1 + stretch) * distance(mA.x, mA.y, mB.x, mB.y) / SCALE,
+		motorSpeed : getRandom(0.5, 2.0),
+		maxMotorForce: getRandom(50.0, 300.0),
+		axis : new b2Vec2(Math.cos(theta), Math.sin(theta))
 	    }
 	    
 	    var muscle = new Muscle(muscle_options);
 	    connected[iA + masses.length * iB] = muscle;
 	    connected[iB + masses.length * iA] = muscle;
-   }
-  }
-
+	}
+    }
+    
     var largest = largestConnectedGraph(masses, connected);
     if (largest.length < masses.length) {
-       resultMasses = [];
+	resultMasses = [];
 	
-       for (var i = 0; i < largest.length; i++) {
-        resultMasses.push(masses[largest[i]]);
-       }
-
-       resultConnections = new Array(resultMasses.length * resultMasses.length);
-
-       // Setup adjacency matrix
-       for(var i = 0; i < resultConnections.length; i++) {
-        resultConnections[i] = false;
-       }
-       
-       for (var i = 0; i < largest.length; i++) {
-           for (var j = 0; j < largest.length; j++) {
-            if(largest[j] < largest[i]){
-              if (connected[largest[i] + masses.length * largest[j]] != false) {
-                var joint = connected[largest[i] + masses.length * largest[j]];
-                resultConnections[i + resultMasses.length * j] = joint;
-                resultConnections[j + resultMasses.length * i] = joint;
-              }
-            } 
-          }
+	for (var i = 0; i < largest.length; i++) {
+	    resultMasses.push(masses[largest[i]]);
+	}
+	
+	resultConnections = new Array(resultMasses.length * resultMasses.length);
+	
+	// Setup adjacency matrix
+	for(var i = 0; i < resultConnections.length; i++) {
+	    resultConnections[i] = false;
+	}
+	
+	for (var i = 0; i < largest.length; i++) {
+	    for (var j = 0; j < largest.length; j++) {
+		if(largest[j] < largest[i]){
+		    if (connected[largest[i] + masses.length * largest[j]] != false) {
+			var joint = connected[largest[i] + masses.length * largest[j]];
+			resultConnections[i + resultMasses.length * j] = joint;
+			resultConnections[j + resultMasses.length * i] = joint;
+		    }
+		} 
+	    }
         }
-
-       return new Creature(resultMasses, resultConnections);
-
+	
+	return new Creature(resultMasses, resultConnections);
+	
     } 
     else {
-     return new Creature(masses, connected);
+	return new Creature(masses, connected);
     }
 }
 
