@@ -65,6 +65,16 @@ function onGraphics() {
 	visWorld[i].b2world.DrawDebugData();
 	visWorld[i].ctx.restore();
 	visWorld[i].ctx.fillText(visWorld[i].label, 10, 10);
+
+	var creature = ga.curPop[i];
+	var bounds = creature.getBoundingBox();
+	visWorld[i].ctx.rect(bounds.xLow, bounds.yLow, bounds.xHigh, bounds.yHigh);
+	visWorld[i].ctx.stroke();
+	visWorld[i].ctx.beginPath();
+	visWorld[i].ctx.moveTo(3*visWorld[i].groundHeight, 0);
+	visWorld[i].ctx.lineTo(3*visWorld[i].groundHeight, visWorld[i].canvas.height);
+	visWorld[i].ctx.stroke();
+
     }
     requestAnimFrame(onGraphics);
 }
@@ -75,15 +85,16 @@ function onClick() {
 
 function simulate() {
     var options = {
-    hasWalls     : false,
-    hasGround    : false,
-    isDistTest   : true,
-    wallWidth    : SCALE / 3.0,
-    groundHeight : SCALE / 3.0
+	hasWalls     : false,
+	hasGround    : false,
+	isDistTest   : true,
+	wallWidth    : SCALE / 3.0,
+	groundHeight : SCALE / 3.0
     };
 
     if(ga.next()){
         document.getElementById("generation").innerHTML = "Generation: " + ga.curGen; 
+        document.getElementById("progress").innerHTML = "Next: " + progress + "%"; 
         curTime = 0;
 
 	visWorld = new Array(4);
@@ -95,7 +106,6 @@ function simulate() {
 	    var creature = ga.curPop[i];
 	    creature.addToWorld(visWorld[i]);
 	    creature.resetPosition();
-
 	    visWorld[i].label = String("Fitness: " + creature.fitness);
 	}
 
