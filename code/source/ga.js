@@ -34,12 +34,6 @@ function GA(ga_options, creature_options){
 		survivors = this.curPop.slice(0, this.cutOff);
 		this.curPop = survivors.slice() // init new population with survivors
 		
-		//mutation
-		for (var i = 0; i < this.curPop.length; i++){
-		    if(Math.random() < this.mutRate){
-			this.curPop[i].pointMutation();
-		    }
-		}
 		
 		//crossover, TODO weight by relative fitness
 		while(this.curPop.length < this.popSize){
@@ -52,6 +46,12 @@ function GA(ga_options, creature_options){
 		    this.curPop.push(creat)
 		}
 		
+		//mutation
+		for (var i = 0; i < this.curPop.length; i++){
+		    if(Math.random() < this.mutRate){
+			this.curPop[i].pointMutation();
+		    }
+		}
 
 		//printCurrentGen(this.curPop);
 		this.runSimulation();
@@ -109,7 +109,7 @@ function distFitness(creature){
     	test_world.b2world.Step(1/60, 10, 10);
     	test_world.b2world.ClearForces();
 	// penalize by width of box
-
+	/*
 	if (i % 60 == 0) {
 	    var bounds = creature.getBoundingBox();
 	    var curLeft = bounds.xLow;
@@ -120,9 +120,12 @@ function distFitness(creature){
 		fitness += 0.1 * curLeft; // (0.001 * (bounds.xHigh - bounds.xLow) / SCALE + (SIMULATION_TIME * 60 / i));
 	    }
 	    lastLeft = curLeft;
-	}
+	    }*/
     }
     
+    var bounds = creature.getBoundingBox();
+    fitness = bounds.xLow;
     creature.fitness = fitness;
+
     return fitness;
 }

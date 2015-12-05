@@ -148,13 +148,13 @@ function Spring(options){
         var rand = Math.floor(Math.random() * 3);
         switch(rand){
 	case 0:
-            this.joint.SetDampingRatio(this.joint.GetDampingRatio()*2*Math.random());
+            this.dampingRatio *= 2*Math.random();
             break;
 	case 1:
-            this.joint.SetFrequency(this.joint.GetFrequency()*2*Math.random());
+            this.frequency *= 2*Math.random();
             break;
 	case 2:
-            this.joint.SetLength(this.joint.GetLength()*2*Math.random());
+            this.rest_length *= 2*Math.random();
             break;
 	default:
             break;
@@ -218,16 +218,16 @@ function Muscle(options){
         var rand = Math.floor(Math.random() * 4);
         switch(rand){
 	case 0:
-            this.joint.SetMaxMotorForce(this.joint.GetMotorForce()*4*Math.random());
+            this.maxMotorForce *= 4*Math.random();
             break;
 	case 1:
-            this.joint.SetLimits(this.joint.GetLowerLimit()*2*Math.random(),this.joint.GetUpperLimit());
+            this.lowerTranslation *= 2*Math.random();
             break;
 	case 2:
-            this.joint.SetLimits(this.joint.GetLowerLimit(), this.joint.GetUpperLimit()*2*Math.random());
+            this.upperTranslation *= (2*Math.random() + 1)*this.lowerTranslation;
             break;
 	case 3:
-            this.joint.SetMotorSpeed(this.joint.GetMotorSpeed()*2*Math.random());
+            this.motorSpeed *= 2*Math.random();
             break;
 	default:
             break;
