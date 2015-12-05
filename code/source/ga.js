@@ -31,17 +31,9 @@ function GA(ga_options, creature_options){
 		}
 		
 		var survivors;
-		this.runSimulation();
-
 		survivors = this.curPop.slice(0, this.cutOff);
 		this.curPop = survivors.slice() // init new population with survivors
 		
-		//mutation
-		for (var i = 0; i < this.curPop.length; i++){
-		    if(Math.random() < this.mutRate){
-			this.curPop[i].pointMutation();
-		    }
-		}
 		
 		//crossover, TODO weight by relative fitness
 		while(this.curPop.length < this.popSize){
@@ -54,9 +46,15 @@ function GA(ga_options, creature_options){
 		    this.curPop.push(creat)
 		}
 		
+		//mutation
+		for (var i = 0; i < this.curPop.length; i++){
+		    if(Math.random() < this.mutRate){
+			this.curPop[i].pointMutation();
+		    }
+		}
 
 		//printCurrentGen(this.curPop);
-
+		this.runSimulation();
 		this.curGen += 1;
 		return true;
 	};
@@ -82,8 +80,6 @@ function GA(ga_options, creature_options){
 }
 
 function distFitness(creature){
-    var start = 50;
-    
     var options = {
     	hasWalls     : false,
     	hasGround    : false,
@@ -98,12 +94,12 @@ function distFitness(creature){
     var bounds = creature.getBoundingBox();
 
     // translate so bounding box against floor and has middle on start    
-    var dx = start - (bounds.xHigh - bounds.xLow) / 2.0; //TODO normalize this
+    var start = 0.3 * SCALE + groundHeight
+    var dx = start - bounds.xLow; //TODO normalize this
     var dy = test_world.canvas.height - bounds.yHigh;
     if (groundHeight) dy -= 2 * groundHeight;
     
     creature.translate(dx, dy);
-
     creature.setAsStartingPosition();
     
     var fitness = 0;
@@ -114,12 +110,24 @@ function distFitness(creature){
     	test_world.b2world.ClearForces();
 
 	// penalize by width of box
-	var bounds = creature.getBoundingBox();
-	var curLeft = (bounds.xHigh - bounds.xLow) / 2.0;
-	fitness += (curLeft - lastLeft) / (0.001 * (bounds.xHigh - bounds.xLow) / SCALE + (SIMULATION_TIME * 60 / i));
-	lastLeft = curLeft;
+	/*
+	if (i % 60 == 0) {
+	    var bounds = creature.getBoundingBox();
+	    var curLeft = bounds.xLow;
+	    //if (curLeft > lastLeft) {
+	    if (true) {
+		fitness += curLeft; // (0.001 * (bounds.xHigh - bounds.xLow) / SCALE + (SIMULATION_TIME * 60 / i));
+	    } else {
+		fitness += 0.1 * curLeft; // (0.001 * (bounds.xHigh - bounds.xLow) / SCALE + (SIMULATION_TIME * 60 / i));
+	    }
+	    lastLeft = curLeft;
+	    }*/
     }
+
+    var bounds = creature.getBoundingBox();
+    fitness = bounds.xLow;
     fitness -= 0.2*creature.masses.length;
     creature.fitness = fitness;
+
     return fitness;
 }
