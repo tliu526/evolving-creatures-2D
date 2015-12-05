@@ -118,14 +118,17 @@ function distFitness(creature){
     	test_world.b2world.ClearForces();
 
 	// penalize by width of box
-	
+	// penalize for being too high too
 	if (i % 30 == 0) {
 	    var bounds = creature.getBoundingBox();
 	    var curLeft = bounds.xLow;
+	    var penalize = 0;
+	    penalize += 0.001 * (bounds.xHigh - bounds.xLow) / SCALE;
+	    if (bounds.yLow < 0) penalize += 100;
 	    if (curLeft > lastLeft) {
-		fitness += curLeft / (0.001 * (bounds.xHigh - bounds.xLow) / SCALE + (SIMULATION_TIME * 60 / i));
+		fitness += curLeft / (penalize + (SIMULATION_TIME * 60 / i));
 	    } else {
-		fitness += 0.4 * curLeft / (0.001 * (bounds.xHigh - bounds.xLow) / SCALE + (SIMULATION_TIME * 60 / i));
+		fitness += 0.4 * curLeft / (penalize + (SIMULATION_TIME * 60 / i));
 	    }
 	    lastLeft = curLeft;
 	}
