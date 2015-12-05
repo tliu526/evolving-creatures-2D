@@ -22,6 +22,13 @@ function World(options) {
     this.wallWidth    = options.wallWidth    || 0;
     this.groundHeight = options.groundHeight || 0;
 
+    this.creature;
+
+    this.cameraLocation = {
+        x : 0,
+        y: 0
+    }
+
     var boundary_options = {
         width      : this.wallWidth,
         height     : this.groundHeight,

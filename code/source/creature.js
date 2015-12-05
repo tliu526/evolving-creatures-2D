@@ -15,6 +15,7 @@ function Creature(masses, connections) {
     this.parentB    = -1;
     
     this.addToWorld = function(world) {	
+    	world.creature = this;
     	for (var i = 0; i < masses.length; i++) {
     		masses[i].addToWorld(world);
     		for (var j = 0; j < i; j++) {

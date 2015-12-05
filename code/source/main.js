@@ -22,30 +22,45 @@ function onLoad() {
     };
 
     ga = new GA(gaOptions, creatureOptions);
-
-    //creature = generateRandomCreature(creatureOptions);
-    //creature.addToWorld(visWorld);
-
-    //distFitness(creature);
-
-    //var creature2 = generateRandomCreature(creatureOptions);
-    //creature2.addToWorld(visWorld);
-
-    //var new_creature = crossover(creature, creature2);
-    //new_creature.addToWorld(visWorld);
-
-	//requestAnimFrame(onGraphics(world));
-
 };
 function onGraphics() {
     for (var i = 0; i < 4; i++) {
 	visWorld[i].ctx.save();
 	visWorld[i].ctx.clearRect(0,0,visWorld[i].canvas.width,visWorld[i].canvas.height);
+	
+	var creature = visWorld[i].creature;
+	if(creature){
+		var bounds = creature.getBoundingBox();
+		var xCenter = (bounds.xLow + bounds.xHigh) / 2;
+		var dx;
+		var dy;
+		var cameraLoc = visWorld[i].cameraLocation;
+		if(xCenter < (cameraLoc.x + visWorld[i].canvas.width*0.25)){
+			dx = xCenter - (cameraLoc.x + visWorld[i].canvas.width*0.25); 
+		}
+		else if(xCenter > (cameraLoc.x + visWorld[i].canvas.width*.75)) {
+			dx = xCenter - (cameraLoc.x + visWorld[i].canvas.width*0.75);
+		}
+        if(dx){
+        	visWorld[i].cameraLocation.x += dx;
+        	visWorld[i].cameraLocation.x = clamp(visWorld[i].cameraLocation.x, 0, Infinity);
+        }
+        /*
+        if(dy){
+        	visWorld[i].ctx.translate(dy, 0);
+        	visWorld[i].cameraLocation.y += dy;
+        }
+        */
+	}
+	visWorld[i].ctx.translate(-visWorld[i].cameraLocation.x, 0);
+
 	visWorld[i].b2world.Step(1/60, 10, 10);
 	visWorld[i].b2world.ClearForces();
 	visWorld[i].b2world.DrawDebugData();
 	visWorld[i].ctx.restore();
 	visWorld[i].ctx.fillText(visWorld[i].label, 10, 10);
+
+	//draw bounding box
 	/*
 	var creature = ga.curPop[i];
 	var bounds = creature.getBoundingBox();
