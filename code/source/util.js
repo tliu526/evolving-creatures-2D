@@ -13,7 +13,6 @@ var b2Vec2 = Box2D.Common.Math.b2Vec2,
     b2DistanceJointDef =  Box2D.Dynamics.Joints.b2DistanceJointDef,
     b2PrismaticJointDef =  Box2D.Dynamics.Joints.b2PrismaticJointDef;
 
-var SCALE = 15;
 //negative index means members of this group do not collide
 var GROUP_MASS = -1;
 
@@ -31,17 +30,18 @@ var progress = 0;
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function(){
 	return  window.requestAnimationFrame || 
-	window.webkitRequestAnimationFrame || 
-	window.mozRequestAnimationFrame    || 
-	window.oRequestAnimationFrame      || 
-	window.msRequestAnimationFrame     || 
-	function(/* function */ callback, /* DOMElement */ element){
+	window.webkitRequestAnimationFrame   || 
+	window.mozRequestAnimationFrame      || 
+	window.oRequestAnimationFrame        || 
+	window.msRequestAnimationFrame       || 
+	function(/* function */ callback, 
+		 /* DOMElement */ element){
 	    window.setTimeout(callback, 1000 / 60);
 	};
     })();
 
 function addRightWall(options) {
-    options.width = options.width || SCALE / 3;
+    options.width = options.width || 10;
 
     var v = {
 	fill     :    options.fill  || 0x663300,
@@ -57,7 +57,7 @@ function addRightWall(options) {
 }
 
 function addLeftWall(options) {
-    options.width = options.width || SCALE / 3;
+    options.width = options.width || 10;
 
     var v = {
 	fill     :    options.fill  || 0x663300,
@@ -74,33 +74,32 @@ function addLeftWall(options) {
 }
 
 function addGround(options) {
-    options.height = options.height || SCALE / 3;
+    options.height = options.height || 0.4;
     groundHeight   = options.height;
 
     var v = {
 	fill     :    options.fill  || 0x663300,
-	width    :    options.world.canvas.width,
-	height   :    options.height,
+	width    :    3 * options.world.canvas.width / options.world.scale,
+	height   :    options.height / options.world.scale,
 	x        :    0,
-	y        :    options.world.canvas.height - options.height,
+	y        :    options.world.canvas.height / options.world.scale - options.height,
 	isStatic :    true
     }
 
     options.world.components.push(new Wall(v));
     options.world.components[options.world.components.length-1].addToWorld(options.world);
-    //stage.addChild(shapes[shapes.length-1].pixi);
 }
 
 function addTestGround(options) {
-    options.height = options.height || SCALE / 3;
+    options.height = options.height || 0.4;
     groundHeight   = options.height;
 
     var v = {
       fill     :    options.fill  || 0x663300,
-      width    :    100000000000000, //TODO make reasonable
+      width    :    1000000, //TODO make reasonable
       height   :    options.height,
       x        :    0,
-      y        :    options.world.canvas.height - options.height,
+      y        :    options.world.canvas.height / options.world.scale - options.height,
       isStatic :    true
     }
 
@@ -142,8 +141,8 @@ function generateRandomCreature(options) {
  
     for(var i = 0; i < getRandomInt(massLowerLimit, massUpperLimit); i++){
         var mass_options = {
-            x           : getRandomInt(SCALE, SCALE + xBound * SCALE),
-            y           : getRandomInt(SCALE, SCALE + yBound * SCALE),
+            x           : getRandomInt(0, xBound),
+            y           : getRandomInt(0, yBound),
             density     : 1.0,
             restitution : 0.2,
             friction    : getRandom(0.8, 1),
@@ -187,7 +186,7 @@ function generateRandomCreature(options) {
 	    var spring_options = {
 		massA : mA,             
 		massB : mB,
-		restLength : distance(mA.x, mA.y, mB.x, mB.y) / SCALE,
+		restLength : distance(mA.x, mA.y, mB.x, mB.y),
 		damping : getRandom(0.0, 0.5),
 		frequency : getRandom(0.0, 1.0)
 	    }
@@ -204,8 +203,8 @@ function generateRandomCreature(options) {
 	    var muscle_options = {
 		massA : mA,             
 		massB : mB,
-		lowerLimit : (1 - stretch) * distance(mA.x, mA.y, mB.x, mB.y) / SCALE,
-		upperLimit : (1 + stretch) * distance(mA.x, mA.y, mB.x, mB.y) / SCALE,
+		lowerLimit : (1 - stretch) * distance(mA.x, mA.y, mB.x, mB.y),
+		upperLimit : (1 + stretch) * distance(mA.x, mA.y, mB.x, mB.y),
 		motorSpeed : getRandom(0.5, 2.0),
 		maxMotorForce: getRandom(50.0, 300.0),
 		axis : new b2Vec2(Math.cos(theta), Math.sin(theta))

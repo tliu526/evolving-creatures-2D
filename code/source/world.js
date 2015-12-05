@@ -7,46 +7,48 @@ Allows us to make multiple words with different parameters
 -elementID: identifier for canvas
 */
 function World(options) {
-    this.b2world = new b2World(new b2Vec2(0, SCALE / 3), false);    
-    this.canvas = document.getElementById(options.elementID);
-    this.canvas.addEventListener('click', onClick, false);
-    this.ctx = this.canvas.getContext("2d");
+    this.scale = 30;
+    this.wallWidth    = 0.4;
+    this.groundHeight = 0.4;
     this.label = "";
-
     this.components = [];
 
-    this.hasWalls = options.hasWalls;
-    this.hasGround = options.hasGround;
-    this.isDistTest = options.isDistTest;
-    
-    this.wallWidth    = options.wallWidth    || 0;
-    this.groundHeight = options.groundHeight || 0;
+    if (options) {
+	if (options.elementID) {
+	    this.canvas = document.getElementById(options.elementID);
+	    this.canvas.addEventListener('click', onClick, false);
+	    this.ctx = this.canvas.getContext("2d");
+	    this.scale = this.canvas.width / 20;
+	}
+	if (options.scale) this.scale = options.scale;
+	if (options.wallWidth) this.wallWidth = options.wallWidth;
+	if (options.groundHeight) this.groundHeight = options.groundHeight;
+    }
+
+    this.isDistTest    = options.isDistTest || false;
+    this.hasRightWall  = options.hasWalls   || false;
+    this.hasLeftWall   = options.hasWalls   || this.isDistTest;
+    this.hasGround     = options.hasGround  || this.isDistTest;
+
+    this.b2world = new b2World(new b2Vec2(0, this.scale / 3), false);    
 
     var boundary_options = {
         width      : this.wallWidth,
         height     : this.groundHeight,
+	scale      : this.scale,
         world      : this
     }
 
-    if (this.hasWalls) {
-	addRightWall(boundary_options);
-	addLeftWall(boundary_options);
-    }
+    if (this.hasRightWall) addRightWall(boundary_options);
+    if (this.hasLeftWall)  addLeftWall(boundary_options);
+    if (this.hasGround)    addGround(boundary_options);
 
-    if (this.hasGround) {
-	addGround(boundary_options);
+    this.draw = function() {
+	for (var i = 0; i < this.components.length; i++) {
+	    this.components[i].drawToWorld(this);
+	}
+	this.ctx.strokeStyle = "black";
+	this.ctx.fillStyle = "black";
+	this.ctx.fillText(this.label, 10, 10);
     }
-
-    if(this.isDistTest){
-        addLeftWall(boundary_options);
-        addTestGround(boundary_options);
-    }
-    
-    this.debugDraw = new b2DebugDraw();
-    this.debugDraw.SetSprite(this.ctx);
-    this.debugDraw.SetDrawScale(SCALE);
-    this.debugDraw.SetFillAlpha(0.3);
-    this.debugDraw.SetLineThickness(1.0);
-    this.debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
-    this.b2world.SetDebugDraw(this.debugDraw);
 }

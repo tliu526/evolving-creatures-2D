@@ -91,10 +91,9 @@ function distFitness(creature){
     	hasWalls     : false,
     	hasGround    : false,
     	isDistTest   : true,
-    	wallWidth    : SCALE / 3.0,
-    	groundHeight : SCALE / 3.0,
     	elementID    : "c1"
     }
+
     var test_world = new World(options);
     
     creature.addToWorld(test_world);
@@ -102,9 +101,9 @@ function distFitness(creature){
     var bounds = creature.getBoundingBox();
 
     // translate so bounding box against floor and has middle on start    
-    var start = 3*test_world.groundHeight;
+    var start = 2 * test_world.wallWidth;
     var dx = start - bounds.xLow; //TODO normalize this
-    var dy = test_world.canvas.height - bounds.yHigh;
+    var dy = test_world.canvas.height / test_world.scale - bounds.yHigh;
     if (groundHeight) dy -= test_world.groundHeight;
     creature.translate(dx, dy);
 
@@ -123,7 +122,7 @@ function distFitness(creature){
 	    var bounds = creature.getBoundingBox();
 	    var curLeft = bounds.xLow;
 	    var penalize = 0;
-	    penalize += 0.001 * (bounds.xHigh - bounds.xLow) / SCALE;
+	    penalize += 0.001 * (bounds.xHigh - bounds.xLow);
 	    if (bounds.yLow < 0) penalize += 100;
 	    if (curLeft > lastLeft) {
 		fitness += curLeft / (penalize + (SIMULATION_TIME * 60 / i));

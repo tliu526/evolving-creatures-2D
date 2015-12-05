@@ -22,43 +22,16 @@ function onLoad() {
     };
 
     ga = new GA(gaOptions, creatureOptions);
-
-    //creature = generateRandomCreature(creatureOptions);
-    //creature.addToWorld(visWorld);
-
-    //distFitness(creature);
-
-    //var creature2 = generateRandomCreature(creatureOptions);
-    //creature2.addToWorld(visWorld);
-
-    //var new_creature = crossover(creature, creature2);
-    //new_creature.addToWorld(visWorld);
-
-	//requestAnimFrame(onGraphics(world));
-
 };
+
 function onGraphics() {
     for (var i = 0; i < 4; i++) {
 	visWorld[i].ctx.save();
 	visWorld[i].ctx.clearRect(0,0,visWorld[i].canvas.width,visWorld[i].canvas.height);
 	visWorld[i].b2world.Step(1/60, 10, 10);
 	visWorld[i].b2world.ClearForces();
-	visWorld[i].b2world.DrawDebugData();
 	visWorld[i].ctx.restore();
-	visWorld[i].ctx.fillText(visWorld[i].label, 10, 10);
-	/*
-	var creature = ga.curPop[i];
-	var bounds = creature.getBoundingBox();
-	visWorld[i].ctx.strokeStyle = "red";
-	visWorld[i].ctx.rect(bounds.xLow, bounds.yLow, bounds.xHigh - bounds.xLow, bounds.yHigh - bounds.yLow);
-	visWorld[i].ctx.stroke();
-
-	visWorld[i].ctx.strokeStyle = "blue";
-	visWorld[i].ctx.beginPath();
-	visWorld[i].ctx.moveTo(3*visWorld[i].groundHeight, 0);
-	visWorld[i].ctx.lineTo(3*visWorld[i].groundHeight, visWorld[i].canvas.height);
-	visWorld[i].ctx.stroke();
-	*/
+	visWorld[i].draw();
     }
     requestAnimFrame(onGraphics);
 }
@@ -72,13 +45,12 @@ function simulate() {
 	hasWalls     : false,
 	hasGround    : false,
 	isDistTest   : true,
-	wallWidth    : SCALE / 3.0,
-	groundHeight : SCALE / 3.0
+	wallWidth    : 0.4,
+	groundHeight : 0.4
     };
 
     if(ga.next()){
         document.getElementById("generation").innerHTML = "Generation: " + ga.curGen; 
-        document.getElementById("progress").innerHTML = "Next: " + progress + "%"; 
         curTime = 0;
 
 	visWorld = new Array(4);

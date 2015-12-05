@@ -31,7 +31,7 @@ function Creature(masses, connections) {
 	for (var i = 0; i < this.masses.length; i++) {
 	    mass = this.masses[i]
 	    pos = mass.body.GetPosition();
-	    mass.body.SetPosition(new b2Vec2(pos.x + dx / SCALE, pos.y + dy / SCALE));
+	    mass.body.SetPosition(new b2Vec2(pos.x + dx, pos.y + dy));
 	}
     }
     
@@ -53,8 +53,8 @@ function Creature(masses, connections) {
 	for (var i = 0; i < this.masses.length; i++) {
 	    var mass  = this.masses[i];
 	    var r     = mass.r;
-	    var x     = mass.body.GetPosition().x*SCALE;
-	    var y     = mass.body.GetPosition().y*SCALE;
+	    var x     = mass.body.GetPosition().x;
+	    var y     = mass.body.GetPosition().y;
 	    
 	    if (x + r > bounds.xHigh) bounds.xHigh = x + r;
 	    if (x - r < bounds.xLow)  bounds.xLow  = x - r;
@@ -67,7 +67,7 @@ function Creature(masses, connections) {
     this.getMeanX = function() {
 	var sum = 0;
 	for (var i = 0; i < this.masses.length; i++) {
-	    sum += this.masses[i].body.GetPosition().x*SCALE;
+	    sum += this.masses[i].body.GetPosition().x;
 	}	    
 	return sum / this.masses.length;
     }

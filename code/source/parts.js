@@ -8,34 +8,36 @@ four components:
 -walls 
 */
 function Component(options) {
-    this.options = options;//.slice();
-  
-    this.x =           options.x          || 0;
-    this.y =           options.y          || 0;
-    this.angle =       options.angle      || 0;
-    this.fill =        options.fill       || 0x000000;
-    this.density =     options.density    || 0.5;
-    this.restitution = options.restitution || 0.2;
-    this.friction =    options.friction   || 0.8;
-    this.isStatic =    options.isStatic   || false;
-    
-    this.update = function(options) {
-     if (!this.isStatic) {
-         this.x =       options.x || this.x;
-         this.y =       options.y || this.y;
-         this.angle =   options.angle || this.angle;
-         this.fill =    options.fill || this.fill;
-	 if (this.body) {
-	     this.body.SetPosition(new b2Vec2(this.x / SCALE, this.y / SCALE));
-	 }
-     }
+    this.x =           options.x        || 0;
+    this.y =           options.y        || 0;
+    this.isStatic =    options.isStatic || false;
+    this.angle =       0;
+    this.fill =        0x000000;
+    this.density =     0.5;
+    this.restitution = 0.2;
+    this.friction =    0.8;
+    this.scale =       30;
+    if (options) {
+	this.options = options;
+	if (options.angle)       this.angle =       options.angle;
+	if (options.fill)        this.fill =        options.fill;
+	if (options.density)     this.density =     options.density;
+	if (options.restitution) this.restitution = options.restitution;
+	if (options.friction)    this.friction =    options.friction;
+	if (options.scale)       this.scale = options.scale;
     }
-}
 
+    this.drawToWorld = function(world) {}
+}
 function Mass(options) {
     Component.call(this, options);
-    this.options = options;
-    this.r = options.r || SCALE / 6;
+
+    this.type = "Mass";
+    this.id = mass_id;
+    mass_id++;
+
+    this.r = 0.2;
+    if (options.r) this.r = options.r;
 
     var bodyDef = new b2BodyDef;
     if (this.isStatic == true) {
@@ -44,12 +46,8 @@ function Mass(options) {
 	bodyDef.type = b2Body.b2_dynamicBody;
     }
 
-    bodyDef.position.x = this.x / SCALE;
-    bodyDef.position.y = this.y / SCALE;
-    
-    this.type = "Mass";
-    this.id = mass_id;
-    mass_id++;
+    bodyDef.position.x = this.x;
+    bodyDef.position.y = this.y;
     
     this.addToWorld = function(world) {
 	this.body = world.b2world.CreateBody(bodyDef);
@@ -59,10 +57,31 @@ function Mass(options) {
 	fixDef.friction = this.friction;
 	fixDef.restitution = this.restitution;
 	fixDef.filter.groupIndex = GROUP_MASS;
-	fixDef.shape = new b2CircleShape(this.r / SCALE);
-	//fixDef.shape = new b2PolygonShape();
-	//fixDef.shape.SetAsBox(this.r/SCALE, this.r/SCALE);
+	fixDef.shape = new b2CircleShape(this.r);
 	this.body.CreateFixture(fixDef);
+
+	world.components.push(this);
+    }
+
+    this.drawToWorld = function(world) {
+	var ctx = world.ctx;
+	var scale = world.scale;
+	var pos = this.body.GetPosition();
+
+	var grd = ctx.createRadialGradient(pos.x * scale, pos.y * scale, 0, 
+					   pos.x * scale, pos.y * scale , this.r * scale);
+
+	grd.addColorStop(0, "rgba(1, 1, 1, 0.3)");
+	grd.addColorStop(1,"rgba(153, 179, 255, 0.3)");
+
+	ctx.strokeStyle = "rgba(153, 179, 255, 0.3)";
+	ctx.fillStyle   = grd;
+
+	ctx.beginPath();
+	ctx.arc(pos.x * scale, pos.y * scale, this.r * scale, 0, Math.PI*2, true); 
+	ctx.closePath();
+	ctx.fill();
+	ctx.stroke();
     }
 
     //TODO figure out why stringify is generating cyclic objects
@@ -78,8 +97,11 @@ function Mass(options) {
 function Wall(options){
     Component.call(this, options);
 
-    this.width =  options.width   || SCALE / 3;
-    this.height = options.height  || SCALE / 3;
+    this.width =  0.4;
+    this.height = 0.4;
+
+    if (options.width)  this.width =  options.width;
+    if (options.height) this.height = options.height;
     
     var bodyDef = new b2BodyDef;
     if (this.isStatic == true) {
@@ -88,10 +110,9 @@ function Wall(options){
 	bodyDef.type = b2Body.b2_dynamicBody;
     }
 
-    bodyDef.position.x = (this.x + this.width / 2) / SCALE;
-    bodyDef.position.y = (this.y + this.height / 2) / SCALE;
+    bodyDef.position.x = (this.x + this.width / 2);
+    bodyDef.position.y = (this.y + this.height / 2);
     
-
     this.addToWorld = function(world) {
 	this.body = world.b2world.CreateBody(bodyDef);
 
@@ -100,10 +121,23 @@ function Wall(options){
 	fixDef.friction = this.friction       || 0.5;
 	fixDef.restitution = this.restitution || 0.2;
 	fixDef.shape = new b2PolygonShape();
-	fixDef.shape.SetAsBox(this.width / (2*SCALE), this.height / (2*SCALE));
+	fixDef.shape.SetAsBox(this.width / (2), this.height / (2));
 	this.body.CreateFixture(fixDef);
+
+	world.components.push(this);
     }
 
+    this.drawToWorld = function(world) {
+	var ctx = world.ctx;
+	var scale = world.scale;
+
+	ctx.strokeStyle = "rgba(0, 255, 0, 0.3)";
+	ctx.fillStyle   = "rgba(153, 255, 179, 0.3)";
+
+	ctx.fillRect(this.x * scale, this.y * scale, this.width * scale, this.height * scale);
+	ctx.rect(this.x * scale, this.y * scale, this.width * scale, this.height * scale);
+	ctx.stroke();
+    }
 }
 //Wall.prototype = Component;
 
@@ -130,17 +164,35 @@ function Spring(options){
     
     this.addToWorld = function(world) {
 	var dist_joint = new b2DistanceJointDef();
+
 	dist_joint.bodyA = this.massA.body;
 	dist_joint.bodyB = this.massB.body;
 	dist_joint.localAnchorA = new b2Vec2(0,0);
 	dist_joint.localAnchorB = new b2Vec2(0,0);
-	
 	dist_joint.rest_length = options.restLength;
 	dist_joint.dampingRatio = options.damping;
 	dist_joint.frequencyHz = options.frequency;
 	dist_joint.collideConnected = true;
 
 	this.joint = world.b2world.CreateJoint(dist_joint);
+
+	world.components.push(this);
+    }
+
+    this.drawToWorld = function(world) {
+	var ctx = world.ctx;
+	var scale = world.scale;
+	var A = this.massA.body.GetPosition();
+	var B = this.massB.body.GetPosition();
+
+	ctx.strokeStyle = "rgba(0, 0, 255, 0.3)";
+	ctx.fillStyle   = "rgba(0, 0, 255, 0.3)";
+
+	ctx.beginPath();
+	ctx.moveTo(A.x * scale, A.y * scale);
+	ctx.lineTo(B.x * scale, B.y * scale);
+	ctx.stroke();
+	ctx.fill();
     }
 
     //TODO tweak the mutation values so that they're reasonable, add Gaussian noise
@@ -195,13 +247,12 @@ function Muscle(options){
 
     this.addToWorld = function(world) {
 	var prism_joint = new b2PrismaticJointDef();
+
 	prism_joint.bodyA = this.massA.body;
 	prism_joint.bodyB = this.massB.body;
 	prism_joint.localAnchorA = new b2Vec2(0,0);
 	prism_joint.localAnchorB = new b2Vec2(0,0);
 	prism_joint.axis = options.axis;
-	
-	// FIGURE OUT WHAT THESE MEAN
 	prism_joint.enableLimit = true;
 	prism_joint.lowerTranslation = options.lowerLimit;
 	prism_joint.upperTranslation = options.upperLimit;
@@ -211,6 +262,25 @@ function Muscle(options){
 	prism_joint.collideConnected = true;
 	
 	this.joint = world.b2world.CreateJoint(prism_joint);
+
+	world.components.push(this);
+    }
+
+    this.drawToWorld = function(world) {
+	var ctx = world.ctx;
+	var scale = world.scale;
+	var A = this.massA.body.GetPosition();
+	var B = this.massB.body.GetPosition();
+
+	ctx.strokeStyle = "rgba(255, 0, 0, 0.3)";
+	ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
+
+	ctx.beginPath();
+	ctx.moveTo(A.x * scale, A.y * scale);
+	ctx.lineTo(B.x * scale, B.y * scale);
+
+	ctx.stroke();
+	ctx.fill();
     }
 
     //TODO tweak the mutation values so that they're reasonable, add Gaussian noise
