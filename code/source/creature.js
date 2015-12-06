@@ -220,7 +220,7 @@ function graft(creatureA, creatureB, canSwitchOrder) {
 		    i1 = i;
 		    i2 = j;
 		    joint = connectionsA[i + massesA.length * j];
-		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
+		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, false);
 		}
 	    } 
 	} else {
@@ -231,7 +231,7 @@ function graft(creatureA, creatureB, canSwitchOrder) {
 		    i1 = i;
 		    i2 = iB2 + cross_ptA - cross_ptB + 1;
 		    joint = connectionsB[iB1 + massesB.length * iB2];
-		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
+		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, false);
 		}
 	    }
 	}
@@ -317,22 +317,26 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
 	    for (var j = i + 1; j < massesA.length; j++) {
 		//Assume properly setup adjacency matrix
 		if (connectionsA[i + massesA.length * j] != false
-		    && connectionsB[i + massesB.length * j] == false) {
+		    && new_connections[i + new_masses.length * j] == false) {
 		    i1 = i;
 		    i2 = j;
 		    joint = connectionsA[i + massesA.length * j];
-		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
+		    if (j >= cross_ptA && i < cross_ptB) {
+			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, true);
+		    } else {
+			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, true);
+		    }
 		}
 	    } 
 	} else {
 	    //connectiong going left of current node to before cross_ptA
 	    for (j = 0; j < cross_ptA; j++) {
 		if (connectionsB[i + massesB.length * j] != false
-		    && connectionsB[i + massesB.length * j] == false) {
+		    && new_connections[i + new_masses.length * j] == false) {
 		    i1 = i;
 		    i2 = j;
 		    joint = connectionsB[i + massesB.length * j];
-		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
+		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, true);
 		}
 	    } 
 
@@ -340,11 +344,15 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
 	    for (var j = i + 1; j < minLength; j++) {	
 		//Assume properly setup adjacency matrix
 		if ((connectionsB[i + massesB.length * j] != false)
-		    && connectionsB[i + massesB.length * j] == false) {
+		    && new_connections[i + new_masses.length * j] == false) {
 		    i1 = i;
 		    i2 = j;
 		    joint = connectionsB[i + massesB.length * j];
-		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
+		    if (j >= cross_ptB) {
+			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, true);
+		    } else {
+			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, true);
+		    }
 		}
 	    }
 	}
@@ -356,7 +364,7 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
     return creat;
 }
 
-function copyJoint(x, y, joint, masses, connections) {
+function copyJoint(x, y, joint, masses, connections, resetLengths) {
     var new_joint;
         
     var options = {
@@ -369,13 +377,24 @@ function copyJoint(x, y, joint, masses, connections) {
 	options.damping = joint.dampingRatio;
 	options.frequency = joint.frequencyHz;
 	
+	if (resetLengths) {
+	    options.restLength = distance(options.massA.x, options.massA.y, options.massB.x, options.massB.y);
+	}
+	
 	new_joint = new Spring(options);
+
     } else {
 	options.lowerLimit = joint.lowerTranslation;
 	options.upperLimit = joint.upperTranslation;
 	options.motorSpeed = joint.motorSpeed;
 	options.maxMotorForce = joint.maxMotorForce;
 	
+	if (resetLengths) {
+	    var stretch = getRandom(0.0, 0.3);
+	    options.lowerLimit = (1 - stretch) * distance(options.massA.x, options.massA.y, options.massB.x, options.massB.y);
+	    options.upperLimit = (1 + stretch) * distance(options.massA.x, options.massA.y, options.massB.x, options.massB.y);
+	}
+
 	new_joint = new Muscle(options);
     }
     

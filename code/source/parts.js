@@ -79,7 +79,8 @@ function Mass(options) {
 	grd.addColorStop(0, "rgba(255, 255, 255, 0.8)");
 	grd.addColorStop(1,"rgba(153, 179, 255, 0.8)");
 
-	ctx.strokeStyle = "rgba(153, 179, 255, 0.8)";
+	ctx.lineWidth = this.r * scale / 5;
+	ctx.strokeStyle = "rgba(150, 150, 150, 0.8)";
 	ctx.fillStyle   = grd;
 
 	ctx.beginPath();
@@ -138,11 +139,12 @@ function Wall(options){
 	var xShift = world.camera.x;
 	var yShift = world.camera.y;
 
+	ctx.lineWidth = world.scale / 8;
 	ctx.strokeStyle = "rgba(0, 255, 0, 1.0)";
 	ctx.fillStyle   = "rgba(153, 255, 179, 0.3)";
 
 	ctx.fillRect(this.x * scale - xShift, this.y * scale - yShift, this.width * scale, this.height * scale);
-	ctx.rect(this.x * scale - xShift, this.y * scale - yShift, this.width * scale, this.height * scale);
+	ctx.strokeRect(this.x * scale - xShift, this.y * scale - yShift, this.width * scale, this.height * scale);
 	ctx.stroke();
     }
 }
@@ -194,13 +196,14 @@ function Spring(options){
 	var xShift = world.camera.x;
 	var yShift = world.camera.y;
 
+	ctx.lineWidth = world.scale / 8;
 	ctx.strokeStyle = "rgba(0, 0, 255, 1.0)";
 	ctx.fillStyle   = "rgba(0, 0, 255, 1.0)";
 
 	ctx.beginPath();
 	ctx.moveTo(A.x * scale - xShift, A.y * scale - yShift);
 	ctx.lineTo(B.x * scale - xShift, B.y * scale - yShift);
-
+	ctx.closePath();
 	ctx.stroke();
 	ctx.fill();
     }
@@ -294,7 +297,7 @@ function Muscle(options){
 	ctx.beginPath();
 	ctx.moveTo(A.x * scale - xShift, A.y * scale - yShift);
 	ctx.lineTo(B.x * scale - xShift, B.y * scale - yShift);
-
+	ctx.closePath();
 	ctx.stroke();
 	ctx.fill();
     }

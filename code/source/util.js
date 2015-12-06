@@ -238,7 +238,7 @@ function getRandomJoint(options) {
 	return new Spring(spring_options);
     } else {	
 	var theta = getRandom(0.0, Math.PI*2);
-	var stretch = getRandom(0.0, 0.5);
+	var stretch = getRandom(0.0, 0.3);
 	
 	var muscle_options = {
 	    massA : options.mA,             
