@@ -16,7 +16,7 @@ function onLoad() {
         maxGen : 50,
         popSize : 50,
         mutRate : 0,
-        graftRate : 0.7,
+        graftRate : 0.3,
         crossRate : 0.3,
         survRatio : 0.2,
         fitness : distFitness
@@ -42,7 +42,7 @@ function onGraphics() {
 
 	    if(bounds.xHigh * visWorld[i].scale > (camera.x + visWorld[i].canvas.width*.75)) {
 		var dx = (bounds.xHigh * visWorld[i].scale - (camera.x + visWorld[i].canvas.width*0.75)) / 2; 
-		if (camera.dx < dx) camera.dx = dx; 
+		if (camera.dx < dx) camera.dx += (dx - camera.dx) / 2; 
 	    }
 
 	    else if(bounds.xHigh * visWorld[i].scale < (camera.x + visWorld[i].canvas.width*.60)
@@ -86,24 +86,29 @@ function simulate() {
 
     if(ga.next()){
         document.getElementById("generation").innerHTML = "Generation: " + ga.curGen; 
-        curTime = 0;
-
-	visWorld = new Array(4);
+	curTime = 0;
 	
-	for (var i = 0; i < 4; i++) {
-	    options.elementID = String("c" + i);
-	    visWorld[i] = new World(options);
-
-	    var creature = ga.curPop[i];
-	    creature.addToWorld(visWorld[i]);
-	    creature.resetPosition();
-	    visWorld[i].label = String("Fitness: " + creature.fitness);
+	//if (ga.curGen == 1 || ga.curGen % 5 == 0) {    
+	    visWorld = new Array(4);
+	    
+	    for (var i = 0; i < 4; i++) {
+		options.elementID = String("c" + i);
+		visWorld[i] = new World(options);
+		
+		var creature = ga.curPop[i];
+		creature.addToWorld(visWorld[i]);
+		creature.resetPosition();
+		visWorld[i].label = String("Fitness: " + creature.fitness);
+	    }
+	    
+	    //console.log(distFitness(creature));
+	    //setTimeout(simulate, SIMULATION_TIME*500);
+	    setTimeout(simulate, SIMULATION_TIME*1000);
 	}
-
-        //console.log(distFitness(creature));
-        //setTimeout(simulate, SIMULATION_TIME*500);
-        setTimeout(simulate, SIMULATION_TIME*1000);
-    }
+    /*    } else {
+	setTimeout(simulate, SIMULATION_TIME*1000);
+	//setTimeout(simulate, SIMULATION_TIME*0);
+	}*/
 }
 
 onLoad();

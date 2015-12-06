@@ -76,10 +76,10 @@ function Mass(options) {
 					   pos.y * scale - yShift, 
 					   this.r * scale);
 
-	grd.addColorStop(0, "rgba(1, 1, 1, 0.3)");
-	grd.addColorStop(1,"rgba(153, 179, 255, 0.3)");
+	grd.addColorStop(0, "rgba(255, 255, 255, 0.8)");
+	grd.addColorStop(1,"rgba(153, 179, 255, 0.8)");
 
-	ctx.strokeStyle = "rgba(153, 179, 255, 1.0)";
+	ctx.strokeStyle = "rgba(153, 179, 255, 0.8)";
 	ctx.fillStyle   = grd;
 
 	ctx.beginPath();
@@ -176,9 +176,9 @@ function Spring(options){
 	dist_joint.bodyB = this.massB.body;
 	dist_joint.localAnchorA = new b2Vec2(0,0);
 	dist_joint.localAnchorB = new b2Vec2(0,0);
-	dist_joint.rest_length = options.restLength;
-	dist_joint.dampingRatio = options.damping;
-	dist_joint.frequencyHz = options.frequency;
+	dist_joint.rest_length = this.restLength;
+	dist_joint.dampingRatio = this.damping;
+	dist_joint.frequencyHz = this.frequency;
 	dist_joint.collideConnected = true;
 
 	this.joint = world.b2world.CreateJoint(dist_joint);
@@ -195,7 +195,7 @@ function Spring(options){
 	var yShift = world.camera.y;
 
 	ctx.strokeStyle = "rgba(0, 0, 255, 1.0)";
-	ctx.fillStyle   = "rgba(0, 0, 255, 0.3)";
+	ctx.fillStyle   = "rgba(0, 0, 255, 1.0)";
 
 	ctx.beginPath();
 	ctx.moveTo(A.x * scale - xShift, A.y * scale - yShift);
@@ -210,13 +210,16 @@ function Spring(options){
         var rand = Math.floor(Math.random() * 3);
         switch(rand){
 	case 0:
-            this.dampingRatio *= 2*Math.random();
+	    //increase or decrease by max five percent
+            this.dampingRatio *= (1.05 - 0.1*Math.random());
             break;
 	case 1:
-            this.frequency *= 2*Math.random();
+	    //increase or decrease by max five percent
+            this.frequency *= (1.05 - 0.1*Math.random());
             break;
 	case 2:
-            this.rest_length *= 2*Math.random();
+	    //increase or decrease by max five percent
+            this.restLength *= (1.05 - 0.1*Math.random());
             break;
 	default:
             break;
@@ -264,10 +267,10 @@ function Muscle(options){
 	prism_joint.localAnchorB = new b2Vec2(0,0);
 	prism_joint.axis = options.axis;
 	prism_joint.enableLimit = true;
-	prism_joint.lowerTranslation = options.lowerLimit;
-	prism_joint.upperTranslation = options.upperLimit;
-	prism_joint.motorSpeed = options.motorSpeed;
-	prism_joint.maxMotorForce = options.maxMotorForce;
+	prism_joint.lowerTranslation = this.lowerLimit;
+	prism_joint.upperTranslation = this.upperLimit;
+	prism_joint.motorSpeed = this.motorSpeed;
+	prism_joint.maxMotorForce = this.maxMotorForce;
 	prism_joint.enableMotor = true;
 	prism_joint.collideConnected = true;
 	
@@ -285,7 +288,8 @@ function Muscle(options){
 	var yShift = world.camera.y;
 
 	ctx.strokeStyle = "rgba(255, 0, 0, 1.0)";
-	ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
+	ctx.fillStyle = "rgba(255, 0, 0, 1.0)";
+	ctx.lineWidth = world.scale / 8;
 
 	ctx.beginPath();
 	ctx.moveTo(A.x * scale - xShift, A.y * scale - yShift);
@@ -297,19 +301,19 @@ function Muscle(options){
 
     //TODO tweak the mutation values so that they're reasonable, add Gaussian noise
     this.mutate = function() {
-        var rand = Math.floor(Math.random() * 4);
+        var rand = Math.floor(Math.random() * 3);
         switch(rand){
 	case 0:
             this.maxMotorForce *= 4*Math.random();
             break;
 	case 1:
-            this.lowerTranslation *= 2*Math.random();
+	    var diff = this.upperTranslation - this.lowerTranslation;
+	    var newDiff = diff * (1.05 - 0.1*Math.random());
+            this.lowerTranslation = this.lowerTransition + diff/2 - newDiff/2;
+            this.upperTranslation = this.upperTransition + diff/2 + newDiff/2;
             break;
 	case 2:
-            this.upperTranslation *= (2*Math.random() + 1)*this.lowerTranslation;
-            break;
-	case 3:
-            this.motorSpeed *= 2*Math.random();
+            this.motorSpeed *= (1.05 - 0.1*Math.random());;
             break;
 	default:
             break;

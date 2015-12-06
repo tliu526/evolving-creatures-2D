@@ -43,18 +43,24 @@ function GA(ga_options, creature_options){
 		//grafting, more fit creatures mate more
 		while(this.curPop.length < this.popSize) {
 		    var rand = Math.random();
-		    
-		    if (rand < this.graftRate && survivors.length > 1) {
+		    var creat;
+
+		    if ((rand < (this.graftRate + this.crossRate)) 
+			&& (survivors.length > 1)) {
 		    	var p1 = getRandomInt(0, weights.length);
 		    	var p2 = getRandomInt(0, weights.length);
-		    	var creat = graft(survivors[weights[p1]], survivors[weights[p2]]);
-		    	creat.generation = this.curGen;
-		    	this.curPop.push(creat);
+
+			if (rand < this.graftRate) {
+			    creat = graft(survivors[weights[p1]], survivors[weights[p2]], true);
+			} else { 
+			    creat = crossover(survivors[weights[p1]], survivors[weights[p2]], true);
+			}
 		    } else {
-		    	var creat = generateRandomCreature(this.creatureOptions);
-		    	creat.generation = this.curGen;
-		    	this.curPop.push(creat);
+		    	creat = generateRandomCreature(this.creatureOptions);
 		    }
+		    
+		    creat.generation = this.curGen;
+		    this.curPop.push(creat);
 		}
 
 		//mutation
@@ -98,7 +104,7 @@ function GA(ga_options, creature_options){
 		var target = this.curGen + 10;
 
 		for(i = 0; i < oldPop.length; i++){
-			fitFunc(oldPop[i], target);
+			fitFunc(oldPop[i]);
 			if (i % (oldPop.length / 20) == 0) progress = 100 * i / oldPop.length; 
 		}
 
@@ -111,7 +117,61 @@ function GA(ga_options, creature_options){
 	}
 }
 
-function distFitness(creature, target){
+//encourages movement to the right in time period
+function distFitness(creature){
+    var options = {
+    	hasWalls     : false,
+    	hasGround    : false,
+    	isDistTest   : true,
+    	elementID    : "c1"
+    }
+
+    var test_world = new World(options);
+    
+    creature.addToWorld(test_world);
+    creature.resetPosition();
+    var bounds = creature.getBoundingBox();
+
+    // translate so bounding box against floor and has middle on start    
+    var start = 2 * test_world.wallWidth;
+    var dx = start - bounds.xLow; 
+    var dy = test_world.canvas.height / test_world.scale - bounds.yHigh;
+    if (groundHeight) dy -= test_world.groundHeight;
+    creature.translate(dx, dy);
+
+    creature.setAsStartingPosition();
+
+    var fitness = 0;
+    var lastLeft = 0;
+
+    //simulate the creature
+    var i;
+    for (i = 0; i < (SIMULATION_TIME * 60); i++){
+    	test_world.b2world.Step(1/60, 10, 10);
+    	test_world.b2world.ClearForces();
+
+	    // penalize by width of box
+	    // penalize for being too high too
+	    if (i % 30 == 0) {
+	    	var bounds = creature.getBoundingBox();
+	    	var curLeft = bounds.xLow;
+	    	var penalize = 0;
+	    	penalize += 0.001 * (bounds.xHigh - bounds.xLow);
+	    	if (bounds.yLow < 0) penalize += 100;
+	    	if (curLeft > lastLeft) {
+		    fitness += curLeft / (penalize + (SIMULATION_TIME * 60 / i));
+	    	} else {
+		    fitness += 0.4 * curLeft / (penalize + (SIMULATION_TIME * 60 / i));
+	    	}
+	    	lastLeft = curLeft;
+	    }
+    }
+
+    creature.fitness = fitness;
+    return fitness;
+}
+
+function targetFitness(creature, target){
     var options = {
     	hasWalls     : false,
     	hasGround    : false,

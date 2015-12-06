@@ -61,8 +61,9 @@ function World(options) {
     }
 
     this.draw = function() {
-	this.ctx.drawImage(this.background, -this.camera.x % this.canvas.width, 0);
-	this.ctx.drawImage(this.background, this.canvas.width - (-this.camera.x % this.canvas.width), 0);
+	this.ctx.drawImage(this.background, -this.camera.x % this.background.width, 0);
+	this.ctx.drawImage(this.background, (-this.camera.x % this.background.width) + this.background.width, 0);
+	this.ctx.drawImage(this.background, (-this.camera.x % this.background.width) - this.background.width, 0);
 
 	for (var i = 0; i < this.components.length; i++) {
 	    this.components[i].drawToWorld(this);

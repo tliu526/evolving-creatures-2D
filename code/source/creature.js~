@@ -258,31 +258,27 @@ function graft(creatureA, creatureB, canSwitchOrder) {
   Performs a two point crossover between creatures A and B and returns a new creature
 */
 function crossover(creatureA, creatureB, canSwitchOrder) {
+    var minLength = Math.min(creatureA.masses.length, creatureB.masses.length);
+    if (minLength < 4) return graft(creatureA, creatureB, true); //Essentially a one point crossover		   
+			   
+    var cross_ptA = getRandomInt(1, minLength - 1);
+    var cross_ptB = getRandomInt(1, minLength - 1);
+    var maxIter = minLength;
+    var i = 0;
+    while((i < maxIter) && Math.abs(cross_ptA - cross_ptB) < 2) {
+	cross_ptB = getRandomInt(1, minLength - 1);
+	i++;
+    }
+
+    if (Math.abs(cross_ptA -cross_ptB) < 2) return graft(creatureA, creatureB, true); //still essentially a sone point crossover
+
     if (canSwitchOrder && Math.random < 0.5) {
 	var temp = creatureA;
 	creatureA = creatureB;
 	creatureB = temp;
     }
 
-    var cross_ptA;
-    var cross_ptB;
-    var minLength = Math.min(creatureA.masses.length, creatureB.masses.length);
-
-    if (minLength < 4) {
-	cross_ptA = 0;
-	cross_ptB = getRandomInt(0, minLength);
-    } else {		   
-	cross_ptA = getRandomInt(1, minLength - 1);
-	cross_ptB = getRandomInt(1, minLength - 1);
-	var maxIter = minLength;
-	var i = 0;
-	
-	while((i < maxIter) && Math.abs(cross_ptA - cross_ptB) < 2) {
-	    cross_ptB = getRandomInt(1, minLength - 1);
-	    i++;
-	}
-    }
-
+    //console.log("top of crossover");
     //slice is used to copy
     var massesA = creatureA.masses.slice();
     var massesB = creatureB.masses.slice();

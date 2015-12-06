@@ -178,41 +178,15 @@ function generateRandomCreature(options) {
 	    count++; 
 	}
 	
-        var mA = masses[iA];
-        var mB = masses[iB];
-	
-        if (getRandom(0, 1) >= probMuscle) {
-	    var spring_options = {
-		massA : mA,             
-		massB : mB,
-		restLength : distance(mA.x, mA.y, mB.x, mB.y),
-		damping : getRandom(0.0, 0.5),
-		frequency : getRandom(0.0, 1.0)
-	    }
-	    
-	    var spring = new Spring(spring_options);
-	    connected[iA + masses.length * iB] = spring;
-	    connected[iB + masses.length * iA] = spring;
-	    
-	} else {
-	    
-	    var theta = getRandom(0.0, Math.PI*2);
-	    var stretch = getRandom(0.0, 0.5);
-	    
-	    var muscle_options = {
-		massA : mA,             
-		massB : mB,
-		lowerLimit : (1 - stretch) * distance(mA.x, mA.y, mB.x, mB.y),
-		upperLimit : (1 + stretch) * distance(mA.x, mA.y, mB.x, mB.y),
-		motorSpeed : getRandom(0.5, 2.0),
-		maxMotorForce: getRandom(50.0, 300.0),
-		axis : new b2Vec2(Math.cos(theta), Math.sin(theta))
-	    }
-	    
-	    var muscle = new Muscle(muscle_options);
-	    connected[iA + masses.length * iB] = muscle;
-	    connected[iB + masses.length * iA] = muscle;
+	var options = {
+	    mA : masses[iA],
+	    mB : masses[iB],
+	    probMuscle : probMuscle
 	}
+
+	var joint = getRandomJoint(options);
+	connected[iA + masses.length * iB] = joint;
+	connected[iB + masses.length * iA] = joint;
     }
     
     var largest = largestConnectedGraph(masses, connected);
@@ -247,6 +221,36 @@ function generateRandomCreature(options) {
     } 
     else {
 	return new Creature(masses, connected);
+    }
+}
+
+//options must have mA, mB, and probMuscle
+function getRandomJoint(options) {
+    if (getRandom(0, 1) >= options.probMuscle) {
+	var spring_options = {
+	    massA : options.mA,             
+	    massB : options.mB,
+	    restLength : distance(options.mA.x, options.mA.y, options.mB.x, options.mB.y),
+	    damping : getRandom(0.0, 0.5),
+	    frequency : getRandom(0.0, 1.0)
+	}
+	
+	return new Spring(spring_options);
+    } else {	
+	var theta = getRandom(0.0, Math.PI*2);
+	var stretch = getRandom(0.0, 0.5);
+	
+	var muscle_options = {
+	    massA : options.mA,             
+	    massB : options.mB,
+	    lowerLimit : (1 - stretch) * distance(options.mA.x, options.mA.y, options.mB.x, options.mB.y),
+	    upperLimit : (1 + stretch) * distance(options.mA.x, options.mA.y, options.mB.x, options.mB.y),
+	    motorSpeed : getRandom(0.5, 2.0),
+	    maxMotorForce: getRandom(50.0, 300.0),
+	    axis : new b2Vec2(Math.cos(theta), Math.sin(theta))
+	}
+	
+	return new Muscle(muscle_options);
     }
 }
 
