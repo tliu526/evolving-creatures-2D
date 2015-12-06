@@ -1,5 +1,6 @@
 var visWorld;
 var ga;
+var paused = false;
 
 function onLoad() {
     var creatureOptions = {
@@ -26,52 +27,56 @@ function onLoad() {
 };
 
 function onGraphics() {
-    for (var i = 0; i < 4; i++) {
-	visWorld[i].ctx.save();
-	visWorld[i].ctx.clearRect(0,0,visWorld[i].canvas.width,visWorld[i].canvas.height);
-	
-	var creature = visWorld[i].creature;
-	if(creature){
-	    var bounds = creature.getBoundingBox();
-	    var xCenter = (bounds.xLow + bounds.xHigh) / 2;
-	    var camera = visWorld[i].camera;
-	    /*
-	    if(bounds.xLow * visWorld[i].scale < (cameraLoc.x + visWorld[i].canvas.width*0.25)){
-		dx = bounds.xLow * visWorld[i].scale - (cameraLoc.x + visWorld[i].canvas.width*0.25); 
-		}*/
+	if(!paused){
+		for (var i = 0; i < 4; i++) {
+			visWorld[i].ctx.save();
+			visWorld[i].ctx.clearRect(0,0,visWorld[i].canvas.width,visWorld[i].canvas.height);
 
-	    if(bounds.xHigh * visWorld[i].scale > (camera.x + visWorld[i].canvas.width*.75)) {
-		var dx = (bounds.xHigh * visWorld[i].scale - (camera.x + visWorld[i].canvas.width*0.75)) / 2; 
-		if (camera.dx < dx) camera.dx += (dx - camera.dx) / 2; 
+			var creature = visWorld[i].creature;
+			if(creature){
+				var bounds = creature.getBoundingBox();
+				var xCenter = (bounds.xLow + bounds.xHigh) / 2;
+				var camera = visWorld[i].camera;
+	            /*
+	            if(bounds.xLow * visWorld[i].scale < (cameraLoc.x + visWorld[i].canvas.width*0.25)){
+		        dx = bounds.xLow * visWorld[i].scale - (cameraLoc.x + visWorld[i].canvas.width*0.25); 
+		        }*/
+
+		        if(bounds.xHigh * visWorld[i].scale > (camera.x + visWorld[i].canvas.width*.75)) {
+		        	var dx = (bounds.xHigh * visWorld[i].scale - (camera.x + visWorld[i].canvas.width*0.75)) / 2; 
+		        	if (camera.dx < dx) camera.dx += (dx - camera.dx) / 2; 
+		        }
+
+		        else if(bounds.xHigh * visWorld[i].scale < (camera.x + visWorld[i].canvas.width*.60)
+		        	&& camera.dx > 0) {
+		        	camera.dx /= 2; 
+		        if (camera.dx < 0.05) camera.dx = 0; 
+		    }
+
+
+		    visWorld[i].step(1/60);
+
+	        /*
+	        if(dy){
+	        visWorld[i].ctx.translate(dy, 0);
+	        visWorld[i].cameraLocation.y += dy;
+	        }
+	        */
+	        }
+
+	        visWorld[i].ctx.translate(-visWorld[i].camera.x, 0);	
+	        visWorld[i].b2world.Step(1/60, 10, 10);
+	        visWorld[i].b2world.ClearForces();
+	        visWorld[i].ctx.restore();
+	        visWorld[i].draw();
 	    }
-
-	    else if(bounds.xHigh * visWorld[i].scale < (camera.x + visWorld[i].canvas.width*.60)
-		    && camera.dx > 0) {
-		camera.dx /= 2; 
-		if (camera.dx < 0.05) camera.dx = 0; 
-	    }
-
-
-	    visWorld[i].step(1/60);
-
-	    /*
-	      if(dy){
-	      visWorld[i].ctx.translate(dy, 0);
-	      visWorld[i].cameraLocation.y += dy;
-	      }
-	    */
 	}
 
-	visWorld[i].ctx.translate(-visWorld[i].camera.x, 0);	
-	visWorld[i].b2world.Step(1/60, 10, 10);
-	visWorld[i].b2world.ClearForces();
-	visWorld[i].ctx.restore();
-	visWorld[i].draw();
-    }
     requestAnimFrame(onGraphics);
 }
 
 function onClick() {
+	paused = !paused;
     //TODO add skip generation here
 }
 
@@ -92,16 +97,21 @@ function simulate() {
 	    visWorld = new Array(4);
 	    
 	    for (var i = 0; i < 4; i++) {
-		options.elementID = String("c" + i);
-		visWorld[i] = new World(options);
-		
-		var creature = ga.curPop[i];
-		creature.addToWorld(visWorld[i]);
-		creature.resetPosition();
+	    	options.elementID = String("c" + i);
+	    	visWorld[i] = new World(options);
 
-		//console.log(creature.stringify());
+	    	var creature = ga.curPop[i];
 
-		visWorld[i].label = String("Fitness: " + creature.fitness);
+	    	var str = creature.stringify();
+	    	var creature2 = unstringifyCreature(str);
+
+	    	creature2.addToWorld(visWorld[i]);
+	    	creature2.resetPosition();
+
+		    //creature.addToWorld(visWorld[i]);
+		    //creature.resetPosition();
+
+		    visWorld[i].label = String("Fitness: " + creature.fitness);
 	}
 	    
 	    //console.log(distFitness(creature));

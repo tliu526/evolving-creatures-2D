@@ -62,7 +62,7 @@ function Creature(masses, connections) {
     }
     
     this.stringify = function() {
-    	var mass_options = [];
+    	var mass_options = {};
     	var connection_options = [];
     	
     	for (var i = 0; i < connections.length; i++){
@@ -72,8 +72,9 @@ function Creature(masses, connections) {
     			var new_connection_opt = {};
     			for (var prop in old_opt){
     				if(old_opt.hasOwnProperty(prop)){
+    					//it is a mass
     					if(old_opt[prop].options) {
-    						new_connection_opt[prop] = old_opt[prop].options;
+    						new_connection_opt[prop] = old_opt[prop].id;
     					}
     					else {
     						new_connection_opt[prop] = old_opt[prop];
@@ -88,7 +89,7 @@ function Creature(masses, connections) {
     	}
 
     	for (var i = 0; i < masses.length; i++){
-    		mass_options.push(JSON.stringify(masses[i].options));
+    		mass_options[masses[i].id] = JSON.stringify(masses[i].options);
     	}
 
     	var string_options = {
@@ -97,7 +98,9 @@ function Creature(masses, connections) {
     		id : this.id,
     		generation : this.generation,
     		parentA : this.parentA,
-    		parentB : this.parentB
+    		parentB : this.parentB,
+    		fitness : this.fitness,
+    		startingPositions : this.startingPositions
     	}
 
     	return JSON.stringify(string_options);
@@ -479,4 +482,56 @@ function copyJoint(x, y, joint, masses, connections, resetLengths) {
     connections[y + masses.length * x] = new_joint;
 
     return connections;
+}
+
+//takes the JSON string from stringify and returns a new creature
+function unstringifyCreature(str_options){
+	creatureOptions = JSON.parse(str_options);
+	var masses = [];
+	var connections = [];
+
+	//for keeping track of masses via their options
+	var massMap = {};
+
+	var massOptions = creatureOptions.massOptions;
+	for(var id in massOptions){
+		if(massOptions.hasOwnProperty(id)){
+			var mass_opt = massOptions[id];
+
+			var mass = new Mass(JSON.parse(mass_opt));
+			massMap[id] = mass;
+			masses.push(mass);
+		}
+	}
+
+	var connectOptions = creatureOptions.connectionOptions;
+	for (var i = 0; i < connectOptions.length; i++){
+		var connectOpt = JSON.parse(connectOptions[i]);
+		
+		if(connectOpt){
+			var options = connectOpt;
+
+			//need to unpack the masses
+			options["massA"] = massMap[options["massA"]];
+			options["massB"] = massMap[options["massB"]];
+
+			if(options["maxMotorForce"]){
+				connections.push(new Muscle(options));
+			}
+			else {
+				connections.push(new Spring(options));
+			}
+		}
+		else {
+			connections.push(connectOpt); //should be false
+		}
+	}
+
+	//console.log(connections);
+	//console.log(masses);
+	var creature = new Creature(masses, connections);
+	creature.fitness = creatureOptions.fitness;
+	creature.startingPositions = creatureOptions.startingPositions;
+
+	return creature;
 }
