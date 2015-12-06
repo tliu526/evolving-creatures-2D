@@ -14,18 +14,51 @@ function Creature(masses, connections) {
     this.parentA    = -1;
     this.parentB    = -1;
     
+    this.prune = function() {
+	var largest = largestConnectedGraph(this.masses, this.connections);
+	if (largest.length < this.masses.length) {
+	    var resultMasses = new Array(largest.length);
+	    var resultConnections = new Array(largest.length * largest.length);
+
+	    for (var i = 0; i < largest.length; i++) {
+		resultMasses[i] = new Mass(this.masses[largest[i]].options);
+	    }
+	    
+	    // Setup adjacency matrix
+	    for(var i = 0; i < resultConnections.length; i++) {
+		resultConnections[i] = false;
+	    }
+	    
+	    for (var i = 0; i < largest.length; i++) {
+		for (var j = 0; j < largest.length; j++) {
+		    if(largest[j] < largest[i]){
+			if (this.connections[largest[i] + this.masses.length * largest[j]] != false) {
+			    var joint = this.connections[largest[i] + this.masses.length * largest[j]];
+			    copyJoint(i, j, joint, resultMasses, resultConnections, false);
+			}
+		    } 
+		}
+	    }
+
+	    this.masses = resultMasses;
+	    this.connections = resultConnections;
+	    this.startingPositions = [];
+	} 
+    }
+    
     this.addToWorld = function(world) {	
     	world.creature = this;
-    	for (var i = 0; i < masses.length; i++) {
-    		masses[i].addToWorld(world);
-    		for (var j = 0; j < i; j++) {
-    			if (connections[i + masses.length * j] != false) {
-    				connections[i + masses.length * j].addToWorld(world);
-    			}
-    		}
+    	for (var i = 0; i < this.masses.length; i++) {
+	    this.masses[i].addToWorld(world);
+	}
+
+    	for (var i = 0; i < this.masses.length; i++) {
+	    for (var j = 0; j < i; j++) {
+		if (this.connections[i + this.masses.length * j] != false) {
+		    this.connections[i + this.masses.length * j].addToWorld(world);
+		}
+	    }
     	}
-    	
-	//var bounds = this.getBoundingBox();
     }
     
     this.translate = function(dx, dy) {
@@ -251,6 +284,7 @@ function graft(creatureA, creatureB, canSwitchOrder) {
     var creat = new Creature(new_masses, new_connections);
     creat.parentA = creatureA.id;
     creat.parentB = creatureB.id;
+    creat.prune();
     return creat;
 }
 
@@ -361,6 +395,7 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
     var creat = new Creature(new_masses, new_connections);
     creat.parentA = creatureA.id;
     creat.parentB = creatureB.id;
+    creat.prune();
     return creat;
 }
 
@@ -390,7 +425,7 @@ function copyJoint(x, y, joint, masses, connections, resetLengths) {
 	options.maxMotorForce = joint.maxMotorForce;
 	
 	if (resetLengths) {
-	    var stretch = getRandom(0.0, 0.3);
+	    var stretch = getRandom(0.3, 0.6);
 	    options.lowerLimit = (1 - stretch) * distance(options.massA.x, options.massA.y, options.massB.x, options.massB.y);
 	    options.upperLimit = (1 + stretch) * distance(options.massA.x, options.massA.y, options.massB.x, options.massB.y);
 	}

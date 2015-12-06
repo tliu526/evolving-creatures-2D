@@ -14,18 +14,48 @@ function Creature(masses, connections) {
     this.parentA    = -1;
     this.parentB    = -1;
     
+    this.prune = function() {
+	var largest = largestConnectedGraph(this.masses, this.connections);
+	if (largest.length < this.masses.length) {
+	    var resultMasses = new Array(largest.length);
+	    var resultConnections = new Array(largest.length * largest.length);
+
+	    for (var i = 0; i < largest.length; i++) {
+		resultMasses[i] = this.masses[largest[i]];
+	    }
+	    
+	    // Setup adjacency matrix
+	    for(var i = 0; i < resultConnections.length; i++) {
+		resultConnections[i] = false;
+	    }
+	    
+	    for (var i = 0; i < largest.length; i++) {
+		for (var j = 0; j < largest.length; j++) {
+		    if(largest[j] < largest[i]){
+			if (this.connections[largest[i] + this.masses.length * largest[j]] != false) {
+			    var joint = this.connections[largest[i] + this.masses.length * largest[j]];
+			    copyJoint(i, j, joint, resultMasses, resultConnections, false);
+			}
+		    } 
+		}
+	    }
+
+	    this.masses = resultMasses;
+	    this.connections = resultConnections;
+	    this.startingPositions = [];
+	} 
+    }
+    
     this.addToWorld = function(world) {	
     	world.creature = this;
-    	for (var i = 0; i < masses.length; i++) {
-    		masses[i].addToWorld(world);
-    		for (var j = 0; j < i; j++) {
-    			if (connections[i + masses.length * j] != false) {
-    				connections[i + masses.length * j].addToWorld(world);
-    			}
-    		}
+    	for (var i = 0; i < this.masses.length; i++) {
+	    this.masses[i].addToWorld(world);
+	    for (var j = 0; j < i; j++) {
+		if (this.connections[i + masses.length * j] != false) {
+		    this.connections[i + masses.length * j].addToWorld(world);
+		}
+	    }
     	}
-    	
-	//var bounds = this.getBoundingBox();
     }
     
     this.translate = function(dx, dy) {
@@ -191,10 +221,14 @@ function graft(creatureA, creatureB, canSwitchOrder) {
     var new_masses = [];
     
     for(var i = 0; i <= cross_ptA; i++){
+	console.log(i);
+	console.log(massesA);
 	new_masses.push(new Mass(massesA[i].options));
     }
     
     for(var i = cross_ptB; i < massesB.length; i++){
+	console.log(i);
+	console.log(massesB);
 	new_masses.push(new Mass(massesB[i].options));
     }
     
@@ -220,7 +254,7 @@ function graft(creatureA, creatureB, canSwitchOrder) {
 		    i1 = i;
 		    i2 = j;
 		    joint = connectionsA[i + massesA.length * j];
-		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
+		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, false);
 		}
 	    } 
 	} else {
@@ -231,7 +265,7 @@ function graft(creatureA, creatureB, canSwitchOrder) {
 		    i1 = i;
 		    i2 = iB2 + cross_ptA - cross_ptB + 1;
 		    joint = connectionsB[iB1 + massesB.length * iB2];
-		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
+		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, false);
 		}
 	    }
 	}
@@ -251,6 +285,7 @@ function graft(creatureA, creatureB, canSwitchOrder) {
     var creat = new Creature(new_masses, new_connections);
     creat.parentA = creatureA.id;
     creat.parentB = creatureB.id;
+    creat.prune();
     return creat;
 }
 
@@ -258,27 +293,31 @@ function graft(creatureA, creatureB, canSwitchOrder) {
   Performs a two point crossover between creatures A and B and returns a new creature
 */
 function crossover(creatureA, creatureB, canSwitchOrder) {
-    var minLength = Math.min(creatureA.masses.length, creatureB.masses.length);
-    if (minLength < 4) return graft(creatureA, creatureB, true); //Essentially a one point crossover		   
-			   
-    var cross_ptA = getRandomInt(1, minLength - 1);
-    var cross_ptB = getRandomInt(1, minLength - 1);
-    var maxIter = minLength;
-    var i = 0;
-    while((i < maxIter) && Math.abs(cross_ptA - cross_ptB) < 2) {
-	cross_ptB = getRandomInt(1, minLength - 1);
-	i++;
-    }
-
-    if (Math.abs(cross_ptA -cross_ptB) < 2) return graft(creatureA, creatureB, true); //still essentially a sone point crossover
-
     if (canSwitchOrder && Math.random < 0.5) {
 	var temp = creatureA;
 	creatureA = creatureB;
 	creatureB = temp;
     }
 
-    //console.log("top of crossover");
+    var cross_ptA;
+    var cross_ptB;
+    var minLength = Math.min(creatureA.masses.length, creatureB.masses.length);
+
+    if (minLength < 4) {
+	cross_ptA = 0;
+	cross_ptB = getRandomInt(0, minLength);
+    } else {		   
+	cross_ptA = getRandomInt(1, minLength - 1);
+	cross_ptB = getRandomInt(1, minLength - 1);
+	var maxIter = minLength;
+	var i = 0;
+	
+	while((i < maxIter) && Math.abs(cross_ptA - cross_ptB) < 2) {
+	    cross_ptB = getRandomInt(1, minLength - 1);
+	    i++;
+	}
+    }
+
     //slice is used to copy
     var massesA = creatureA.masses.slice();
     var massesB = creatureB.masses.slice();
@@ -290,8 +329,12 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
 
     for (var i = 0; i < creatureA.masses.length; i++) {
 	if (i < cross_ptA || i >= cross_ptB) {
+	    console.log(i);
+	    console.log(massesA);
 	    new_masses.push(new Mass(massesA[i].options));
 	} else {
+	    console.log(i);
+	    console.log(massesB);
 	    new_masses.push(new Mass(massesB[i].options));
 	}
     }
@@ -312,32 +355,43 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
 	if (i < cross_ptA || i >= cross_ptB) {
 	    for (var j = i + 1; j < massesA.length; j++) {
 		//Assume properly setup adjacency matrix
-		if (connectionsA[i + massesA.length * j] != false) {
+		if (connectionsA[i + massesA.length * j] != false
+		    && new_connections[i + new_masses.length * j] == false) {
 		    i1 = i;
 		    i2 = j;
 		    joint = connectionsA[i + massesA.length * j];
-		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
+		    if (j >= cross_ptA && i < cross_ptB) {
+			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, true);
+		    } else {
+			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, true);
+		    }
 		}
 	    } 
 	} else {
 	    //connectiong going left of current node to before cross_ptA
 	    for (j = 0; j < cross_ptA; j++) {
-		if (connectionsB[i + massesB.length * j] != false) {
+		if (connectionsB[i + massesB.length * j] != false
+		    && new_connections[i + new_masses.length * j] == false) {
 		    i1 = i;
 		    i2 = j;
 		    joint = connectionsB[i + massesB.length * j];
-		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
+		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, true);
 		}
 	    } 
 
 	    //connections going right of current node
 	    for (var j = i + 1; j < minLength; j++) {	
 		//Assume properly setup adjacency matrix
-		if (connectionsB[i + massesB.length * j] != false) {
+		if ((connectionsB[i + massesB.length * j] != false)
+		    && new_connections[i + new_masses.length * j] == false) {
 		    i1 = i;
 		    i2 = j;
 		    joint = connectionsB[i + massesB.length * j];
-		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
+		    if (j >= cross_ptB) {
+			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, true);
+		    } else {
+			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, true);
+		    }
 		}
 	    }
 	}
@@ -346,10 +400,11 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
     var creat = new Creature(new_masses, new_connections);
     creat.parentA = creatureA.id;
     creat.parentB = creatureB.id;
+    creat.prune();
     return creat;
 }
 
-function copyJoint(x, y, joint, masses, connections) {
+function copyJoint(x, y, joint, masses, connections, resetLengths) {
     var new_joint;
         
     var options = {
@@ -362,13 +417,24 @@ function copyJoint(x, y, joint, masses, connections) {
 	options.damping = joint.dampingRatio;
 	options.frequency = joint.frequencyHz;
 	
+	if (resetLengths) {
+	    options.restLength = distance(options.massA.x, options.massA.y, options.massB.x, options.massB.y);
+	}
+	
 	new_joint = new Spring(options);
+
     } else {
 	options.lowerLimit = joint.lowerTranslation;
 	options.upperLimit = joint.upperTranslation;
 	options.motorSpeed = joint.motorSpeed;
 	options.maxMotorForce = joint.maxMotorForce;
 	
+	if (resetLengths) {
+	    var stretch = getRandom(0.3, 0.6);
+	    options.lowerLimit = (1 - stretch) * distance(options.massA.x, options.massA.y, options.massB.x, options.massB.y);
+	    options.upperLimit = (1 + stretch) * distance(options.massA.x, options.massA.y, options.massB.x, options.massB.y);
+	}
+
 	new_joint = new Muscle(options);
     }
     
