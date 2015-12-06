@@ -3,7 +3,7 @@ var ga;
 
 function onLoad() {
     var creatureOptions = {
-	massLowerLimit : 4,
+	massLowerLimit : 8,
 	massUpperLimit : 12,
 	edgeLowerProportion : 0.7,
 	edgeUpperProportion : 0.9,
@@ -37,9 +37,10 @@ function onGraphics() {
 	    var dx;
 	    var dy;
 	    var cameraLoc = visWorld[i].cameraLocation;
+	    /*
 	    if(bounds.xLow * visWorld[i].scale < (cameraLoc.x + visWorld[i].canvas.width*0.25)){
 		dx = bounds.xLow * visWorld[i].scale - (cameraLoc.x + visWorld[i].canvas.width*0.25); 
-	    }
+		}*/
 
 	    if(bounds.xHigh * visWorld[i].scale > (cameraLoc.x + visWorld[i].canvas.width*.75)) {
 		dx = bounds.xHigh * visWorld[i].scale - (cameraLoc.x + visWorld[i].canvas.width*0.75); 

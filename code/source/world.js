@@ -12,13 +12,15 @@ function World(options) {
     this.groundHeight = 0.4;
     this.label = "";
     this.components = [];
+    this.background = new Image();
+    this.background.src = "../data-files/gamebackground.jpg";
 
     if (options) {
 	if (options.elementID) {
 	    this.canvas = document.getElementById(options.elementID);
 	    this.canvas.addEventListener('click', onClick, false);
 	    this.ctx = this.canvas.getContext("2d");
-	    this.scale = this.canvas.width / 20;
+	    this.scale = this.canvas.width / 15;
 	}
 	if (options.scale) this.scale = options.scale;
 	if (options.wallWidth) this.wallWidth = options.wallWidth;
@@ -51,9 +53,13 @@ function World(options) {
     if (this.hasGround)    addGround(boundary_options);
 
     this.draw = function() {
+	this.ctx.drawImage(this.background, -this.cameraLocation.x % this.canvas.width, 0);
+	this.ctx.drawImage(this.background, this.canvas.width - (-this.cameraLocation.x % this.canvas.width), 0);
+
 	for (var i = 0; i < this.components.length; i++) {
 	    this.components[i].drawToWorld(this);
 	}
+
 	this.ctx.strokeStyle = "black";
 	this.ctx.fillStyle = "black";
 	this.ctx.fillText(this.label, 10, 10);
