@@ -86,9 +86,9 @@ function simulate() {
 
     if(ga.next()){
         document.getElementById("generation").innerHTML = "Generation: " + ga.curGen; 
-	curTime = 0;
+	    curTime = 0;
 	
-	//if (ga.curGen == 1 || ga.curGen % 5 == 0) {    
+	    //if (ga.curGen == 1 || ga.curGen % 5 == 0) {    
 	    visWorld = new Array(4);
 	    
 	    for (var i = 0; i < 4; i++) {
@@ -98,8 +98,11 @@ function simulate() {
 		var creature = ga.curPop[i];
 		creature.addToWorld(visWorld[i]);
 		creature.resetPosition();
+
+		//console.log(creature.stringify());
+
 		visWorld[i].label = String("Fitness: " + creature.fitness);
-	    }
+	}
 	    
 	    //console.log(distFitness(creature));
 	    //setTimeout(simulate, SIMULATION_TIME*500);
