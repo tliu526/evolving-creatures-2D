@@ -316,7 +316,8 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
 	if (i < cross_ptA || i >= cross_ptB) {
 	    for (var j = i + 1; j < massesA.length; j++) {
 		//Assume properly setup adjacency matrix
-		if (connectionsA[i + massesA.length * j] != false) {
+		if (connectionsA[i + massesA.length * j] != false
+		    && connectionsB[i + massesB.length * j] == false) {
 		    i1 = i;
 		    i2 = j;
 		    joint = connectionsA[i + massesA.length * j];
