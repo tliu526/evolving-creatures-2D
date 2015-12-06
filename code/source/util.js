@@ -19,7 +19,6 @@ var GROUP_MASS = -1;
 var SIMULATION_TIME = 5; //simulation time, in seconds
 var POP_SIZE = 1000;
 
-//stopgap until we figure out how components are somehow becoming circular references
 var mass_id = 0;
 var muscle_id = 0;
 var spring_id = 0;

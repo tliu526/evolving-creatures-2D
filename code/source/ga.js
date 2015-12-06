@@ -30,26 +30,30 @@ function GA(ga_options, creature_options){
 		if (this.curGen == this.maxGen){
 			return false;
 		}
-		
+
+
+
 		var survivors;
 		survivors = this.curPop.slice(0, this.cutOff);
 		this.curPop = survivors.slice(); // init new population with survivors
-		
-		
-		//crossover, TODO weight by relative fitness
+				
+		var weights = this.weightPop(survivors);
+
+
+		//grafting, more fit creatures mate more
 		while(this.curPop.length < this.popSize) {
 		    var rand = Math.random();
 		    
 		    if (rand < this.graftRate && survivors.length > 1) {
-			var p1 = getRandomInt(0, survivors.length);
-			var p2 = getRandomInt(0, survivors.length);
-			var creat = graft(survivors[p1], survivors[p2]);
-			creat.generation = this.curGen;
-			this.curPop.push(creat);
+		    	var p1 = getRandomInt(0, weights.length);
+		    	var p2 = getRandomInt(0, weights.length);
+		    	var creat = graft(survivors[weights[p1]], survivors[weights[p2]]);
+		    	creat.generation = this.curGen;
+		    	this.curPop.push(creat);
 		    } else {
-			var creat = generateRandomCreature(this.creatureOptions);
-			creat.generation = this.curGen;
-			this.curPop.push(creat);
+		    	var creat = generateRandomCreature(this.creatureOptions);
+		    	creat.generation = this.curGen;
+		    	this.curPop.push(creat);
 		    }
 		}
 
@@ -60,22 +64,41 @@ function GA(ga_options, creature_options){
 		    }
 		}
 
-		//printCurrentGen(this.curPop);
-		this.runSimulation();
+		this.runSimulation();		
 		this.curGen += 1;
 		return true;
 	};
 	
+	//generates a list of indices weighted each creature's relative fitness
+	this.weightPop = function(pop){
+		var totWeight = 0;
+
+		for(var i = 0; i < pop.length; i++){
+			totWeight += clamp(pop[i].fitness, 0, Infinity);
+		}
+
+		var indices = [];
+
+		for(var i = 0; i < pop.length; i++){
+			var numEntries = Math.floor((pop[i].fitness/totWeight) * 100);
+			numEntries = clamp(numEntries, 1, 20); //to prevent over-dominance
+			for (var n = 0; n < numEntries; n++){
+				indices.push(i);
+			}
+		}
+		return indices;
+	}
 
 	//sorts by fitness, best to worst
 	this.runSimulation = function() {
 		var fitFunc = this.fitness;
 		var oldPop = this.curPop;
 		
-		progress = 0;
+		var progress = 0;
+		var target = this.curGen + 10;
 
 		for(i = 0; i < oldPop.length; i++){
-			fitFunc(oldPop[i]);
+			fitFunc(oldPop[i], target);
 			if (i % (oldPop.length / 20) == 0) progress = 100 * i / oldPop.length; 
 		}
 
@@ -88,7 +111,7 @@ function GA(ga_options, creature_options){
 	}
 }
 
-function distFitness(creature){
+function distFitness(creature, target){
     var options = {
     	hasWalls     : false,
     	hasGround    : false,
@@ -110,30 +133,50 @@ function distFitness(creature){
     creature.translate(dx, dy);
 
     creature.setAsStartingPosition();
-    
+
     var fitness = 0;
     var lastLeft = 0;
     //simulate the creature
+    var i;
+    /*
+    setTimeout(function(){
+    	console.log("timed out");
+    	i = SIMULATION_TIME * 60;
+    	return;
+    }, SIMULATION_TIME*1000);
+	*/
     for (i = 0; i < (SIMULATION_TIME * 60); i++){
     	test_world.b2world.Step(1/60, 10, 10);
     	test_world.b2world.ClearForces();
 
-	// penalize by width of box
-	// penalize for being too high too
-	if (i % 30 == 0) {
-	    var bounds = creature.getBoundingBox();
-	    var curLeft = bounds.xLow;
-	    var penalize = 0;
-	    penalize += 0.001 * (bounds.xHigh - bounds.xLow);
-	    if (bounds.yLow < 0) penalize += 100;
-	    if (curLeft > lastLeft) {
-		fitness += curLeft / (penalize + (SIMULATION_TIME * 60 / i));
-	    } else {
-		fitness += 0.4 * curLeft / (penalize + (SIMULATION_TIME * 60 / i));
+	    // penalize by width of box
+	    // penalize for being too high too
+	    if (i % 30 == 0) {
+	    	var bounds = creature.getBoundingBox();
+	    	var curLeft = bounds.xLow;
+	    	var penalize = 0;
+	    	penalize += 0.001 * (bounds.xHigh - bounds.xLow);
+	    	if (bounds.yLow < 0) penalize += 100;
+	    	if (curLeft > lastLeft) {
+	    		fitness += curLeft / (penalize + (SIMULATION_TIME * 60 / i));
+	    	} else {
+	    		fitness += 0.4 * curLeft / (penalize + (SIMULATION_TIME * 60 / i));
+	    	}
+	    	lastLeft = curLeft;
+
+	    	if (bounds.xLow > target){
+	    		break;
+	    	}
 	    }
-	    lastLeft = curLeft;
-	}
     }
+
+    //penalize for not reaching target in the allotted simulation time
+    fitness -= target - bounds.xLow;
+    //penalize too many masses
+    fitness -= 0.1*(Math.pow(creature.masses.length, 2));
+    //give bonus for speed
+    var timeDiff = (SIMULATION_TIME * 60) - i;
+    fitness += 0.5*timeDiff;
 
     creature.fitness = fitness;
 

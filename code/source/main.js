@@ -15,10 +15,10 @@ function onLoad() {
     var gaOptions = {
         maxGen : 50,
         popSize : 50,
-        mutRate : 0.5,
-        graftRate : 0.3,
+        mutRate : 0,
+        graftRate : 0.7,
         crossRate : 0.3,
-        survRatio : 0.25,
+        survRatio : 0.2,
         fitness : distFitness
     };
 

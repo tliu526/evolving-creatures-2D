@@ -39,8 +39,8 @@ function World(options) {
     this.camera = {
         x  : 0,
         y  : 0,
-	dx : 0,
-	dy : 0,
+        dx : 0,
+        dy : 0,
     }
 
     var boundary_options = {
