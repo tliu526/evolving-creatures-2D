@@ -67,8 +67,8 @@ function Mass(options) {
 	var ctx = world.ctx;
 	var scale = world.scale;
 	var pos = this.body.GetPosition();
-	var xShift = world.cameraLocation.x;
-	var yShift = world.cameraLocation.y;
+	var xShift = world.camera.x;
+	var yShift = world.camera.y;
 	var grd = ctx.createRadialGradient(pos.x * scale - xShift, 
 					   pos.y * scale - yShift,
 					   0, 
@@ -135,8 +135,8 @@ function Wall(options){
     this.drawToWorld = function(world) {
 	var ctx = world.ctx;
 	var scale = world.scale;
-	var xShift = world.cameraLocation.x;
-	var yShift = world.cameraLocation.y;
+	var xShift = world.camera.x;
+	var yShift = world.camera.y;
 
 	ctx.strokeStyle = "rgba(0, 255, 0, 1.0)";
 	ctx.fillStyle   = "rgba(153, 255, 179, 0.3)";
@@ -191,8 +191,8 @@ function Spring(options){
 	var scale = world.scale;
 	var A = this.massA.body.GetPosition();
 	var B = this.massB.body.GetPosition();
-	var xShift = world.cameraLocation.x;
-	var yShift = world.cameraLocation.y;
+	var xShift = world.camera.x;
+	var yShift = world.camera.y;
 
 	ctx.strokeStyle = "rgba(0, 0, 255, 1.0)";
 	ctx.fillStyle   = "rgba(0, 0, 255, 0.3)";
@@ -281,8 +281,8 @@ function Muscle(options){
 	var scale = world.scale;
 	var A = this.massA.body.GetPosition();
 	var B = this.massB.body.GetPosition();
-	var xShift = world.cameraLocation.x;
-	var yShift = world.cameraLocation.y;
+	var xShift = world.camera.x;
+	var yShift = world.camera.y;
 
 	ctx.strokeStyle = "rgba(255, 0, 0, 1.0)";
 	ctx.fillStyle = "rgba(255, 0, 0, 0.3)";

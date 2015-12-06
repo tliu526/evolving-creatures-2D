@@ -36,9 +36,11 @@ function World(options) {
 
     this.creature;
 
-    this.cameraLocation = {
-        x : 0,
-        y: 0
+    this.camera = {
+        x  : 0,
+        y  : 0,
+	dx : 0,
+	dy : 0,
     }
 
     var boundary_options = {
@@ -52,9 +54,15 @@ function World(options) {
     if (this.hasLeftWall)  addLeftWall(boundary_options);
     if (this.hasGround)    addGround(boundary_options);
 
+    this.step = function(framerate) {
+	this.camera.x += this.camera.dx 
+	this.camera.y += this.camera.dy 
+	this.camera.x = clamp(this.camera.x, 0, 100000);
+    }
+
     this.draw = function() {
-	this.ctx.drawImage(this.background, -this.cameraLocation.x % this.canvas.width, 0);
-	this.ctx.drawImage(this.background, this.canvas.width - (-this.cameraLocation.x % this.canvas.width), 0);
+	this.ctx.drawImage(this.background, -this.camera.x % this.canvas.width, 0);
+	this.ctx.drawImage(this.background, this.canvas.width - (-this.camera.x % this.canvas.width), 0);
 
 	for (var i = 0; i < this.components.length; i++) {
 	    this.components[i].drawToWorld(this);

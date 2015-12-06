@@ -3,7 +3,7 @@ var ga;
 
 function onLoad() {
     var creatureOptions = {
-	massLowerLimit : 8,
+	massLowerLimit : 10,
 	massUpperLimit : 12,
 	edgeLowerProportion : 0.7,
 	edgeUpperProportion : 0.9,
@@ -34,21 +34,26 @@ function onGraphics() {
 	if(creature){
 	    var bounds = creature.getBoundingBox();
 	    var xCenter = (bounds.xLow + bounds.xHigh) / 2;
-	    var dx;
-	    var dy;
-	    var cameraLoc = visWorld[i].cameraLocation;
+	    var camera = visWorld[i].camera;
 	    /*
 	    if(bounds.xLow * visWorld[i].scale < (cameraLoc.x + visWorld[i].canvas.width*0.25)){
 		dx = bounds.xLow * visWorld[i].scale - (cameraLoc.x + visWorld[i].canvas.width*0.25); 
 		}*/
 
-	    if(bounds.xHigh * visWorld[i].scale > (cameraLoc.x + visWorld[i].canvas.width*.75)) {
-		dx = bounds.xHigh * visWorld[i].scale - (cameraLoc.x + visWorld[i].canvas.width*0.75); 
+	    if(bounds.xHigh * visWorld[i].scale > (camera.x + visWorld[i].canvas.width*.75)) {
+		var dx = (bounds.xHigh * visWorld[i].scale - (camera.x + visWorld[i].canvas.width*0.75)) / 2; 
+		if (camera.dx < dx) camera.dx = dx; 
 	    }
-	    if(dx){
-        	visWorld[i].cameraLocation.x += 2 * dx;
-        	visWorld[i].cameraLocation.x = clamp(visWorld[i].cameraLocation.x, 0, 100000);
+
+	    else if(bounds.xHigh * visWorld[i].scale < (camera.x + visWorld[i].canvas.width*.60)
+		    && camera.dx > 0) {
+		camera.dx /= 2; 
+		if (camera.dx < 0.05) camera.dx = 0; 
 	    }
+
+
+	    visWorld[i].step(1/60);
+
 	    /*
 	      if(dy){
 	      visWorld[i].ctx.translate(dy, 0);
@@ -57,8 +62,7 @@ function onGraphics() {
 	    */
 	}
 
-	visWorld[i].ctx.translate(-visWorld[i].cameraLocation.x, 0);
-	
+	visWorld[i].ctx.translate(-visWorld[i].camera.x, 0);	
 	visWorld[i].b2world.Step(1/60, 10, 10);
 	visWorld[i].b2world.ClearForces();
 	visWorld[i].ctx.restore();
