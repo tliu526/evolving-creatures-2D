@@ -189,39 +189,11 @@ function generateRandomCreature(options) {
 	connected[iB + masses.length * iA] = joint;
     }
     
-    var largest = largestConnectedGraph(masses, connected);
-    if (largest.length < masses.length) {
-	resultMasses = [];
-	
-	for (var i = 0; i < largest.length; i++) {
-	    resultMasses.push(masses[largest[i]]);
-	}
-	
-	resultConnections = new Array(resultMasses.length * resultMasses.length);
-	
-	// Setup adjacency matrix
-	for(var i = 0; i < resultConnections.length; i++) {
-	    resultConnections[i] = false;
-	}
-	
-	for (var i = 0; i < largest.length; i++) {
-	    for (var j = 0; j < largest.length; j++) {
-		if(largest[j] < largest[i]){
-		    if (connected[largest[i] + masses.length * largest[j]] != false) {
-			var joint = connected[largest[i] + masses.length * largest[j]];
-			resultConnections[i + resultMasses.length * j] = joint;
-			resultConnections[j + resultMasses.length * i] = joint;
-		    }
-		} 
-	    }
-        }
-	
-	return new Creature(resultMasses, resultConnections);
-	
-    } 
-    else {
-	return new Creature(masses, connected);
-    }
+
+    var creat =  new Creature(masses, connected);
+    creat.prune();
+
+    return creat;
 }
 
 //options must have mA, mB, and probMuscle
@@ -238,7 +210,7 @@ function getRandomJoint(options) {
 	return new Spring(spring_options);
     } else {	
 	var theta = getRandom(0.0, Math.PI*2);
-	var stretch = getRandom(0.0, 0.3);
+	var stretch = getRandom(0.3, 0.6);
 	
 	var muscle_options = {
 	    massA : options.mA,             

@@ -14,7 +14,7 @@ function onLoad() {
 
     var gaOptions = {
         maxGen : 100,
-        popSize : 100,
+        popSize : 20,
         mutRate : 0,
         graftRate : 0.3,
         crossRate : 0.3,
