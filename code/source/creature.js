@@ -326,7 +326,8 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
 	} else {
 	    //connectiong going left of current node to before cross_ptA
 	    for (j = 0; j < cross_ptA; j++) {
-		if (connectionsB[i + massesB.length * j] != false) {
+		if (connectionsB[i + massesB.length * j] != false
+		    && connectionsB[i + massesB.length * j] == false) {
 		    i1 = i;
 		    i2 = j;
 		    joint = connectionsB[i + massesB.length * j];
@@ -337,7 +338,8 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
 	    //connections going right of current node
 	    for (var j = i + 1; j < minLength; j++) {	
 		//Assume properly setup adjacency matrix
-		if (connectionsB[i + massesB.length * j] != false) {
+		if ((connectionsB[i + massesB.length * j] != false)
+		    && connectionsB[i + massesB.length * j] == false) {
 		    i1 = i;
 		    i2 = j;
 		    joint = connectionsB[i + massesB.length * j];
