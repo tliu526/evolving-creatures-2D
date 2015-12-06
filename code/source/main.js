@@ -7,7 +7,7 @@ function onLoad() {
 	massUpperLimit : 12,
 	edgeLowerProportion : 0.7,
 	edgeUpperProportion : 0.9,
-	probMuscle : 0.7,
+	probMuscle : 0.8,
 	xBound : 3,
 	yBound : 3
     }
@@ -32,30 +32,32 @@ function onGraphics() {
 	
 	var creature = visWorld[i].creature;
 	if(creature){
-		var bounds = creature.getBoundingBox();
-		var xCenter = (bounds.xLow + bounds.xHigh) / 2;
-		var dx;
-		var dy;
-		var cameraLoc = visWorld[i].cameraLocation;
-		if(xCenter < (cameraLoc.x + visWorld[i].canvas.width*0.25)){
-			dx = xCenter - (cameraLoc.x + visWorld[i].canvas.width*0.25); 
-		}
-		else if(xCenter > (cameraLoc.x + visWorld[i].canvas.width*.75)) {
-			dx = xCenter - (cameraLoc.x + visWorld[i].canvas.width*0.75);
-		}
-        if(dx){
-        	visWorld[i].cameraLocation.x += dx;
-        	visWorld[i].cameraLocation.x = clamp(visWorld[i].cameraLocation.x, 0, Infinity);
-        }
-        /*
-        if(dy){
-        	visWorld[i].ctx.translate(dy, 0);
-        	visWorld[i].cameraLocation.y += dy;
-        }
-        */
-	}
-	visWorld[i].ctx.translate(-visWorld[i].cameraLocation.x, 0);
+	    var bounds = creature.getBoundingBox();
+	    var xCenter = (bounds.xLow + bounds.xHigh) / 2;
+	    var dx;
+	    var dy;
+	    var cameraLoc = visWorld[i].cameraLocation;
+	    if(bounds.xLow * visWorld[i].scale < (cameraLoc.x + visWorld[i].canvas.width*0.25)){
+		dx = bounds.xLow * visWorld[i].scale - (cameraLoc.x + visWorld[i].canvas.width*0.25); 
+	    }
 
+	    if(bounds.xHigh * visWorld[i].scale > (cameraLoc.x + visWorld[i].canvas.width*.75)) {
+		dx = bounds.xHigh * visWorld[i].scale - (cameraLoc.x + visWorld[i].canvas.width*0.75); 
+	    }
+	    if(dx){
+        	visWorld[i].cameraLocation.x += 2 * dx;
+        	visWorld[i].cameraLocation.x = clamp(visWorld[i].cameraLocation.x, 0, 100000);
+	    }
+	    /*
+	      if(dy){
+	      visWorld[i].ctx.translate(dy, 0);
+	      visWorld[i].cameraLocation.y += dy;
+	      }
+	    */
+	}
+
+	visWorld[i].ctx.translate(-visWorld[i].cameraLocation.x, 0);
+	
 	visWorld[i].b2world.Step(1/60, 10, 10);
 	visWorld[i].b2world.ClearForces();
 	visWorld[i].ctx.restore();
