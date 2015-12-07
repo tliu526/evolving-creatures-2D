@@ -65,6 +65,13 @@ function Creature(masses, connections) {
     	var mass_options = {};
     	var connection_options = [];
     	
+    	var connections = this.connections;
+    	var masses = this.masses;
+
+    	var mass_ids = [];
+    	var connection_ids = [];
+    	
+
     	for (var i = 0; i < connections.length; i++){
     		if(connections[i]){
     			old_opt = connections[i].options;
@@ -72,9 +79,13 @@ function Creature(masses, connections) {
     			var new_connection_opt = {};
     			for (var prop in old_opt){
     				if(old_opt.hasOwnProperty(prop)){
-    					//it is a mass
-    					if(old_opt[prop].options) {
-    						new_connection_opt[prop] = old_opt[prop].id;
+    					//console.log(prop);
+    					//it is a mass, use its id as a key
+    					if(prop.includes("mass")) {
+    						var id = old_opt[prop].id;
+    						new_connection_opt[prop] = id;
+    						if (connection_ids.indexOf(id) == -1)
+    							connection_ids.push(id);
     					}
     					else {
     						new_connection_opt[prop] = old_opt[prop];
@@ -89,6 +100,7 @@ function Creature(masses, connections) {
     	}
 
     	for (var i = 0; i < masses.length; i++){
+    		mass_ids.push(masses[i].id);
     		mass_options[masses[i].id] = JSON.stringify(masses[i].options);
     	}
 
@@ -102,6 +114,10 @@ function Creature(masses, connections) {
     		fitness : this.fitness,
     		startingPositions : this.startingPositions
     	}
+
+    	//console.log(mass_ids);
+    	//console.log(connection_ids);
+
 
     	return JSON.stringify(string_options);
     }
@@ -508,12 +524,12 @@ function unstringifyCreature(str_options){
 	for (var i = 0; i < connectOptions.length; i++){
 		var connectOpt = JSON.parse(connectOptions[i]);
 		
-		if(connectOpt){
+		if(connectOpt != false){
 			var options = connectOpt;
 
 			//need to unpack the masses
-			options["massA"] = massMap[options["massA"]];
-			options["massB"] = massMap[options["massB"]];
+			options["massA"] = massMap[JSON.parse(options["massA"])];
+			options["massB"] = massMap[JSON.parse(options["massB"])];
 
 			if(options["maxMotorForce"]){
 				connections.push(new Muscle(options));
