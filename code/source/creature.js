@@ -179,6 +179,10 @@ function Creature(masses, connections) {
     		var x     = mass.body.GetPosition().x;
     		var y     = mass.body.GetPosition().y;
 
+		if (mass.shape = "Square") {
+		    r *= Math.sqrt(2);
+		}
+
     		if (x + r > bounds.xHigh) bounds.xHigh = x + r;
     		if (x - r < bounds.xLow)  bounds.xLow  = x - r;
     		if (y + r > bounds.yHigh) bounds.yHigh = y + r;
@@ -335,7 +339,7 @@ function graft(creatureA, creatureB, canSwitchOrder) {
 	var i2;
 	var joint;
 	
-	if (i <= cross_ptA) {
+	if (i < cross_ptA) {
 	    for (var j = i + 1; j <= cross_ptA; j++) {
 		//Assume properly setup adjacency matrix
 		if (connectionsA[i + massesA.length * j] != false) {
@@ -346,7 +350,7 @@ function graft(creatureA, creatureB, canSwitchOrder) {
 		}
 	    } 
 	} else {
-	    var iB1 = i - cross_ptA + cross_ptB - 1;
+	    var iB1 = i - cross_ptA + cross_ptB;
 	    for (var iB2 = iB1 + 1; iB2 < massesB.length; iB2++) {	
 		//Assume properly setup adjacency matrix
 		if (connectionsB[iB1 + massesB.length * iB2] != false) {
@@ -378,7 +382,7 @@ function graft(creatureA, creatureB, canSwitchOrder) {
 }
 
 /*
-  Performs a two point crossover between creatures A and B and returns a new creature
+  Performs a two point or one crossover between creatures A and B and returns a new creature
 */
 function crossover(creatureA, creatureB, canSwitchOrder) {
     if (canSwitchOrder && Math.random < 0.5) {
@@ -390,8 +394,9 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
     var cross_ptA;
     var cross_ptB;
     var minLength = Math.min(creatureA.masses.length, creatureB.masses.length);
+    var pSingle = 0.8;
 
-    if (minLength < 4) {
+    if (minLength < 4 || Math.random() < pSingle) {
 	cross_ptA = 0;
 	cross_ptB = getRandomInt(0, minLength);
     } else {		   
@@ -419,6 +424,7 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
 	if (i < cross_ptA || i >= cross_ptB) {
 	    new_masses.push(new Mass(massesA[i].options));
 	} else {
+	    console.log(i, massesB.length);
 	    new_masses.push(new Mass(massesB[i].options));
 	}
     }
@@ -445,9 +451,9 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
 		    i2 = j;
 		    joint = connectionsA[i + massesA.length * j];
 		    if (j >= cross_ptA && i < cross_ptB) {
-			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, true);
+			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, false);
 		    } else {
-			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, true);
+			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, false);
 		    }
 		}
 	    } 
@@ -459,7 +465,7 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
 		    i1 = i;
 		    i2 = j;
 		    joint = connectionsB[i + massesB.length * j];
-		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, true);
+		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, false);
 		}
 	    } 
 
@@ -474,7 +480,7 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
 		    if (j >= cross_ptB) {
 			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, true);
 		    } else {
-			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, true);
+			new_connections = copyJoint(i1, i2, joint, new_masses, new_connections, false);
 		    }
 		}
 	    }
@@ -514,7 +520,7 @@ function copyJoint(x, y, joint, masses, connections, resetLengths) {
 	options.maxMotorForce = joint.maxMotorForce;
 	
 	if (resetLengths) {
-	    var stretch = getRandom(0.3, 0.6);
+	    var stretch = getRandom(0.1, 0.4);
 	    options.lowerLimit = (1 - stretch) * distance(options.massA.x, options.massA.y, options.massB.x, options.massB.y);
 	    options.upperLimit = (1 + stretch) * distance(options.massA.x, options.massA.y, options.massB.x, options.massB.y);
 	}

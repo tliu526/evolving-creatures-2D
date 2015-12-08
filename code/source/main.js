@@ -17,9 +17,9 @@ function onLoad() {
         maxGen : 100,
         popSize : 100,
         mutRate : 0.0,
-        graftRate : 0.1,
-        crossRate : 0.2,
-        survRatio : 0.2,
+        graftRate : 0.0,
+        crossRate : 0.8,
+        survRatio : 0.4,
         fitness : distFitness
     };
 
@@ -162,7 +162,7 @@ function simulate() {
 
 
 
-	    setTimeout(simulate, SIMULATION_TIME*2000);
+	    setTimeout(simulate, SIMULATION_TIME*1000);
 	}
     /*    } else {
 	setTimeout(simulate, SIMULATION_TIME*1000);

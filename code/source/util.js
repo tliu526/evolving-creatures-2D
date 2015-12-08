@@ -78,9 +78,9 @@ function addGround(options) {
 
     var v = {
 	fill     :    options.fill  || 0x663300,
-	width    :    3 * options.world.canvas.width / options.world.scale,
+	width    :    200000,
 	height   :    options.height / options.world.scale,
-	x        :    0,
+	x        :    -100000,
 	y        :    options.world.canvas.height / options.world.scale - options.height,
 	isStatic :    true,
 	isGround :    true
@@ -96,9 +96,9 @@ function addTestGround(options) {
 
     var v = {
       fill     :    options.fill  || 0x663300,
-      width    :    1000000, //TODO make reasonable
+      width    :    200000, //TODO make reasonable
       height   :    options.height,
-      x        :    0,
+      x        :    -100000,
       y        :    options.world.canvas.height / options.world.scale - options.height,
       isStatic :    true
     }
@@ -211,7 +211,7 @@ function getRandomJoint(options) {
 	return new Spring(spring_options);
     } else {	
 	var theta = getRandom(0.0, Math.PI*2);
-	var stretch = getRandom(0.3, 0.6);
+	var stretch = getRandom(0.0, 0.4);
 	
 	var muscle_options = {
 	    massA : options.mA,             

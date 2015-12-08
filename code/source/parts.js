@@ -36,6 +36,15 @@ function Mass(options) {
     this.id = mass_id;
     mass_id++;
 
+    if (Math.random() < 0.5) {
+	this.isSquare = true;
+    } else {
+	this.isSquare = false;
+    } 
+
+    this.isSquare = options.isSquare || this.isSquare;
+    this.options.isSquare = this.isSquare;
+
     this.r = 0.2;
     if (options.r) this.r = options.r;
 
@@ -57,8 +66,15 @@ function Mass(options) {
 	fixDef.friction = this.friction;
 	fixDef.restitution = this.restitution;
 	fixDef.filter.groupIndex = GROUP_MASS;
-	fixDef.shape = new b2CircleShape(this.r);
-	this.body.CreateFixture(fixDef);
+
+	if (this.isSquare) {
+	    fixDef.shape = new b2PolygonShape();
+	    fixDef.shape.SetAsBox(this.r, this.r);
+	    this.body.CreateFixture(fixDef);
+	} else {
+	    fixDef.shape = new b2CircleShape(this.r);
+	    this.body.CreateFixture(fixDef);
+	}
     }
 
     this.drawToWorld = function(world) {
@@ -81,11 +97,17 @@ function Mass(options) {
 	ctx.strokeStyle = "rgba(150, 150, 150, 0.8)";
 	ctx.fillStyle   = grd;
 
-	ctx.beginPath();
-	ctx.arc(pos.x * scale - xShift, pos.y * scale + yShift, this.r * scale, 0, Math.PI*2, true); 
-	ctx.closePath();
-	ctx.fill();
-	ctx.stroke();
+	if (this.isSquare) {
+	    ctx.fillRect((pos.x - this.r) * scale - xShift, (pos.y - this.r) * scale + yShift, 2 * this.r * scale, 2 * this.r * scale);
+	    ctx.strokeRect((pos.x - this.r) * scale - xShift, (pos.y - this.r) * scale + yShift, 2 * this.r * scale, 2 * this.r * scale);
+	    ctx.stroke();
+	} else {
+	    ctx.beginPath();
+	    ctx.arc(pos.x * scale - xShift, pos.y * scale + yShift, this.r * scale, 0, Math.PI*2, true); 
+	    ctx.closePath();
+	    ctx.fill();
+	    ctx.stroke();
+	}
     }
 
     //TODO figure out why stringify is generating cyclic objects

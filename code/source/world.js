@@ -12,8 +12,8 @@ function World(options) {
     this.groundHeight = 0.4;
     this.label = "";
     this.components = [];
-    this.background = new Image();
-    this.background.src = "../data-files/gamebackground.jpg";
+    //    this.background = new Image();
+    //this.background.src = "../data-files/gamebackground.jpg";
 
     if (options) {
 	if (options.elementID) {
@@ -30,7 +30,7 @@ function World(options) {
     this.originalScale = this.scale;
     this.isDistTest    = options.isDistTest || false;
     this.hasRightWall  = options.hasWalls   || false;
-    this.hasLeftWall   = options.hasWalls   || this.isDistTest;
+    this.hasLeftWall   = options.hasWalls   || !this.isDistTest;
     this.hasGround     = options.hasGround  || this.isDistTest;
 
     this.b2world = new b2World(new b2Vec2(0, 10), false);    
