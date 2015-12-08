@@ -233,13 +233,20 @@ function targetFitness(creature, target){
 	if (i % 30 == 0) {
 	    var bounds = creature.getBoundingBox();
 	    var curLeft = bounds.xLow;
+	    //var curLeft = creature.getMeanX();
+	    //var curLeft = (bounds.xHigh - bounds.xLow) / 2 + bounds.xLow
 	    var penalize = 0;
 	    penalize += (bounds.xHigh - bounds.xLow);
+	    penalize += (bounds.yHigh - bounds.yLow);
 	    if (bounds.yLow < 0) penalize += 100;
 	    if (curLeft > lastLeft) {
-		fitness += curLeft / (penalize + (SIMULATION_TIME * 60 / i));
+		if (i != 0) {
+		    fitness += curLeft / (penalize + (SIMULATION_TIME * 60 / i));
+		}
 	    } else {
-		fitness += 0.4 * curLeft / (penalize + (SIMULATION_TIME * 60 / i));
+		if (i != 0) {
+		    fitness += 0.0 * curLeft / (penalize + (SIMULATION_TIME * 60 / i));
+		}
 	    }
 	    lastLeft = curLeft;
 	    
