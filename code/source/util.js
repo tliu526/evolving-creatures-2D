@@ -82,7 +82,8 @@ function addGround(options) {
 	height   :    options.height / options.world.scale,
 	x        :    0,
 	y        :    options.world.canvas.height / options.world.scale - options.height,
-	isStatic :    true
+	isStatic :    true,
+	isGround :    true
     }
 
     options.world.components.push(new Wall(v));

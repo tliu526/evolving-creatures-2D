@@ -3,6 +3,8 @@ function Creature(masses, connections) {
     this.fitness = -1;
     this.connections = connections;
     this.masses = masses;	
+    this.drawBoundingBox = true;
+
 
     this.startingPositions = [];
 
@@ -47,7 +49,8 @@ function Creature(masses, connections) {
     }
     
     this.addToWorld = function(world) {	
-    	world.creature = this;
+    	world.creatures.push(this);
+	world.components.push(this);
     	for (var i = 0; i < this.masses.length; i++) {
 	    this.masses[i].addToWorld(world);
 	}
@@ -59,6 +62,31 @@ function Creature(masses, connections) {
 		}
 	    }
     	}
+    }
+    
+    this.drawToWorld = function(world) {
+    	for (var i = 0; i < this.masses.length; i++) {
+	    this.masses[i].drawToWorld(world);
+	}
+
+    	for (var i = 0; i < this.masses.length; i++) {
+	    for (var j = 0; j < i; j++) {
+		if (this.connections[i + this.masses.length * j] != false) {
+		    this.connections[i + this.masses.length * j].drawToWorld(world);
+		}
+	    }
+    	}
+
+	if (this.drawBoundingBox) {
+	    var bounds = this.getBoundingBox();
+	    var scale = world.scale;
+	    var ctx = world.ctx;
+
+	    ctx.lineWidth = scale / 16;
+	    ctx.strokeStyle = "rgba(50, 50, 50, 0.5)";
+	    ctx.strokeRect(bounds.xLow * scale - world.camera.x, bounds.yLow * scale + world.camera.y, (bounds.xHigh - bounds.xLow) * scale, (bounds.yHigh - bounds.yLow) * scale);
+	    ctx.stroke();
+	}
     }
     
     this.stringify = function() {

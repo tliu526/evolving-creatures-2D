@@ -215,7 +215,7 @@ function targetFitness(creature, target){
 	    	var bounds = creature.getBoundingBox();
 	    	var curLeft = bounds.xLow;
 	    	var penalize = 0;
-	    	penalize += 0.001 * (bounds.xHigh - bounds.xLow);
+	    	penalize += (bounds.xHigh - bounds.xLow);
 	    	if (bounds.yLow < 0) penalize += 100;
 	    	if (curLeft > lastLeft) {
 	    		fitness += curLeft / (penalize + (SIMULATION_TIME * 60 / i));

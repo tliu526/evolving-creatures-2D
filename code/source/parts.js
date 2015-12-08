@@ -59,8 +59,6 @@ function Mass(options) {
 	fixDef.filter.groupIndex = GROUP_MASS;
 	fixDef.shape = new b2CircleShape(this.r);
 	this.body.CreateFixture(fixDef);
-
-	world.components.push(this);
     }
 
     this.drawToWorld = function(world) {
@@ -70,10 +68,10 @@ function Mass(options) {
 	var xShift = world.camera.x;
 	var yShift = world.camera.y;
 	var grd = ctx.createRadialGradient(pos.x * scale - xShift, 
-					   pos.y * scale - yShift,
+					   pos.y * scale + yShift,
 					   0, 
 					   pos.x * scale - xShift, 
-					   pos.y * scale - yShift, 
+					   pos.y * scale + yShift, 
 					   this.r * scale);
 
 	grd.addColorStop(0, "rgba(255, 255, 255, 0.8)");
@@ -84,7 +82,7 @@ function Mass(options) {
 	ctx.fillStyle   = grd;
 
 	ctx.beginPath();
-	ctx.arc(pos.x * scale - xShift, pos.y * scale - yShift, this.r * scale, 0, Math.PI*2, true); 
+	ctx.arc(pos.x * scale - xShift, pos.y * scale + yShift, this.r * scale, 0, Math.PI*2, true); 
 	ctx.closePath();
 	ctx.fill();
 	ctx.stroke();
@@ -103,12 +101,15 @@ function Mass(options) {
 function Wall(options){
     Component.call(this, options);
 
+    this.type = "Wall";
+    this.isGround = false;
     this.width =  0.4;
     this.height = 0.4;
 
     if (options.width)  this.width =  options.width;
     if (options.height) this.height = options.height;
-    
+    if (options.isGround) this.isGround = options.isGround;
+
     var bodyDef = new b2BodyDef;
     if (this.isStatic == true) {
 	bodyDef.type = b2Body.b2_staticBody;
@@ -142,9 +143,8 @@ function Wall(options){
 	ctx.lineWidth = world.scale / 8;
 	ctx.strokeStyle = "rgba(0, 255, 0, 1.0)";
 	ctx.fillStyle   = "rgba(153, 255, 179, 0.3)";
-
-	ctx.fillRect(this.x * scale - xShift, this.y * scale - yShift, this.width * scale, this.height * scale);
-	ctx.strokeRect(this.x * scale - xShift, this.y * scale - yShift, this.width * scale, this.height * scale);
+	ctx.fillRect(this.x * scale - xShift, this.y * scale + yShift, this.width * scale, this.height * scale);
+	ctx.strokeRect(this.x * scale - xShift, this.y * scale + yShift, this.width * scale, this.height * scale);
 	ctx.stroke();
     }
 }
@@ -185,7 +185,6 @@ function Spring(options){
 
 	this.joint = world.b2world.CreateJoint(dist_joint);
 
-	world.components.push(this);
     }
 
     this.drawToWorld = function(world) {
@@ -201,8 +200,8 @@ function Spring(options){
 	ctx.fillStyle   = "rgba(0, 0, 255, 1.0)";
 
 	ctx.beginPath();
-	ctx.moveTo(A.x * scale - xShift, A.y * scale - yShift);
-	ctx.lineTo(B.x * scale - xShift, B.y * scale - yShift);
+	ctx.moveTo(A.x * scale - xShift, A.y * scale + yShift);
+	ctx.lineTo(B.x * scale - xShift, B.y * scale + yShift);
 	ctx.closePath();
 	ctx.stroke();
 	ctx.fill();
@@ -279,7 +278,6 @@ function Muscle(options){
 	
 	this.joint = world.b2world.CreateJoint(prism_joint);
 
-	world.components.push(this);
     }
 
     this.drawToWorld = function(world) {
@@ -295,8 +293,8 @@ function Muscle(options){
 	ctx.lineWidth = world.scale / 8;
 
 	ctx.beginPath();
-	ctx.moveTo(A.x * scale - xShift, A.y * scale - yShift);
-	ctx.lineTo(B.x * scale - xShift, B.y * scale - yShift);
+	ctx.moveTo(A.x * scale - xShift, A.y * scale + yShift);
+	ctx.lineTo(B.x * scale - xShift, B.y * scale + yShift);
 	ctx.closePath();
 	ctx.stroke();
 	ctx.fill();
