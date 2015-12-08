@@ -4,8 +4,8 @@ var paused = false;
 
 function onLoad() {
     var creatureOptions = {
-	massLowerLimit : 10,
-	massUpperLimit : 12,
+	massLowerLimit : 15,
+	massUpperLimit : 20,
 	edgeLowerProportion : 0.7,
 	edgeUpperProportion : 0.9,
 	probMuscle : 0.8,
@@ -14,15 +14,15 @@ function onLoad() {
     }
 
     var gaOptions = {
-        maxGen : 200,
+        maxGen : 300,
         popSize : 50,
         mutRate : 0.1,
         graftRate : 0.0,
-        crossRate : 0.4,
-	tonyCrossRate : 0.4,
+        crossRate : 0.0,
+	tonyCrossRate : 1.0,
         survRatio : 0.4,
         fitness : distFitness,
-	enableOrgans: false
+	enableOrgans: true
     };
 
     ga = new GA(gaOptions, creatureOptions);
@@ -38,10 +38,11 @@ function onGraphics() {
 		break;
 	    }
 	}
-	    visWorld[i].ctx.save();
-	    visWorld[i].ctx.clearRect(0,0,visWorld[i].canvas.width,visWorld[i].canvas.height);	
-	    visWorld[i].update();
-	    visWorld[i].ctx.translate(-visWorld[i].camera.x, 0);	
+
+	visWorld[i].ctx.save();
+	visWorld[i].ctx.clearRect(0,0,visWorld[i].canvas.width,visWorld[i].canvas.height);	
+	visWorld[i].update();
+	visWorld[i].ctx.translate(-visWorld[i].camera.x, 0);	
 	    
 
 	if (atLeastOneAlive) {
@@ -70,6 +71,11 @@ function simulate() {
 	groundHeight : 0.4,
 	isVisible    : true
     };
+
+    for (var i = 0; i < 4; i++) {
+	ga.next();
+	console.log("Gen");
+    }
 
     if(ga.next()){
         document.getElementById("generation").innerHTML = "Generation: " + ga.curGen; 

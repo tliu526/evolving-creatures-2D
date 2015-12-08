@@ -34,7 +34,7 @@ function World(options) {
     this.hasLeftWall   = options.hasWalls   || !this.isDistTest;
     this.hasGround     = options.hasGround  || this.isDistTest;
 
-    this.b2world = new b2World(new b2Vec2(0, 10), false);    
+    this.b2world = new b2World(new b2Vec2(0, this.scale / 3), false);    
 
     this.creatures = [];
 
@@ -88,10 +88,23 @@ function World(options) {
 	    var bounds = this.creatureBounds();
 	    var width = (bounds.xHigh - bounds.xLow);
 	    if(width > (this.canvas.width * 0.7 / this.scale)) {
-		var dzoom =  (width - this.canvas.width * 0.7 / this.scale); 
-		if (this.camera.dzoom < dzoom) this.camera.dzoom -= (dzoom - this.camera.dzoom) / 2; 
+		var dzoom =  -(width - this.canvas.width * 0.7 / this.scale); 
+		if (this.camera.dzoom > dzoom) this.camera.dzoom += (dzoom - this.camera.dzoom) / 2; 
 	    } else {
-		if(width < (this.canvas.width * 0.60)
+		/*if(bounds.yLow < (this.canvas.height * 0.2 / this.scale)) {
+		  var dzoom =  ((bounds.yLow - this.canvas.height * 0.2) / this.scale); 
+		    if (this.camera.dzoom > dzoom) this.camera.dzoom += (dzoom - this.camera.dzoom) / 2; 
+		    } else {
+		    if ((bounds.yLow > (this.canvas.height * 0.3 / this.scale) 
+		    || width < (this.canvas.width * 0.6 / this.scale) )
+		    && this.camera.dzoom < 0) {
+		    this.camera.dzoom /= 8; 
+		    if (this.camera.dzoom > -0.05 
+		    && this.camera.dzoom < 0.05) {
+		    this.camera.dzoom = 0; 
+		    }
+		    } else {*/
+		if(width < (this.canvas.width * 0.6 / this.scale)
 		   && this.camera.dzoom < 0) {
 		    this.camera.dzoom /= 8; 
 		    if (this.camera.dzoom > -0.05 
@@ -100,7 +113,9 @@ function World(options) {
 		    }
 		}	    
 	    }
-	    
+	    //		}
+	    // }
+
 	    var oldScale = this.scale;
 	    this.scale += this.camera.dzoom;	
 	    this.camera.zoomY = this.canvas.height - this.canvas.height / this.originalScale * this.scale

@@ -152,10 +152,12 @@ function distFitness(creature){
     var start = 2 * test_world.wallWidth;
     var dx = start - bounds.xLow; 
     var dy = test_world.canvas.height / test_world.scale - bounds.yHigh;
-    if (groundHeight) dy -= test_world.groundHeight;
+    if (test_world.groundHeight) dy -= test_world.groundHeight;
+    dy -= 2;
     creature.translate(dx, dy);
 
     creature.setAsStartingPosition();
+    //creature.curHits = 0;
 
     var fitness = 0;
     var lastLeft = 0;
@@ -165,31 +167,43 @@ function distFitness(creature){
     for (i = 0; i < (SIMULATION_TIME * 60); i++){
     	test_world.b2world.Step(1/60, 10, 10);
     	test_world.b2world.ClearForces();
-
-	    // penalize by width of box
-	    // penalize for being too high too
-	    if (i % 30 == 0) {
-	    	var bounds = creature.getBoundingBox();
-	    	var curLeft = bounds.xLow;
-	    	var penalize = 0;
-	    	penalize += 0.001 * (bounds.xHigh - bounds.xLow);
-	    	if (bounds.yLow < 0) penalize += 100;
-	    	if (curLeft > lastLeft) {
+	creature.updateHealth(test_world);
+	
+	// penalize by width of box
+	// penalize for being too high too
+	if (i % 30 == 0) {
+	    var bounds = creature.getBoundingBox();
+	    var curLeft = bounds.xLow;
+	    //var curLeft = creature.getMeanX();
+	    //var curLeft = (bounds.xHigh - bounds.xLow) / 2 + bounds.xLow
+	    var penalize = 0;
+	    penalize +=  (bounds.xHigh - bounds.xLow);
+	    penalize += (bounds.yHigh - bounds.yLow);
+	    if (bounds.yLow < 0) fitness -= 60;
+	    if (bounds.yHigh < 0) fitness -= 60;
+	    if (Math.abs(penalize + (SIMULATION_TIME * 60 / i)) > 0.0001) {
+		if (curLeft > lastLeft) {
 		    fitness += curLeft / (penalize + (SIMULATION_TIME * 60 / i));
-	    	} else {
+		} else {
 		    fitness += 0.1 * curLeft / (penalize + (SIMULATION_TIME * 60 / i));
-	    	}
-	    	lastLeft = curLeft;
+		}
 	    }
+	    lastLeft = curLeft;
+	}
     }
-
+    
     if (!creature.alive) fitness -= 50;
-    creature.fitness = fitness;
-    return fitness;
+    
+    if (isNaN(fitness)) {
+	creature.fitness = -1000;
+    } else {
+	creature.fitness = fitness;
+    }
+    return creature.fitness;
 }
 
 function targetFitness(creature, target){
-    var options = {
+    /*    var options = {
     	hasWalls     : false,
     	hasGround    : false,
     	isDistTest   : true,
@@ -222,6 +236,7 @@ function targetFitness(creature, target){
     	return;
     }, SIMULATION_TIME*1000);
 	*/
+    /*
     for (i = 0; i < (SIMULATION_TIME * 60) && creature.alive; i++){
     	test_world.b2world.Step(1/60, 10, 10);
     	test_world.b2world.ClearForces();
@@ -245,7 +260,7 @@ function targetFitness(creature, target){
 		}
 	    } else {
 		if (i != 0) {
-		    fitness += 0.0 * curLeft / (penalize + (SIMULATION_TIME * 60 / i));
+		    fitness += 0.1 * curLeft / (penalize + (SIMULATION_TIME * 60 / i));
 		}
 	    }
 	    lastLeft = curLeft;
@@ -267,4 +282,5 @@ function targetFitness(creature, target){
     creature.fitness = fitness;
 
     return fitness;
+*/
 }

@@ -87,14 +87,15 @@ function Creature(masses, connections) {
 	world.canvas.height - 
 	world.canvas.height / world.originalScale * world.scale + 
 	world.canvas.height - world.originalScale * world.groundHeight;
-	var eps = 1;
 	
 	for (var i = 0; i < this.masses.length; i++) {
 	    if (this.masses[i].isOrgan) {
+		var eps = 0.5 * this.masses[i].r * world.scale;
 		var y = (this.masses[i].body.GetPosition().y + this.masses[i].r) * world.scale + world.camera.y;
-		if (Math.abs(y - groundHeight) < eps) {
+		//console.log(y + ", "+ groundHeight - eps);
+		if (y > groundHeight - eps) {
 		    this.masses[i].curHits += 1;
-		    if (this.masses[i].curHits = this.masses[i].maxHits) this.alive = false;
+		    if (this.masses[i].curHits == this.masses[i].maxHits) this.alive = false;
 		}
 	    }
 	}
