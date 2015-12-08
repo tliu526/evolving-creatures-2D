@@ -42,8 +42,22 @@ function Mass(options) {
 	this.isSquare = false;
     } 
 
+    if (Math.random() < 0.2) {
+	this.isOrgan = true;
+    } else {
+	this.isOrgan = false;
+    } 
+
     this.isSquare = options.isSquare || this.isSquare;
     this.options.isSquare = this.isSquare;
+
+    this.isOrgan = options.isOrgan && this.isOrgan;
+    this.options.isOrgan = this.isOrgan;
+
+    if (this.isOrgan) {
+	this.maxHits = 10;
+	this.curHits = 0;
+    }
 
     this.r = 0.2;
     if (options.r) this.r = options.r;
@@ -83,19 +97,26 @@ function Mass(options) {
 	var pos = this.body.GetPosition();
 	var xShift = world.camera.x;
 	var yShift = world.camera.y;
-	var grd = ctx.createRadialGradient(pos.x * scale - xShift, 
-					   pos.y * scale + yShift,
-					   0, 
-					   pos.x * scale - xShift, 
-					   pos.y * scale + yShift, 
-					   this.r * scale);
-
-	grd.addColorStop(0, "rgba(255, 255, 255, 0.8)");
-	grd.addColorStop(1,"rgba(153, 179, 255, 0.8)");
 
 	ctx.lineWidth = this.r * scale / 5;
-	ctx.strokeStyle = "rgba(150, 150, 150, 0.8)";
-	ctx.fillStyle   = grd;
+	ctx.strokeStyle = "rgba(150, 150, 150, 0.7)";
+
+	if (this.isOrgan) {
+	    ctx.fillStyle = "rgba(" + 200 * (1 - this.curHits / this.maxHits) +", 0, 0, 1.0)";
+	} else {
+	    var grd = ctx.createRadialGradient(pos.x * scale - xShift, 
+					       pos.y * scale + yShift,
+					       0, 
+					       pos.x * scale - xShift, 
+					       pos.y * scale + yShift, 
+					       this.r * scale);
+	    
+	    grd.addColorStop(0, "rgba(255, 255, 255, 0.7)");
+	    grd.addColorStop(1,"rgba(153, 179, 255, 0.7)");
+	    
+	    ctx.fillStyle   = grd;
+	}
+
 
 	if (this.isSquare) {
 	    ctx.fillRect((pos.x - this.r) * scale - xShift, (pos.y - this.r) * scale + yShift, 2 * this.r * scale, 2 * this.r * scale);
@@ -163,7 +184,7 @@ function Wall(options){
 	var yShift = world.camera.y;
 
 	ctx.lineWidth = world.scale / 8;
-	ctx.strokeStyle = "rgba(0, 255, 0, 1.0)";
+	ctx.strokeStyle = "rgba(0, 255, 0, 0.7)";
 	ctx.fillStyle   = "rgba(153, 255, 179, 0.3)";
 	ctx.fillRect(this.x * scale - xShift, this.y * scale + yShift, this.width * scale, this.height * scale);
 	ctx.strokeRect(this.x * scale - xShift, this.y * scale + yShift, this.width * scale, this.height * scale);
@@ -218,15 +239,14 @@ function Spring(options){
 	var yShift = world.camera.y;
 
 	ctx.lineWidth = world.scale / 8;
-	ctx.strokeStyle = "rgba(0, 0, 255, 1.0)";
-	ctx.fillStyle   = "rgba(0, 0, 255, 1.0)";
+	ctx.strokeStyle = "rgba(0, 0, 255, 0.7)";
+	ctx.fillStyle   = "rgba(0, 0, 255, 0.7)";
 
 	ctx.beginPath();
 	ctx.moveTo(A.x * scale - xShift, A.y * scale + yShift);
 	ctx.lineTo(B.x * scale - xShift, B.y * scale + yShift);
 	ctx.closePath();
 	ctx.stroke();
-	ctx.fill();
     }
 
     //TODO tweak the mutation values so that they're reasonable, add Gaussian noise
@@ -310,8 +330,8 @@ function Muscle(options){
 	var xShift = world.camera.x;
 	var yShift = world.camera.y;
 
-	ctx.strokeStyle = "rgba(255, 0, 0, 1.0)";
-	ctx.fillStyle = "rgba(255, 0, 0, 1.0)";
+	ctx.strokeStyle = "rgba(255, 0, 0, 0.7)";
+	ctx.fillStyle = "rgba(255, 0, 0, 0.7)";
 	ctx.lineWidth = world.scale / 8;
 
 	ctx.beginPath();
@@ -319,7 +339,6 @@ function Muscle(options){
 	ctx.lineTo(B.x * scale - xShift, B.y * scale + yShift);
 	ctx.closePath();
 	ctx.stroke();
-	ctx.fill();
     }
 
     //TODO tweak the mutation values so that they're reasonable, add Gaussian noise
@@ -332,7 +351,7 @@ function Muscle(options){
 	case 1:
 	    var diff = this.upperTranslation - this.lowerTranslation;
 	    var newDiff = diff * (1.05 - 0.1*Math.random());
-            this.lowerTranslation = this.lowerTransition + diff/2 - newDiff/2;
+            this.lowerTranslation = clamp(this.lowerTransition + diff/2 - newDiff/2, 0, Infinity);
             this.upperTranslation = this.upperTransition + diff/2 + newDiff/2;
             break;
 	case 2:

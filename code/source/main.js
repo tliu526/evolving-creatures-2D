@@ -14,13 +14,15 @@ function onLoad() {
     }
 
     var gaOptions = {
-        maxGen : 100,
-        popSize : 100,
-        mutRate : 0.0,
+        maxGen : 200,
+        popSize : 50,
+        mutRate : 0.1,
         graftRate : 0.0,
-        crossRate : 0.8,
+        crossRate : 0.4,
+	tonyCrossRate : 0.4,
         survRatio : 0.4,
-        fitness : distFitness
+        fitness : distFitness,
+	enableOrgans: false
     };
 
     ga = new GA(gaOptions, creatureOptions);
@@ -28,17 +30,27 @@ function onLoad() {
 
 function onGraphics() {
     for (var i = 0; i < 4; i++) {
-	visWorld[i].ctx.save();
-	visWorld[i].ctx.clearRect(0,0,visWorld[i].canvas.width,visWorld[i].canvas.height);
-	
-	visWorld[i].update();
-	visWorld[i].ctx.translate(-visWorld[i].camera.x, 0);	
-	visWorld[i].b2world.Step(1/60, 10, 10);
-	visWorld[i].b2world.ClearForces();
+	var atLeastOneAlive = false;
+
+	for (var j = 0; j < visWorld[i].creatures.length; j++) {
+	    if (visWorld[i].creatures[j].alive) {
+		atLeastOneAlive = true;
+		break;
+	    }
+	}
+	    visWorld[i].ctx.save();
+	    visWorld[i].ctx.clearRect(0,0,visWorld[i].canvas.width,visWorld[i].canvas.height);	
+	    visWorld[i].update();
+	    visWorld[i].ctx.translate(-visWorld[i].camera.x, 0);	
+	    
+
+	if (atLeastOneAlive) {
+	    visWorld[i].b2world.Step(1/60, 10, 10);
+	    visWorld[i].b2world.ClearForces();
+	}
 	visWorld[i].ctx.restore();
 	visWorld[i].draw();
-
-
+	
     }
     
     requestAnimFrame(onGraphics);
@@ -55,11 +67,14 @@ function simulate() {
 	hasGround    : false,
 	isDistTest   : true,
 	wallWidth    : 0.4,
-	groundHeight : 0.4
+	groundHeight : 0.4,
+	isVisible    : true
     };
 
     if(ga.next()){
         document.getElementById("generation").innerHTML = "Generation: " + ga.curGen; 
+        document.getElementById("populationSize").innerHTML = "Size: " + ga.popSize; 
+        document.getElementById("averageFitness").innerHTML = "Average Fitness: " + ga.curAvg;
 	    curTime = 0;
 	
 	    //if (ga.curGen == 1 || ga.curGen % 5 == 0) {    
@@ -79,11 +94,12 @@ function simulate() {
 	    	creature2.addToWorld(visWorld[i]);
 	    	creature2.resetPosition();
 		*/
-		    creature.addToWorld(visWorld[i]);
-		    creature.resetPosition();
-
-		    visWorld[i].label = String("Fitness: " + creature.fitness);
-		}
+		creature.addToWorld(visWorld[i]);
+		creature.resetPosition();
+		creature.resetHealth();
+		
+		visWorld[i].label = String("Fitness: " + creature.fitness);
+	    }
 	    
 
 	    /*

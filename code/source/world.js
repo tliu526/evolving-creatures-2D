@@ -12,6 +12,7 @@ function World(options) {
     this.groundHeight = 0.4;
     this.label = "";
     this.components = [];
+    this.isVisible = options.isVisible || false;
     //    this.background = new Image();
     //this.background.src = "../data-files/gamebackground.jpg";
 
@@ -78,53 +79,52 @@ function World(options) {
     }
 
     this.update = function() {
-	var bounds = this.creatureBounds();
-	var width = (bounds.xHigh - bounds.xLow);
-	if(width > (this.canvas.width * 0.7 / this.scale)) {
-	    var dzoom =  (width - this.canvas.width * 0.7 / this.scale); 
-	    if (this.camera.dzoom < dzoom) this.camera.dzoom -= (dzoom - this.camera.dzoom) / 2; 
-	}
-	
-	else {
-	    if(width < (this.canvas.width * 0.60)
-	       && this.camera.dzoom < 0) {
-		this.camera.dzoom /= 8; 
-		if (this.camera.dzoom > -0.05 
-		    && this.camera.dzoom < 0.05) {
-		    this.camera.dzoom = 0; 
-		}
-	    }	    
+
+	for (var i = 0; i < this.creatures.length; i++) {
+	    this.creatures[i].updateHealth(this);
 	}
 
-	var oldScale = this.scale;
-	this.scale += this.camera.dzoom;	
-	this.camera.zoomY = this.canvas.height - this.canvas.height / this.originalScale * this.scale
-
-	if (this.scale < oldScale) {	    
-	    this.camera.zoomX = 0.5*(this.canvas.width - this.canvas.width / this.originalScale * this.scale);
-	}	
-
-	this.camera.x = this.camera.trueX*this.scale - this.camera.zoomX;
-	this.camera.y = this.camera.zoomY;
-
-
-	if(bounds.xHigh * this.scale > (this.camera.x + this.canvas.width * 0.75)) {
-		    var dx = (bounds.xHigh  - (this.camera.x + this.canvas.width*0.75) / this.scale) / 2; 
-		    if (this.camera.dtrueX < dx) this.camera.dtrueX += (dx - this.camera.dtrueX); 
-	}
-	
-	else {
-	    if(this.camera.dtrueX > 0) {
-		this.camera.dtrueX /= 2; 
-		if (this.camera.dtrueX < 0.05) this.camera.dtrueX = 0; 
+	if (this.isVisible) {
+	    var bounds = this.creatureBounds();
+	    var width = (bounds.xHigh - bounds.xLow);
+	    if(width > (this.canvas.width * 0.7 / this.scale)) {
+		var dzoom =  (width - this.canvas.width * 0.7 / this.scale); 
+		if (this.camera.dzoom < dzoom) this.camera.dzoom -= (dzoom - this.camera.dzoom) / 2; 
+	    } else {
+		if(width < (this.canvas.width * 0.60)
+		   && this.camera.dzoom < 0) {
+		    this.camera.dzoom /= 8; 
+		    if (this.camera.dzoom > -0.05 
+			&& this.camera.dzoom < 0.05) {
+			this.camera.dzoom = 0; 
+		    }
+		}	    
 	    }
+	    
+	    var oldScale = this.scale;
+	    this.scale += this.camera.dzoom;	
+	    this.camera.zoomY = this.canvas.height - this.canvas.height / this.originalScale * this.scale
+	    
+	    if (this.scale < oldScale) {	    
+		this.camera.zoomX = 0.5*(this.canvas.width - this.canvas.width / this.originalScale * this.scale);
+	    }	
+	    
+	    this.camera.x = this.camera.trueX*this.scale - this.camera.zoomX;
+	    this.camera.y = this.camera.zoomY;
+	    
+	    if(bounds.xHigh * this.scale > (this.camera.x + this.canvas.width * 0.75)) {
+		var dx = (bounds.xHigh  - (this.camera.x + this.canvas.width*0.75) / this.scale) / 2; 
+		if (this.camera.dtrueX < dx) this.camera.dtrueX += (dx - this.camera.dtrueX); 
+	    } else {
+		if(this.camera.dtrueX > 0) {
+		    this.camera.dtrueX /= 2; 
+		    if (this.camera.dtrueX < 0.05) this.camera.dtrueX = 0; 
+		}
+	    }
+	    
+	    this.camera.trueX += this.camera.dtrueX;
+	    this.camera.x = this.camera.trueX*this.scale - this.camera.zoomX;
 	}
-	
-
-	
-	this.camera.trueX += this.camera.dtrueX;
-	this.camera.x = this.camera.trueX*this.scale - this.camera.zoomX;
-
     }
 
     this.draw = function() {

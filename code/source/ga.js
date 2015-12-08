@@ -13,15 +13,19 @@ function GA(ga_options, creature_options){
 	this.crossRate = ga_options.crossRate;
 	this.survRatio = ga_options.survRatio;
 	this.fitness = ga_options.fitness;
+	this.enableOrgans = ga_options.enableOrgans;
+
 
 	this.creatureOptions = creature_options;
-	
+	this.creatureOptions.hasOrgans = this.enableOrgans;
+	this.curAvg = 0;
 	this.curGen = 0;
 	this.curPop = [];
 	this.cutOff = Math.floor(this.popSize * this.survRatio);
 	for(var i = 0; i < this.popSize; i++){
 	    var creat = generateRandomCreature(this.creatureOptions);
 	    creat.generation = this.curGen;
+	    if (this.enableOrgans) creat.ensureOrgan();
 	    this.curPop.push(creat);
 	}
 
@@ -45,20 +49,25 @@ function GA(ga_options, creature_options){
 		    var rand = Math.random();
 		    var creat;
 
-		    if ((rand < (this.graftRate + this.crossRate)) 
+		    if ((rand < (this.graftRate + this.crossRate + this.tonyCrossRate)) 
 			&& (survivors.length > 1)) {
 		    	var p1 = getRandomInt(0, weights.length);
 		    	var p2 = getRandomInt(0, weights.length);
 
 			if (rand < this.graftRate) {
-			    creat = graft(survivors[weights[p1]], survivors[weights[p2]], true);
-			} else { 
-			    creat = crossover(survivors[weights[p1]], survivors[weights[p2]], true);
+			    creat = graft(survivors[weights[p1]], survivors[weights[p2]], true, this.enableOrgans);
+			} else {
+			    if (rand < this.graftRate + this.crossRate) { 
+				creat = crossover(survivors[weights[p1]], survivors[weights[p2]], true, this.enableOrgans);
+			    } else {
+				creat = tonyCrossover(survivors[weights[p1]], survivors[weights[p2]], true, this.enableOrgans);
+			    }
 			}
 		    } else {
 		    	creat = generateRandomCreature(this.creatureOptions);
 		    }
 		    
+		    if (this.enableOrgans) creat.ensureOrgan();
 		    creat.generation = this.curGen;
 		    this.curPop.push(creat);
 		}
@@ -72,6 +81,9 @@ function GA(ga_options, creature_options){
 
 		this.runSimulation();		
 		this.curGen += 1;
+
+		SIMULATION_TIME += 0.01;
+
 		return true;
 	};
 	
@@ -103,10 +115,14 @@ function GA(ga_options, creature_options){
 		var progress = 0;
 		var target = this.curGen + 10;
 
+		var sum = 0;
 		for(i = 0; i < oldPop.length; i++){
 			fitFunc(oldPop[i]);
-			if (i % (oldPop.length / 20) == 0) progress = 100 * i / oldPop.length; 
+			sum += oldPop[i].fitness;
+			//if (i % (oldPop.length / 20) == 0) progress = 100 * i / oldPop.length; 
 		}
+	       
+		this.curAvg = sum / oldPop.length;
 
 		oldPop.sort(function (a,b) {
 			return b.fitness - a.fitness;
@@ -161,12 +177,13 @@ function distFitness(creature){
 	    	if (curLeft > lastLeft) {
 		    fitness += curLeft / (penalize + (SIMULATION_TIME * 60 / i));
 	    	} else {
-		    fitness += 0.4 * curLeft / (penalize + (SIMULATION_TIME * 60 / i));
+		    fitness += 0.1 * curLeft / (penalize + (SIMULATION_TIME * 60 / i));
 	    	}
 	    	lastLeft = curLeft;
 	    }
     }
 
+    if (!creature.alive) fitness -= 50;
     creature.fitness = fitness;
     return fitness;
 }
@@ -205,29 +222,31 @@ function targetFitness(creature, target){
     	return;
     }, SIMULATION_TIME*1000);
 	*/
-    for (i = 0; i < (SIMULATION_TIME * 60); i++){
+    for (i = 0; i < (SIMULATION_TIME * 60) && creature.alive; i++){
     	test_world.b2world.Step(1/60, 10, 10);
     	test_world.b2world.ClearForces();
-
-	    // penalize by width of box
-	    // penalize for being too high too
-	    if (i % 30 == 0) {
-	    	var bounds = creature.getBoundingBox();
-	    	var curLeft = bounds.xLow;
-	    	var penalize = 0;
-	    	penalize += (bounds.xHigh - bounds.xLow);
-	    	if (bounds.yLow < 0) penalize += 100;
-	    	if (curLeft > lastLeft) {
-	    		fitness += curLeft / (penalize + (SIMULATION_TIME * 60 / i));
-	    	} else {
-	    		fitness += 0.4 * curLeft / (penalize + (SIMULATION_TIME * 60 / i));
-	    	}
-	    	lastLeft = curLeft;
-
-	    	if (bounds.xLow > target){
-	    		break;
-	    	}
+	
+	creature.updateHealth();
+	
+	// penalize by width of box
+	// penalize for being too high too
+	if (i % 30 == 0) {
+	    var bounds = creature.getBoundingBox();
+	    var curLeft = bounds.xLow;
+	    var penalize = 0;
+	    penalize += (bounds.xHigh - bounds.xLow);
+	    if (bounds.yLow < 0) penalize += 100;
+	    if (curLeft > lastLeft) {
+		fitness += curLeft / (penalize + (SIMULATION_TIME * 60 / i));
+	    } else {
+		fitness += 0.4 * curLeft / (penalize + (SIMULATION_TIME * 60 / i));
 	    }
+	    lastLeft = curLeft;
+	    
+	    if (bounds.xLow > target){
+		break;
+	    }
+	}
     }
 
     //penalize for not reaching target in the allotted simulation time

@@ -148,6 +148,10 @@ function generateRandomCreature(options) {
             friction    : getRandom(0.8, 1),
             isStatic    : false
         }
+
+	if (options.hasOrgans == false) {
+	    mass_options.isOrgan = false;
+	}
         var mass = new Mass(mass_options);
         masses.push(mass);
     }
@@ -193,7 +197,7 @@ function generateRandomCreature(options) {
 
     var creat =  new Creature(masses, connected);
     creat.prune();
-
+    if (options.hasOrgans) creat.ensureOrgan();
     return creat;
 }
 

@@ -5,7 +5,6 @@ function Creature(masses, connections) {
     this.masses = masses;	
     this.drawBoundingBox = true;
 
-
     this.startingPositions = [];
 
     this.type = "Creature";
@@ -16,6 +15,8 @@ function Creature(masses, connections) {
     this.parentA    = -1;
     this.parentB    = -1;
     
+    this.alive = true;
+
     this.prune = function() {
 	var largest = largestConnectedGraph(this.masses, this.connections);
 	if (largest.length < this.masses.length) {
@@ -48,6 +49,23 @@ function Creature(masses, connections) {
 	} 
     }
     
+    this.ensureOrgan = function() {
+	var hasOrgan = false;
+	for (var i = 0; i < this.masses.length; i++) {
+	    if (this.masses[i].isOrgan) {
+		hasOrgan = true;
+		break;
+	    }
+	} 
+
+	if (!hasOrgan && this.masses.length > 0) {
+	    var i = getRandomInt(0, this.masses.length);
+	    this.masses[i].isOrgan = true;
+	    this.masses[i].maxHits = 5;
+	    this.masses[i].curHits = 0;
+	}
+    }
+
     this.addToWorld = function(world) {	
     	world.creatures.push(this);
 	world.components.push(this);
@@ -64,11 +82,36 @@ function Creature(masses, connections) {
     	}
     }
     
-    this.drawToWorld = function(world) {
-    	for (var i = 0; i < this.masses.length; i++) {
-	    this.masses[i].drawToWorld(world);
+    this.updateHealth = function(world) {
+	var groundHeight = 
+	world.canvas.height - 
+	world.canvas.height / world.originalScale * world.scale + 
+	world.canvas.height - world.originalScale * world.groundHeight;
+	var eps = 1;
+	
+	for (var i = 0; i < this.masses.length; i++) {
+	    if (this.masses[i].isOrgan) {
+		var y = (this.masses[i].body.GetPosition().y + this.masses[i].r) * world.scale + world.camera.y;
+		if (Math.abs(y - groundHeight) < eps) {
+		    this.masses[i].curHits += 1;
+		    if (this.masses[i].curHits = this.masses[i].maxHits) this.alive = false;
+		}
+	    }
 	}
+    }
 
+    this.resetHealth = function() {
+	this.alive = true;
+	for (var i = 0; i < this.masses.length; i++) {
+	    if (this.masses[i].isOrgan) {
+		this.masses[i].curHits = 0;
+		this.masses[i].justHit = false;
+		this.masses[i].countSinceLastHit = 0;
+	    }
+	}
+    }
+
+    this.drawToWorld = function(world) {
     	for (var i = 0; i < this.masses.length; i++) {
 	    for (var j = 0; j < i; j++) {
 		if (this.connections[i + this.masses.length * j] != false) {
@@ -77,10 +120,23 @@ function Creature(masses, connections) {
 	    }
     	}
 
+    	for (var i = 0; i < this.masses.length; i++) {
+	    if (!this.masses[i].isOrgan) {
+		this.masses[i].drawToWorld(world);
+	    }
+	}
+
+    	for (var i = 0; i < this.masses.length; i++) {
+	    if (this.masses[i].isOrgan) {
+		this.masses[i].drawToWorld(world);
+	    }
+	}
+
 	if (this.drawBoundingBox) {
 	    var bounds = this.getBoundingBox();
 	    var scale = world.scale;
 	    var ctx = world.ctx;
+	    ctx.restore();
 
 	    ctx.lineWidth = scale / 16;
 	    ctx.strokeStyle = "rgba(50, 50, 50, 0.5)";
@@ -296,7 +352,7 @@ function connectedToSource(source, nodes, edges, visited) {
 /*
 Performs a single point crossover between creatures A and B and returns a new creature
 */
-function graft(creatureA, creatureB, canSwitchOrder) {
+function graft(creatureA, creatureB, canSwitchOrder, hasOrgans) {
     if (canSwitchOrder && Math.random() < 0.5) {
 	var temp = creatureA;
 	creatureA = creatureB;
@@ -378,13 +434,14 @@ function graft(creatureA, creatureB, canSwitchOrder) {
     creat.parentA = creatureA.id;
     creat.parentB = creatureB.id;
     creat.prune();
+    if (hasOrgans) creat.ensureOrgan();
     return creat;
 }
 
 /*
   Performs a two point or one crossover between creatures A and B and returns a new creature
 */
-function crossover(creatureA, creatureB, canSwitchOrder) {
+function crossover(creatureA, creatureB, canSwitchOrder, hasOrgans) {
     if (canSwitchOrder && Math.random < 0.5) {
 	var temp = creatureA;
 	creatureA = creatureB;
@@ -491,12 +548,106 @@ function crossover(creatureA, creatureB, canSwitchOrder) {
     creat.parentA = creatureA.id;
     creat.parentB = creatureB.id;
     creat.prune();
+    if (hasOrgans) creat.ensureOrgan();
     return creat;
 }
 
+/*                                                                                                            
+Performs a version of single point crossover between creatures A and B and returns a new creature    
+*/
+//TODO still needs to be fixed, sometimes generates badness                                                   
+function tonyCrossover(creatureA, creatureB, canSwitchOrder, hasOrgans) {
+    //console.log("top of crossover");                                                                    
+    //slice is used to copy                                                                               
+    if (canSwitchOrder && Math.random() < 0.5) {
+	var temp = creatureA;
+	creatureA = creatureB;
+	creatureB = temp;
+    } 
+
+    var massesA = creatureA.masses.slice();
+    var massesB = creatureB.masses.slice();
+    
+    var connectionsA = creatureA.connections.slice();
+    var connectionsB = creatureB.connections.slice();
+    
+    var cross_ptA = Math.floor(Math.random()*(massesA.length-1))+1; //range of [1, masses.length-1]       
+    var cross_ptB = Math.floor(Math.random()*(massesB.length-1)); //range of [0, masses.length-2]         
+    
+    var new_masses = [];
+    
+    for(var i = 0; i <= cross_ptA; i++){
+	new_masses.push(new Mass(massesA[i].options));
+    }
+    
+    for(var i = cross_ptB; i < massesB.length; i++){
+	new_masses.push(new Mass(massesB[i].options));
+    }
+    
+    //var all_connections = creatureA.connections.slice().concat(creatureB.connections.slice());          
+    
+    var new_connections = new Array(new_masses.length * new_masses.length);
+    
+    // Setup adjacency matrix                                                                             
+    for(var i = 0; i < new_connections.length; i++) {
+	new_connections[i] = false;
+    }
+    
+    //copy connecting edges                                                                               
+    for (var i = 0; i < new_masses.length; i++){
+	var i1;
+	var i2;
+	var joint;
+	
+	if (i <= cross_ptA) {
+	    for (var j = i + 1; j < new_masses.length; j++) {
+		//Assume properly setup adjacency matrix                                                  
+		if ((j < massesA.length) && (connectionsA[i + massesA.length * j] != false)) {
+		    i1 = i;
+		    i2 = j;
+		    joint = connectionsA[i + massesA.length * j];
+		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
+		}
+	    }
+	} else {
+	    // i > cross_ptA                                                                              
+	    // index in massB = i - cross_ptA + cross+ptB - 1                                             
+	    var iB = i - (cross_ptA + 1) + cross_ptB;
+	    for (var iA = 0; iA <= cross_ptA; iA++) {
+		//Assume properly setup adjacency matrix                                                  
+		if (((iB - i + iA) >= 0) && (connectionsB[iB + massesB.length * (iB - i + iA)] != false)) 
+		    {
+                        i1 = iA;
+                        i2 = i;
+                        joint = connectionsB[iB + massesB.length * (iB - i + iA)];
+                        new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
+                    }
+	    }
+	    
+	    for (var j = i + 1; j < new_masses.length; j++) {
+		//Assume properly setup adjacency matrix                                                  
+		if (connectionsB[iB + massesB.length * (iB - i + j)] != false) {
+		    i1 = i;
+		    i2 = j;
+		    joint = connectionsB[iB + massesB.length * (iB - i + j)];
+		    new_connections = copyJoint(i1, i2, joint, new_masses, new_connections);
+		}
+	    }
+	}
+    } //END FOR                                                                                           
+    
+    var creat = new Creature(new_masses, new_connections);
+    creat.parentA = creatureA.id;
+    creat.parentB = creatureB.id;
+    creat.prune();
+    if (hasOrgans) creat.ensureOrgan();
+    return creat;
+}
+
+
 function copyJoint(x, y, joint, masses, connections, resetLengths) {
     var new_joint;
-        
+    
     var options = {
     	massA : masses[x],
     	massB : masses[y]
